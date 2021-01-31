@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e97849ef-c3b0-4cf7-bb5b-5b7f3eb201a9" name="Default Changelist" comment="update android rest api" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JQLSearcherProjectManager">
+    <selected>-1</selected>
+    <searchers />
+  </component>
+  <component name="JiraServerManager">
+    <selected>-1</selected>
+    <servers />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="vmOptionsForImporter" value="-Xmx768m" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1a0JcCasSCE2GOnBTpRcO1QALxl" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="sqlserver" />
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="project.propDebugger" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.server.itsolution.ressource" />
+      <recent name="com.server.itsolution.entities" />
+      <recent name="com.server.itsolution.dao" />
+      <recent name="com.server.itsolution.mapper" />
+    </key>
+  </component>
+  <component name="RestClientSettings">
+    <option name="REQUEST_HISTORY">
+      <list>
+        <RestClientRequest>
+          <option name="httpMethod" value="POST" />
+          <option name="urlBase" value="http://localhost:8085" />
+          <option name="urlPath" value="/rest/fprotectioncial/login" />
+          <option name="headers">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="Content-Type" />
+                <option name="value" value="application/json" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="parameters">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="user" />
+                <option name="value" value="PILOTE" />
+              </KeyValuePair>
+              <KeyValuePair>
+                <option name="key" value="pwd" />
+                <option name="value" value="" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="parametersEnabled" value="true" />
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="POST" />
+          <option name="urlBase" value="http://localhost:8085" />
+          <option name="urlPath" value="/rest/fprotectioncial/login" />
+          <option name="headers">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="Content-Type" />
+                <option name="value" value="application/json" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="GET" />
+          <option name="urlBase" value="http://localhost:8088/rest/fjournaux/getLettrage&amp;ctNum=POLARIS&amp;dateDebut=2020-01-01&amp;dateFin=2020-12-31&amp;cgNum=" />
+          <option name="urlPath" value="" />
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="GET" />
+          <option name="urlBase" value="http://localhost:8088/rest/fjournaux/getLettrage&amp;ctNum=POLARIS&amp;dateDebut=2020-01-01&amp;dateFin=2020-12-31&amp;cgNum=8" />
+          <option name="urlPath" value="" />
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="GET" />
+          <option name="urlBase" value="http://localhost:8088/rest/fcaisse/insertDepotCaisse/caNo=9&amp;deNo=3" />
+          <option name="urlPath" value="" />
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="GET" />
+          <option name="urlBase" value="http://localhost:8088/rest/fcaisse/insertDepotCaisse&amp;caNo=9&amp;deNo=3" />
+          <option name="urlPath" value="" />
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="GET" />
+          <option name="urlBase" value="http://localhost:8088" />
+          <option name="urlPath" value="/rest/fcollaborateur/insertCollaborateur" />
+          <option name="headers">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="Accept" />
+                <option name="value" value="*/*" />
+              </KeyValuePair>
+              <KeyValuePair>
+                <option name="key" value="Cache-Control" />
+                <option name="value" value="no-cache" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="parameters">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="coNom" />
+                <option name="value" value="DG" />
+              </KeyValuePair>
+              <KeyValuePair>
+                <option name="key" value="coPrenom" />
+                <option name="value" value="0" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+        <RestClientRequest>
+          <option name="httpMethod" value="GET" />
+          <option name="urlBase" value="http://localhost:8088" />
+          <option name="urlPath" value="/rest/fcollaborateur/insertCollaborateur" />
+          <option name="headers">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="Accept" />
+                <option name="value" value="*/*" />
+              </KeyValuePair>
+              <KeyValuePair>
+                <option name="key" value="Cache-Control" />
+                <option name="value" value="no-cache" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="parameters">
+            <list>
+              <KeyValuePair>
+                <option name="key" value="coNom" />
+                <option name="value" value="DG" />
+              </KeyValuePair>
+              <KeyValuePair>
+                <option name="key" value="coPrenom" />
+                <option name="value" value="0" />
+              </KeyValuePair>
+            </list>
+          </option>
+          <option name="parametersEnabled" value="true" />
+          <option name="textToSend" value="" />
+          <option name="filesToSend" value="" />
+        </RestClientRequest>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.ItsolutionApplication">
+    <configuration name="All in generated-requests" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests#1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests#2" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" index="2" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="Unnamed" type="MavenRunConfiguration" factoryName="Maven" temporary="true">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="package" />
+              </list>
+            </option>
+            <option name="pomFileName" value="pom.xml" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="ItsolutionApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="itsolution" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.server.itsolution.ItsolutionApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Maven.Unnamed" />
+        <item itemvalue="HTTP Request.generated-requests#2" />
+        <item itemvalue="HTTP Request.All in generated-requests" />
+        <item itemvalue="HTTP Request.generated-requests#1" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task id="Default" summary="Default task">
+      <changelist id="e97849ef-c3b0-4cf7-bb5b-5b7f3eb201a9" name="Default Changelist" comment="" />
+      <created>1585866654653</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1586505830647</updated>
+      <workItem from="1585866657991" duration="7620000" />
+      <workItem from="1585937796291" duration="5421000" />
+      <workItem from="1585987757114" duration="2219000" />
+      <workItem from="1586370468015" duration="21535000" />
+      <workItem from="1586501827053" duration="1441000" />
+    </task>
+    <task active="true" id="LOCAL-00001" summary="insertion client">
+      <changelist id="e97849ef-c3b0-4cf7-bb5b-5b7f3eb201a9" name="Default Changelist" comment="" />
+      <created>1585988713423</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1586505830647</updated>
+      <workItem from="1586505831467" duration="2552000" />
+      <workItem from="1586627881996" duration="2099000" />
+      <workItem from="1586673847529" duration="25843000" />
+      <workItem from="1587298974529" duration="6908000" />
+      <workItem from="1587625359858" duration="807000" />
+      <workItem from="1587904034916" duration="47207000" />
+      <workItem from="1588241094044" duration="3872000" />
+      <workItem from="1588256965720" duration="24000" />
+      <workItem from="1588257008370" duration="13450000" />
+      <workItem from="1588342746465" duration="132000" />
+      <workItem from="1588342907972" duration="4416000" />
+      <workItem from="1588348808446" duration="5114000" />
+      <workItem from="1588360856156" duration="5789000" />
+      <workItem from="1588515652774" duration="160000" />
+      <workItem from="1588676942212" duration="4830000" />
+      <workItem from="1589056684771" duration="18597000" />
+      <workItem from="1589176469820" duration="19730000" />
+      <workItem from="1589206621325" duration="381000" />
+      <workItem from="1589207021516" duration="3638000" />
+      <workItem from="1589566424521" duration="543000" />
+      <workItem from="1589566988507" duration="4434000" />
+      <workItem from="1589621351649" duration="2551000" />
+      <workItem from="1589866715484" duration="4661000" />
+      <workItem from="1590386420696" duration="3296000" />
+      <workItem from="1590706287997" duration="2528000" />
+      <workItem from="1591904936091" duration="4815000" />
+      <workItem from="1592413923564" duration="6974000" />
+      <workItem from="1592806009147" duration="1712000" />
+      <workItem from="1593537430160" duration="16920000" />
+      <workItem from="1593761271004" duration="9795000" />
+      <workItem from="1594481629113" duration="64485000" />
+      <workItem from="1595069467362" duration="9294000" />
+      <workItem from="1595156154824" duration="30124000" />
+      <workItem from="1595744184870" duration="1426000" />
+      <workItem from="1595800320926" duration="2281000" />
+      <workItem from="1595877086145" duration="8461000" />
+      <workItem from="1595959361381" duration="20905000" />
+      <workItem from="1596488384079" duration="659000" />
+      <workItem from="1597159448714" duration="10816000" />
+      <workItem from="1597644698719" duration="5976000" />
+      <workItem from="1597878054099" duration="1405000" />
+      <workItem from="1597944997344" duration="12176000" />
+      <workItem from="1598077301541" duration="2409000" />
+      <workItem from="1598167249830" duration="491000" />
+      <workItem from="1598194125530" duration="7883000" />
+      <workItem from="1598204641539" duration="4941000" />
+      <workItem from="1598255255132" duration="5178000" />
+      <workItem from="1598523773439" duration="15000" />
+      <workItem from="1599168660124" duration="6654000" />
+      <workItem from="1599498675024" duration="6086000" />
+      <workItem from="1599762289071" duration="2554000" />
+      <workItem from="1600290862802" duration="5080000" />
+      <workItem from="1600586254482" duration="2267000" />
+      <workItem from="1600769921050" duration="1185000" />
+      <workItem from="1600796209596" duration="17000" />
+      <workItem from="1600890976531" duration="4925000" />
+      <workItem from="1601018846305" duration="677000" />
+      <workItem from="1601057198839" duration="3067000" />
+      <workItem from="1601890913852" duration="10813000" />
+      <workItem from="1603465812059" duration="615000" />
+      <workItem from="1603911800560" duration="342000" />
+      <workItem from="1603974305046" duration="597000" />
+      <workItem from="1604036998655" duration="198000" />
+      <workItem from="1604340165084" duration="18230000" />
+      <workItem from="1604419456245" duration="3160000" />
+      <workItem from="1604473302219" duration="611000" />
+      <workItem from="1604558468980" duration="9087000" />
+      <workItem from="1604609220388" duration="884000" />
+      <workItem from="1604613088108" duration="6035000" />
+      <workItem from="1604951391610" duration="2526000" />
+      <workItem from="1605109371644" duration="2454000" />
+      <workItem from="1605368097693" duration="4538000" />
+      <workItem from="1605424183906" duration="1307000" />
+      <workItem from="1605560742521" duration="5653000" />
+      <workItem from="1605774267338" duration="717000" />
+      <workItem from="1606112104697" duration="5783000" />
+      <workItem from="1606561110852" duration="3182000" />
+      <workItem from="1606654798108" duration="1567000" />
+      <workItem from="1606668605448" duration="8733000" />
+      <workItem from="1607027740571" duration="27599000" />
+      <workItem from="1607602433561" duration="2493000" />
+      <workItem from="1607641371101" duration="9153000" />
+      <workItem from="1607685220531" duration="8711000" />
+      <workItem from="1608067008475" duration="5043000" />
+      <workItem from="1608244235860" duration="694000" />
+      <workItem from="1608280850294" duration="3215000" />
+      <workItem from="1608341018667" duration="1805000" />
+      <workItem from="1608709767679" duration="10682000" />
+      <workItem from="1609261635699" duration="26000" />
+      <workItem from="1609404296789" duration="1218000" />
+      <workItem from="1609833397552" duration="955000" />
+      <workItem from="1610091077944" duration="4649000" />
+      <workItem from="1610467502637" duration="359000" />
+      <workItem from="1611695406676" duration="954000" />
+      <workItem from="1611697683027" duration="3091000" />
+      <workItem from="1611937930542" duration="788000" />
+      <workItem from="1612083590962" duration="816000" />
+    </task>
+    <task id="LOCAL-00002" summary="insertion client">
+      <created>1586439506153</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1586439506153</updated>
+    </task>
+    <task id="LOCAL-00005" summary="insertion client">
+      <created>1587400127204</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1587400127204</updated>
+    </task>
+    <task id="LOCAL-00006" summary="insertion client">
+      <created>1588354476708</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1588354476708</updated>
+    </task>
+    <task id="LOCAL-00007" summary="insertion client">
+      <created>1589199280712</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1589199280712</updated>
+    </task>
+    <task id="LOCAL-00008" summary="insertion client">
+      <created>1589205508645</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1589205508645</updated>
+    </task>
+    <task id="LOCAL-00009" summary="insertion client">
+      <created>1594762418735</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1594762418735</updated>
+    </task>
+    <task id="LOCAL-00010" summary="insertion client">
+      <created>1595061074438</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1595061074438</updated>
+    </task>
+    <task id="LOCAL-00011" summary="insertion client">
+      <created>1595156295095</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1595156295095</updated>
+    </task>
+    <task id="LOCAL-00012" summary="insertion client">
+      <created>1595946151638</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1595946151638</updated>
+    </task>
+    <task id="LOCAL-00013" summary="insertion client">
+      <created>1596274683721</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1596274683721</updated>
+    </task>
+    <task id="LOCAL-00014" summary="insertion client">
+      <created>1597999079788</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1597999079788</updated>
+    </task>
+    <task id="LOCAL-00015" summary="insertion client">
+      <created>1598521792206</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1598521792206</updated>
+    </task>
+    <task id="LOCAL-00016" summary="insertion client">
+      <created>1599506747017</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1599506747017</updated>
+    </task>
+    <task id="LOCAL-00017" summary="insertion client">
+      <created>1601211243628</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1601211243628</updated>
+    </task>
+    <task id="LOCAL-00018" summary="insertion client">
+      <created>1604037139182</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1604037139182</updated>
+    </task>
+    <task id="LOCAL-00019" summary="update android rest api">
+      <created>1604363544447</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1604363544447</updated>
+    </task>
+    <task id="LOCAL-00020" summary="update android rest api">
+      <created>1609833734857</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1609833734857</updated>
+    </task>
+    <task id="LOCAL-00021" summary="update android rest api">
+      <created>1610467597180</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1610467597180</updated>
+    </task>
+    <task id="LOCAL-00022" summary="update android rest api">
+      <created>1612046581917</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1612046581917</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
+    <servers>
+      <JIRA url="http://217.160.67.238:8089">
+        <option name="apiType" value="REST_2_0" />
+        <option name="jiraVersion" value="8.3.2" />
+        <username>ronald</username>
+      </JIRA>
+    </servers>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="insertion client" />
+    <MESSAGE value="update android rest api" />
+    <option name="LAST_COMMIT_MESSAGE" value="update android rest api" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="481" y="235" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog" timestamp="1607685422874">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="481" y="235" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1607685422874" />
+    <state x="556" y="164" key="#com.intellij.ide.util.MemberChooser" timestamp="1608074551799">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="556" y="164" key="#com.intellij.ide.util.MemberChooser/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1608074551799" />
+    <state x="556" y="164" key="#com.intellij.ide.util.MemberChooser/0.0.1500.960@0.0.1500.960" timestamp="1604400949285" />
+    <state x="620" y="378" key="Github.ShareDialog" timestamp="1612084361901">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="620" y="378" key="Github.ShareDialog/0.0.1500.960@0.0.1500.960" timestamp="1612084361901" />
+    <state width="1458" height="318" key="GridCell.Tab.0.bottom" timestamp="1611932065719">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.0.bottom/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604869" />
+    <state width="1458" height="318" key="GridCell.Tab.0.bottom/0.0.1500.960@0.0.1500.960" timestamp="1611932065719" />
+    <state width="1458" height="318" key="GridCell.Tab.0.center" timestamp="1611932065718">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.0.center/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604868" />
+    <state width="1458" height="318" key="GridCell.Tab.0.center/0.0.1500.960@0.0.1500.960" timestamp="1611932065718" />
+    <state width="1458" height="318" key="GridCell.Tab.0.left" timestamp="1611932065716">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.0.left/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604868" />
+    <state width="1458" height="318" key="GridCell.Tab.0.left/0.0.1500.960@0.0.1500.960" timestamp="1611932065716" />
+    <state width="1458" height="318" key="GridCell.Tab.0.right" timestamp="1611932065718">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.0.right/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604868" />
+    <state width="1458" height="318" key="GridCell.Tab.0.right/0.0.1500.960@0.0.1500.960" timestamp="1611932065718" />
+    <state width="1458" height="318" key="GridCell.Tab.1.bottom" timestamp="1611700141263">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.1.bottom/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604869" />
+    <state width="1458" height="318" key="GridCell.Tab.1.bottom/0.0.1500.960@0.0.1500.960" timestamp="1611700141263" />
+    <state width="1458" height="318" key="GridCell.Tab.1.center" timestamp="1611700141263">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.1.center/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604869" />
+    <state width="1458" height="318" key="GridCell.Tab.1.center/0.0.1500.960@0.0.1500.960" timestamp="1611700141263" />
+    <state width="1458" height="318" key="GridCell.Tab.1.left" timestamp="1611700141263">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.1.left/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604869" />
+    <state width="1458" height="318" key="GridCell.Tab.1.left/0.0.1500.960@0.0.1500.960" timestamp="1611700141263" />
+    <state width="1458" height="318" key="GridCell.Tab.1.right" timestamp="1611700141263">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="1457" height="318" key="GridCell.Tab.1.right/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609261604869" />
+    <state width="1458" height="318" key="GridCell.Tab.1.right/0.0.1500.960@0.0.1500.960" timestamp="1611700141263" />
+    <state width="729" height="231" key="GridCell.Tab.2.bottom" timestamp="1605087631049">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="729" height="231" key="GridCell.Tab.2.bottom/0.0.1500.960@0.0.1500.960" timestamp="1605087631049" />
+    <state width="729" height="231" key="GridCell.Tab.2.center" timestamp="1605087631049">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="729" height="231" key="GridCell.Tab.2.center/0.0.1500.960@0.0.1500.960" timestamp="1605087631049" />
+    <state width="729" height="231" key="GridCell.Tab.2.left" timestamp="1605087631049">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="729" height="231" key="GridCell.Tab.2.left/0.0.1500.960@0.0.1500.960" timestamp="1605087631049" />
+    <state width="729" height="231" key="GridCell.Tab.2.right" timestamp="1605087631049">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state width="729" height="231" key="GridCell.Tab.2.right/0.0.1500.960@0.0.1500.960" timestamp="1605087631049" />
+    <state x="343" y="213" key="Vcs.Push.Dialog.v2" timestamp="1612046586020">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="343" y="213" key="Vcs.Push.Dialog.v2/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1612046586020" />
+    <state x="343" y="213" key="Vcs.Push.Dialog.v2/0.0.1500.960@0.0.1500.960" timestamp="1604363550135" />
+    <state x="368" y="0" width="767" height="960" key="find.popup" timestamp="1609072605958">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="368" y="0" width="767" height="960" key="find.popup/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1609072605958" />
+    <state x="368" y="0" width="767" height="960" key="find.popup/0.0.1500.960@0.0.1500.960" timestamp="1607195669481" />
+    <state x="418" y="231" key="run.anything.popup" timestamp="1604400902635">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="418" y="231" key="run.anything.popup/0.0.1500.960@0.0.1500.960" timestamp="1604400902635" />
+    <state x="629" y="402" width="840" height="857" key="search.everywhere.popup" timestamp="1611697155702">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="635" y="408" width="840" height="857" key="search.everywhere.popup/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1610437115363" />
+    <state x="629" y="402" width="840" height="857" key="search.everywhere.popup/0.0.1500.960@0.0.1500.960" timestamp="1611697155702" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCollaborateurDAO.java</url>
+          <line>133</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCaisseDAO.java</url>
+          <line>125</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDocEnteteDAO.java</url>
+          <line>1302</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FProtectioncialDAO.java</url>
+          <line>79</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDepotDAO.java</url>
+          <line>154</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/EtatDAO.java</url>
+          <line>222</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="fReglEch" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>

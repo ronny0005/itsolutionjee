@@ -1,0 +1,1 @@
+{"timestamp":"2020-12-11T06:31:10.322+0000","status":400,"error":"Bad Request","message":"Required request body is missing: public java.lang.Object com.server.itsolution.ressource.FProtectioncialRessource.login(com.server.itsolution.entities.FProtectioncial)","path":"/rest/fprotectioncial/login"}
