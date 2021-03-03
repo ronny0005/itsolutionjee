@@ -6,6 +6,7 @@ import com.server.itsolution.entities.FProtectioncial;
 import com.server.itsolution.entities.SaisieAnalytique;
 import com.server.itsolution.mapper.FCaisseMapper;
 import com.server.itsolution.mapper.FProtectioncialMapper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,7 +204,6 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
         String sql = FProtectioncialMapper.Connexion;
         params = new Object[]{user,cryptMdp(pwd),protNo};
         SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params);
-
         while (sqlRowSet.next()) {
             fProtectioncial.setProfilName(sqlRowSet.getString("ProfilName"));
             fProtectioncial.setPROT_Administrator(sqlRowSet.getInt("PROT_Administrator"));
@@ -223,8 +223,23 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
             fProtectioncial.setPROT_DATE_VENTE(sqlRowSet.getInt("PROT_DATE_VENTE"));
             fProtectioncial.setPROT_DEPOT(sqlRowSet.getInt("PROT_DEPOT"));
             fProtectioncial.setPROT_DOCUMENT_INTERNE_2(sqlRowSet.getInt("PROT_DOCUMENT_INTERNE_2"));
+            fProtectioncial.setPROT_QTE_NEGATIVE(sqlRowSet.getInt("PROT_QTE_NEGATIVE"));
+            fProtectioncial.setPROT_SAISIE_REGLEMENT(sqlRowSet.getInt("PROT_SAISIE_REGLEMENT"));
+            fProtectioncial.setPROT_RISQUE_CLIENT(sqlRowSet.getInt("PROT_RISQUE_CLIENT"));
+            fProtectioncial.setPROT_INFOLIBRE_ARTICLE(sqlRowSet.getInt("PROT_INFOLIBRE_ARTICLE"));
+            fProtectioncial.setPROT_GENERATION_RGLT_CLIENT(sqlRowSet.getInt("PROT_GENERATION_RGLT_CLIENT"));
+            fProtectioncial.setPROT_MODIF_SUPPR_COMPTOIR(sqlRowSet.getInt("PROT_MODIF_SUPPR_COMPTOIR"));
+            fProtectioncial.setPROT_TICKET_APRES_IMPRESSION(sqlRowSet.getInt("PROT_TICKET_APRES_IMPRESSION"));
+            fProtectioncial.setPROT_MODIFICATION_CLIENT(sqlRowSet.getInt("PROT_MODIFICATION_CLIENT"));
+            fProtectioncial.setPROT_ETAT_INVENTAIRE_PREP(sqlRowSet.getInt("PROT_ETAT_INVENTAIRE_PREP"));
+            fProtectioncial.setPROT_ETAT_LIVRE_INV(sqlRowSet.getInt("PROT_ETAT_LIVRE_INV"));
+            fProtectioncial.setPROT_ETAT_STAT_ARTICLE_PAR_ART(sqlRowSet.getInt("PROT_ETAT_STAT_ARTICLE_PAR_ART"));
+            fProtectioncial.setPROT_VENTE_COMPTOIR(sqlRowSet.getInt("PROT_VENTE_COMPTOIR"));
+            fProtectioncial.setPROT_REAPPROVISIONNEMENT(sqlRowSet.getInt("PROT_REAPPROVISIONNEMENT"));
+
 
             fProtectioncial.setPROT_DOCUMENT_ENTREE(sqlRowSet.getInt("PROT_DOCUMENT_ENTREE"));
+            fProtectioncial.setPROT_DOCUMENT_VENTE_AVOIR(sqlRowSet.getInt("PROT_DOCUMENT_VENTE_AVOIR"));
             fProtectioncial.setPROT_DOCUMENT_VENTE_RETOUR(sqlRowSet.getInt("PROT_DOCUMENT_VENTE_RETOUR"));
             fProtectioncial.setPROT_DOCUMENT_VENTE_BLIVRAISON(sqlRowSet.getInt("PROT_DOCUMENT_VENTE_BLIVRAISON"));
             fProtectioncial.setPROT_DOCUMENT_SORTIE(sqlRowSet.getInt("PROT_DOCUMENT_SORTIE"));
@@ -252,7 +267,44 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
             fProtectioncial.setPROT_SAISIE_REGLEMENT_FOURNISSEUR(sqlRowSet.getInt("PROT_SAISIE_REGLEMENT_FOURNISSEUR"));
             fProtectioncial.setPROT_ETAT_STAT_COLLAB_PAR_FAMILLE(sqlRowSet.getInt("PROT_ETAT_STAT_COLLAB_PAR_FAMILLE"));
             fProtectioncial.setPROT_DOCUMENT_ACHAT_PREPARATION_COMMANDE(sqlRowSet.getInt("PROT_DOCUMENT_ACHAT_PREPARATION_COMMANDE"));
+            fProtectioncial.setPROT_DOCUMENT_REGLEMENT(sqlRowSet.getInt("PROT_DOCUMENT_REGLEMENT"));
+            fProtectioncial.setPROT_CLOTURE_CAISSE(sqlRowSet.getInt("PROT_CLOTURE_CAISSE"));
+            fProtectioncial.setPROT_PLAN_COMPTABLE(sqlRowSet.getInt("PROT_PLAN_COMPTABLE"));
+            fProtectioncial.setPROT_PLAN_ANALYTIQUE(sqlRowSet.getInt("PROT_PLAN_ANALYTIQUE"));
+            fProtectioncial.setPROT_TAUX_TAXE(sqlRowSet.getInt("PROT_TAUX_TAXE"));
+            fProtectioncial.setPROT_CODE_JOURNAUX(sqlRowSet.getInt("PROT_CODE_JOURNAUX"));
+            fProtectioncial.setPROT_LISTE_BANQUE(sqlRowSet.getInt("PROT_LISTE_BANQUE"));
+            fProtectioncial.setPROT_LISTE_MODELE_REGLEMENT(sqlRowSet.getInt("PROT_LISTE_MODELE_REGLEMENT"));
+            fProtectioncial.setPROT_DOCUMENT_INTERNE_5(sqlRowSet.getInt("PROT_DOCUMENT_INTERNE_5"));
+            fProtectioncial.setPROT_ETAT_RELEVE_ECH_CLIENT(sqlRowSet.getInt("PROT_ETAT_RELEVE_ECH_CLIENT"));
+            fProtectioncial.setPROT_ETAT_STAT_ARTICLE_PAR_FAM(sqlRowSet.getInt("PROT_ETAT_STAT_ARTICLE_PAR_FAM"));
+            fProtectioncial.setPROT_ETAT_STAT_ARTICLE_PALMARES(sqlRowSet.getInt("PROT_ETAT_STAT_ARTICLE_PALMARES"));
+            fProtectioncial.setPROT_ETAT_MVT_STOCK(sqlRowSet.getInt("PROT_ETAT_MVT_STOCK"));
+            fProtectioncial.setPROT_ETAT_CLT_PAR_FAM_ART(sqlRowSet.getInt("PROT_ETAT_CLT_PAR_FAM_ART"));
+            fProtectioncial.setPROT_ETAT_CLT_PAR_ARTICLE(sqlRowSet.getInt("PROT_ETAT_CLT_PAR_ARTICLE"));
+            fProtectioncial.setPROT_ETAT_PALMARES_CLT(sqlRowSet.getInt("PROT_ETAT_PALMARES_CLT"));
+            fProtectioncial.setPROT_ETAT_STAT_FRS_FAM_ART(sqlRowSet.getInt("PROT_ETAT_STAT_FRS_FAM_ART"));
+            fProtectioncial.setPROT_ETAT_STAT_FRS(sqlRowSet.getInt("PROT_ETAT_STAT_FRS"));
+            fProtectioncial.setPROT_GEN_ECART_REGLEMENT(sqlRowSet.getInt("PROT_GEN_ECART_REGLEMENT"));
+            fProtectioncial.setPROT_ETAT_STAT_CAISSE_ARTICLE(sqlRowSet.getInt("PROT_ETAT_STAT_CAISSE_ARTICLE"));
+            fProtectioncial.setPROT_ETAT_STAT_CAISSE_FAM_ARTICLE(sqlRowSet.getInt("PROT_ETAT_STAT_CAISSE_FAM_ARTICLE"));
+            fProtectioncial.setPROT_ETAT_CAISSE_MODE_RGLT(sqlRowSet.getInt("PROT_ETAT_CAISSE_MODE_RGLT"));
+            fProtectioncial.setPROT_ETAT_RELEVE_CPTE_CLIENT(sqlRowSet.getInt("PROT_ETAT_RELEVE_CPTE_CLIENT"));
+            fProtectioncial.setPROT_ETAT_STAT_COLLAB_PAR_TIERS(sqlRowSet.getInt("PROT_ETAT_STAT_COLLAB_PAR_TIERS"));
+            fProtectioncial.setPROT_ETAT_STAT_COLLAB_PAR_ARTICLE(sqlRowSet.getInt("PROT_ETAT_STAT_COLLAB_PAR_ARTICLE"));
+            fProtectioncial.setPROT_ETAT_STAT_COLLAB_PAR_FAMILLE(sqlRowSet.getInt("PROT_ETAT_STAT_COLLAB_PAR_FAMILLE"));
+            fProtectioncial.setPROT_ETAT_STAT_FRS_PAR_FAMILLE(0);
+            fProtectioncial.setPROT_ETAT_STAT_FRS_PAR_ARTICLE(0);
+            fProtectioncial.setPROT_ETAT_STAT_ACHAT_ANALYTIQUE(0);
+/*           fProtectioncial.setPROT_ETAT_STAT_FRS_PAR_FAMILLE(sqlRowSet.getInt("PROT_ETAT_STAT_FRS_PAR_FAMILLE"));
+            fProtectioncial.setPROT_ETAT_STAT_FRS_PAR_ARTICLE(sqlRowSet.getInt("PROT_ETAT_STAT_FRS_PAR_ARTICLE"));
+            fProtectioncial.setPROT_ETAT_STAT_ACHAT_ANALYTIQUE(sqlRowSet.getInt("PROT_ETAT_STAT_ACHAT_ANALYTIQUE"));
+ */
+            fProtectioncial.setPROT_ETAT_RELEVE_ECH_FRS(sqlRowSet.getInt("PROT_ETAT_RELEVE_ECH_FRS"));
+            fProtectioncial.setPROT_SAISIE_PX_VENTE_REMISE(sqlRowSet.getInt("PROT_SAISIE_PX_VENTE_REMISE"));
+            fProtectioncial.setPROT_TARIFICATION_CLIENT(sqlRowSet.getInt("PROT_TARIFICATION_CLIENT"));
         }
+
         return fProtectioncial;
     }
     public String cryptMdp(String mdp){
@@ -338,6 +390,445 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
         if(list.size()>0)
             return list.get(0);
         return null;
+    }
+
+    public Object getMenuItem(String classe,int module,int action,String type,String menuName,String link,String newLink,Object subMenu) throws JSONException {
+        JSONObject menuItem = new JSONObject();
+        menuItem.put("class", classe);
+        menuItem.put("module", module);
+        menuItem.put("action", action);
+        menuItem.put("type", type);
+        menuItem.put("menuName", menuName);
+        menuItem.put("link", link);
+        menuItem.put("newLink", newLink);
+        menuItem.put("subMenu", subMenu);
+        return menuItem;
+    }
+    public Object getBarreMenu (int protNo) throws JSONException {
+        FProtectioncial fProtectioncial = getfProtectioncial("","",protNo);
+        JSONArray menu = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE() != 2) {
+            JSONArray menuVente = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE() != 2)
+                menuVente.put(getMenuItem("customMenu",2,1,"Vente","Facture de vente"
+                        ,"indexMVC.php?module=2&action=1&type=Vente","listeFacture-Vente",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
+                menuVente.put(getMenuItem("customMenu",2,1,"Devis","Devis"
+                        ,"indexMVC.php?module=2&action=1&type=Devis","listeFacture-Devis",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
+                menuVente.put(getMenuItem("customMenu",2,1,"BonDeLivraison","Bon de livraison"
+                        ,"indexMVC.php?module=2&action=1&type=BonDeLivraison","listeFacture-BonLivraison",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
+                menuVente.put(getMenuItem("customMenu",2,1,"VenteAvoir","Facture d'avoir"
+                        ,"indexMVC.php?module=2&action=1&type=VenteAvoir","listeFacture-VenteAvoir",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
+                menuVente.put(getMenuItem("customMenu",2,1,"VenteRetour","Facture de retour"
+                        ,"indexMVC.php?module=2&action=1&type=VenteRetour","listeFacture-VenteRetour",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
+                menuVente.put(getMenuItem("customMenu",2,1,"Ticket","Ticket"
+                        ,"indexMVC.php?module=2&action=1&type=Ticket","listeFacture-Ticket",null));
+            menu.put(getMenuItem("customMenu",2,1,"Vente","Vente"
+                    ,"#","#",menuVente));
+        }
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT() != 2) {
+            JSONArray menuAchat = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_FACTURE() != 2)
+                menuAchat.put(getMenuItem("customMenu",7,1,"Achat","Facture d'achat"
+                        ,"indexMVC.php?module=7&action=1&type=Achat","listeFacture-Achat",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_PREPARATION_COMMANDE() != 2)
+                menuAchat.put(getMenuItem("customMenu",7,3,"PreparationCommande","Preparation de commande"
+                        ,"indexMVC.php?module=7&action=3&type=PreparationCommande","listeFacture-PreparationCommande",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_PREPARATION_COMMANDE() != 2)
+                menuAchat.put(getMenuItem("customMenu",7,5,"AchatPreparationCommande","Achat + Préparation de commande"
+                        ,"indexMVC.php?module=7&action=5&type=AchatPreparationCommande","listeFacture-AchatPreparationCommande",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_RETOUR() != 2)
+                menuAchat.put(getMenuItem("customMenu",7,7,"AchatRetour","Achat retour"
+                        ,"indexMVC.php?module=7&action=7&type=AchatRetour","listeFacture-AchatRetour",null));
+            menu.put(getMenuItem("customMenu",7,1,"Achat","Achat"
+                    ,"#","#",menuAchat));
+        }
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_REGLEMENT() != 2) {
+            JSONArray menuReglement = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_REGLEMENT() != 2)
+                menuReglement.put(getMenuItem("customMenu",1,2,"","Client"
+                        ,"indexMVC.php?module=1&action=2&typeRegl=Client","listeReglement-Client",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_SAISIE_REGLEMENT_FOURNISSEUR() != 2)
+                menuReglement.put(getMenuItem("customMenu",1,4,"","Fournisseur"
+                        ,"indexMVC.php?module=1&action=4&typeRegl=Fournisseur","listeFacture-PreparationCommande",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_GENERATION_RGLT_CLIENT() != 2)
+                menuReglement.put(getMenuItem("customMenu",1,5,"","Bon de caisse"
+                        ,"indexMVC.php?module=1&action=5&typeRegl=Collaborateur","listeFacture-AchatPreparationCommande",null));
+
+            menu.put(getMenuItem("customMenu",7,1,"","Règlement"
+                    ,"#","#",menuReglement));
+        }
+
+        //Structure
+        JSONArray menuStructure = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ARTICLE() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,3,"","Article"
+                    ,"indexMVC.php?module=3&action=3","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLIENT() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,4,"","Client"
+                    ,"indexMVC.php?module=3&action=4","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_FOURNISSEUR() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,8,"","Fournisseur"
+                    ,"indexMVC.php?module=3&action=8","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_FAMILLE() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,6,"","Famille"
+                    ,"indexMVC.php?module=3&action=6","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_FAMILLE() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,5,"","Catalogue"
+                    ,"indexMVC.php?module=3&action=5","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DEPOT() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,10,"","Depot"
+                    ,"indexMVC.php?module=3&action=10","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_COLLABORATEUR() != 2)
+            menuStructure.put(getMenuItem("customMenu",3,12,"","Collaborateur"
+                    ,"indexMVC.php?module=3&action=12","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1)
+            menuStructure.put(getMenuItem("customMenu",3,14,"","Caisse"
+                    ,"indexMVC.php?module=3&action=14","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1)
+            menuStructure.put(getMenuItem("customMenu",3,16,"","Salarié"
+                    ,"indexMVC.php?module=3&action=16","",null));
+
+        if (fProtectioncial.getPROT_Right() == 1)
+            menuStructure.put(getMenuItem("customMenu",3,11,"","Rabais remise et ristournes"
+                    ,"indexMVC.php?module=3&action=18","",null));
+
+        menu.put(getMenuItem("customMenu",3,1,"","Structure"
+                ,"#","#",menuStructure));
+
+//Compta
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLOTURE_CAISSE() != 2) {
+            JSONArray menuComptabilite = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_PLAN_COMPTABLE() != 2)
+                menuComptabilite.put(getMenuItem("customMenu",9,1,"","¨Plan comptable"
+                        ,"indexMVC.php?module=9&action=1","PlanComptable",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_PLAN_ANALYTIQUE() != 2)
+                menuComptabilite.put(getMenuItem("customMenu",9,3,"","Plan analytique"
+                        ,"indexMVC.php?module=9&action=3","PlanAnalytique",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_TAUX_TAXE() != 2)
+                menuComptabilite.put(getMenuItem("customMenu",9,5,"","Taxe"
+                        ,"indexMVC.php?module=9&action=5","Taxe",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CODE_JOURNAUX() != 2)
+                menuComptabilite.put(getMenuItem("customMenu",9,7,"","Journal"
+                        ,"indexMVC.php?module=9&action=7","Journal",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_LISTE_BANQUE() != 2)
+                menuComptabilite.put(getMenuItem("customMenu",9,9,"","Banque"
+                        ,"indexMVC.php?module=9&action=9","Banque",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_LISTE_MODELE_REGLEMENT() != 2)
+                menuComptabilite.put(getMenuItem("customMenu",9,11,"","Modèle de rglt"
+                        ,"indexMVC.php?module=9&action=11","ModeleDeRglt",null));
+
+            if (fProtectioncial.getPROT_Right() == 1) {
+                menuComptabilite.put(getMenuItem("customMenu", 9, 13, "", "Saisie compta"
+                        , "indexMVC.php?module=9&action=13", "SaisieCompta", null));
+                menuComptabilite.put(getMenuItem("customMenu", 9, 15, "", "Ctrle de caisse"
+                        , "indexMVC.php?module=9&action=15", "CtrleDeCaisse", null));
+                menuComptabilite.put(getMenuItem("customMenu", 9, 16, "", "Mise à jour comptable"
+                        , "indexMVC.php?module=9&action=16", "MajComptable", null));
+                menuComptabilite.put(getMenuItem("customMenu", 9, 17, "", "Mise à jour analytique"
+                        , "indexMVC.php?module=9&action=17", "MajAnalytique", null));
+                menuComptabilite.put(getMenuItem("customMenu", 9, 19, "", "Interrogation tiers"
+                        , "indexMVC.php?module=9&action=19", "InterrogationTiers", null));
+                menuComptabilite.put(getMenuItem("customMenu", 9, 19, "", "Interrogation et lettrage"
+                        , "indexMVC.php?module=9&action=19", "InterrogationEtLettrage", null));
+
+            }
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLOTURE_CAISSE() != 2)
+            menuComptabilite.put(getMenuItem("customMenu", 9, 18, "", "Clôture de caisse"
+                    , "indexMVC.php?module=9&action=18", "ClotureDeCaisse", null));
+            menu.put(getMenuItem("customMenu",9,1,"","Comptabilité"
+                    ,"#","#",menuComptabilite));
+        }
+
+        //Mouvement de stock
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_STOCK() != 2) {
+            JSONArray menuMvt = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DEPRECIATION_STOCK() != 2)
+                menuMvt.put(getMenuItem("customMenu",4,1,"Transfert","Transfert"
+                        ,"indexMVC.php?module=4&action=1&type=Transfert","listeFacture-Vente",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ENTREE() != 2)
+                menuMvt.put(getMenuItem("customMenu",4,3,"Entree","Entrée"
+                        ,"indexMVC.php?module=4&action=3&type=Entree","listeFacture-Devis",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_SORTIE() != 2)
+                menuMvt.put(getMenuItem("customMenu",4,4,"Sortie","Sortie"
+                        ,"indexMVC.php?module=4&action=4&type=Sortie","listeFacture-BonLivraison",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_INTERNE_2() != 2)
+                menuMvt.put(getMenuItem("customMenu",4,9,"Transfert_detail","Trsft détail"
+                        ,"indexMVC.php?module=4&action=9&type=Transfert_detail","listeFacture-Transfert_detail",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_INTERNE_5() != 2)
+                menuMvt.put(getMenuItem("customMenu",4,11,"Transfert_confirmation","Emission"
+                        ,"indexMVC.php?module=4&action=11&type=Transfert_confirmation","listeFacture-Transfert_confirmation",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_INTERNE_5() != 2)
+                menuMvt.put(getMenuItem("customMenu",4,13,"Transfert_valid_confirmation","Confirmation"
+                        ,"indexMVC.php?module=4&action=13&type=Transfert_valid_confirmation","listeFacture-Transfert_valid_confirmation",null));
+            menu.put(getMenuItem("customMenu",4,1,"","Mouvements"
+                    ,"#","#",menuMvt));
+        }
+
+        //Caisse
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_MVT_CAISSE() != 2) {
+            JSONArray menuCaisse = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_MVT_CAISSE() != 2)
+                menuCaisse.put(getMenuItem("customMenu",6,1,"","Caisse"
+                        ,"indexMVC.php?module=6&action=1","MvtCaisse",null));
+
+            if (fProtectioncial.getPROT_Right() == 1)
+                menuCaisse.put(getMenuItem("customMenu",6,2,"","Banque"
+                        ,"indexMVC.php?module=6&action=2","MvtBanque",null));
+
+            menu.put(getMenuItem("customMenu",4,1,"","Trésorerie"
+                    ,"#","#",menuCaisse));
+        }
+
+
+        //Administration
+        if (fProtectioncial.getPROT_Right() == 1) {
+            JSONArray menuAdmin = new JSONArray();
+            menuAdmin.put(getMenuItem("customMenu",8,1,"","Utilisateur"
+                    ,"indexMVC.php?module=8&action=1","Utilisateur",null));
+            menuAdmin.put(getMenuItem("customMenu",8,2,"","Profil"
+                    ,"indexMVC.php?module=8&action=2","Profil",null));
+            menuAdmin.put(getMenuItem("customMenu",8,5,"","Droits"
+                    ,"indexMVC.php?module=8&action=5","Droits",null));
+            menuAdmin.put(getMenuItem("customMenu",8,7,"","Envoi mail"
+                    ,"indexMVC.php?module=8&action=7","EnvoiMail",null));
+            menuAdmin.put(getMenuItem("customMenu",8,8,"","Envoi SMS"
+                    ,"indexMVC.php?module=8&action=8","EnvoiSms",null));
+            menuAdmin.put(getMenuItem("customMenu",8,9,"","Compte SMS"
+                    ,"indexMVC.php?module=8&action=9","CompteSms",null));
+            menuAdmin.put(getMenuItem("customMenu",8,10,"","Configuration accès"
+                    ,"indexMVC.php?module=8&action=10","ConfigAcces",null));
+            menuAdmin.put(getMenuItem("customMenu",8,11,"","Configuration profil utilisateur"
+                    ,"indexMVC.php?module=8&action=11","ConfigProfilUtilisateur",null));
+            menuAdmin.put(getMenuItem("customMenu",8,12,"","Déconnexion totale"
+                    ,"indexMVC.php?module=8&action=12","DeconnexionTotale",null));
+            menuAdmin.put(getMenuItem("customMenu",8,13,"","Fusion article"
+                    ,"indexMVC.php?module=8&action=13","FusionArticle",null));
+            menuAdmin.put(getMenuItem("customMenu",8,14,"","Fusion client"
+                    ,"indexMVC.php?module=8&action=14","FusionClient",null));
+            menuAdmin.put(getMenuItem("customMenu",8,15,"","Calendrier connexion"
+                    ,"indexMVC.php?module=8&action=15","CalendrierConnexion",null));
+            menuAdmin.put(getMenuItem("customMenu",8,16,"","Suppr. Ligne mvt"
+                    ,"indexMVC.php?module=8&action=16","SupprLigneMvt",null));
+            menuAdmin.put(getMenuItem("customMenu",8,17,"","Fix cat compta"
+                    ,"indexMVC.php?module=8&action=17","FixCatCompta",null));
+
+            menu.put(getMenuItem("customMenu",8,1,"","Administration"
+                    ,"#","#",menuAdmin));
+        }
+
+
+
+
+        //Etat Compta
+
+        JSONArray menuEtat = new JSONArray();
+
+        JSONArray subEtat = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0) {
+            subEtat.put(getMenuItem("customMenu", 5, 6, "", "Echéance client"
+                    , "indexMVC.php?module=5&action=6", "GrdLivreDesTiers", null));
+            subEtat.put(getMenuItem("customMenu", 5, 30, "", "Echéance client agé"
+                    , "indexMVC.php?module=5&action=30", "BalanceDesTiersCommercial", null));
+            subEtat.put(getMenuItem("customMenu", 5, 26, "", "Echéance client 2"
+                    , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
+
+            menuEtat.put(getMenuItem("customMenu", 5, 32, "", "Grand livre tiers commercial"
+                    , "#", "#", subEtat));
+        }
+
+        subEtat = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 26, "", "Statistique article par agence"
+                    , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 20, "", "Statistique des articles par fournisseur"
+                    , "indexMVC.php?module=5&action=20", "JustificatifSoldeTiers", null));
+        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique article"
+                , "#", "#", subEtat));
+
+        subEtat = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 19, "", "Statistique des Achats"
+                    , "indexMVC.php?module=5&action=19", "JustificatifSoldeTiers", null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 18, "", "Statistique des Achats analytique"
+                    , "indexMVC.php?module=5&action=18", "JustificatifSoldeTiers", null));
+        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique Achat"
+                , "#", "#", subEtat));
+
+        subEtat = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_ARTICLE() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 13, "", "Statistique collaborateur par article"
+                    , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_TIERS() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 11, "", "Statistique collaborateur par client"
+                    , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
+        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique collaborateur"
+                , "#", "#", subEtat));
+
+        subEtat = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 5, "", "Statistique client par agence"
+                    , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
+            subEtat.put(getMenuItem("customMenu", 5, 39, "", "Statistique client par article"
+                    , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
+        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique client"
+                , "#", "#", subEtat));
+
+        menuEtat.put(getMenuItem("customMenu",5,1,"","Mouvement de stock"
+                ,"indexMVC.php?module=5&action=1","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_MVT_STOCK() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,33,"","Articles Absent Boutique"
+                    ,"indexMVC.php?module=5&action=33","#",null));
+        if (fProtectioncial.getPROT_Right() == 1){
+            menuEtat.put(getMenuItem("customMenu",5,34,"","Articles Dormants"
+                    ,"indexMVC.php?module=5&action=34","#",null));
+        }
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_FRS() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,6,"","Echéance fournisseur"
+                    ,"indexMVC.php?module=5&action=6","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1)
+            menuEtat.put(getMenuItem("customMenu",5,7,"","Règlement client"
+                    ,"indexMVC.php?module=5&action=7","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_CPTE_CLIENT() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,6,"","Relevé compte client"
+                    ,"indexMVC.php?module=5&action=6","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_CAISSE_MODE_RGLT() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,9,"","Etat caisse"
+                    ,"indexMVC.php?module=5&action=9","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,10,"","Etat des dettes"
+                    ,"indexMVC.php?module=5&action=10","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_LIVRE_INV() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,12,"","Livre d'inventaire"
+                    ,"indexMVC.php?module=5&action=12","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,14,"","Versement distant"
+                    ,"indexMVC.php?module=5&action=14","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,15,"","Versement bancaire"
+                    ,"indexMVC.php?module=5&action=15","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,16,"","Ctrle report fond de caisse"
+                    ,"indexMVC.php?module=5&action=16","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1)
+            menuEtat.put(getMenuItem("customMenu",5,22,"","Ech tiers"
+                    ,"indexMVC.php?module=5&action=22","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_REAPPROVISIONNEMENT() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,23,"","Etat de réapprovisionnement"
+                    ,"indexMVC.php?module=5&action=23","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,24,"","Etat d'exploitation"
+                    ,"indexMVC.php?module=5&action=24","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,25,"","Transfert de caisse"
+                    ,"indexMVC.php?module=5&action=25","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1)
+            menuEtat.put(getMenuItem("customMenu",5,27,"","Stock grand depot"
+                    ,"indexMVC.php?module=5&action=27","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,28,"","Etat du compte de résultat"
+                    ,"indexMVC.php?module=5&action=28","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,29,"","Fichier central rap"
+                    ,"indexMVC.php?module=5&action=29","#",null));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+            menuEtat.put(getMenuItem("customMenu",5,31,"","Ecriture comptable"
+                    ,"indexMVC.php?module=5&action=31","#",null));
+
+        menuEtat.put(getMenuItem("customMenu",5,43,"","Stock magasin"
+                ,"indexMVC.php?module=5&action=43","#",null));
+
+
+        menu.put(getMenuItem("customMenu",5,1,"","Etats"
+                ,"#","#",menuEtat));
+
+        JSONArray subEtatCompta = new JSONArray();
+        subEtatCompta.put(getMenuItem("customMenu",5,40,"","Grand livre des tiers"
+                ,"indexMVC.php?module=5&action=40","GrdLivreDesTiers",null));
+        subEtatCompta.put(getMenuItem("customMenu",5,21,"","Balance des tiers commercial"
+                ,"indexMVC.php?module=5&action=21","BalanceDesTiersCommercial",null));
+        subEtatCompta.put(getMenuItem("customMenu",5,41,"","Justificatif solde tiers"
+                ,"indexMVC.php?module=5&action=41","JustificatifSoldeTiers",null));
+        subEtatCompta.put(getMenuItem("customMenu",5,42,"","Statistiques tiers"
+                ,"indexMVC.php?module=5&action=42","StatistiquesTiers",null));
+
+        JSONArray menuEtatCompta = new JSONArray();
+        menuEtatCompta.put(getMenuItem("customMenu",5,32,"","Grand livre tiers commercial"
+                ,"indexMVC.php?module=5&action=32","GrdLivreTiersCommercial",subEtatCompta));
+
+        subEtatCompta = new JSONArray();
+        subEtatCompta.put(getMenuItem("customMenu",5,38,"","Journal"
+                ,"indexMVC.php?module=5&action=38","EtatJournal",null));
+        subEtatCompta.put(getMenuItem("customMenu",5,35,"","Balance Analytique"
+                ,"indexMVC.php?module=5&action=35","BalanceAnalytique",null));
+        subEtatCompta.put(getMenuItem("customMenu",5,37,"","Grand livre analytique"
+                ,"indexMVC.php?module=5&action=37","GrandLivreAnalytique",null));
+
+        menuEtatCompta.put(getMenuItem("customMenu",5,36,"","Balance des comptes"
+                ,"indexMVC.php?module=5&action=36","BalanceDesComptes",subEtatCompta));
+
+            menu.put(getMenuItem("customMenu",5,1,"","Etat compta"
+                    ,"#","#",menuEtatCompta));
+
+
+        return menu.toString();
     }
 
     public List<Object> getSoucheDepotGrpSouche(int protNo,String type){

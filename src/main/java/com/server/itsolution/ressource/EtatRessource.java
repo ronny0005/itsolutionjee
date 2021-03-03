@@ -58,9 +58,9 @@ public class EtatRessource {
         return etatDAO.statMouvementStock(depot,datedeb,datefin,articledebut,articlefin);
     }
 
-    @GetMapping(value = "/top10Vente&period={period}")
-    public List<Object> top10Vente(@PathVariable String period) {
-        return etatDAO.top10Vente(period);
+    @GetMapping(value = "/top10Vente&period={period}&protNo={protNo}")
+    public List<Object> top10Vente(@PathVariable String period,@PathVariable int protNo) {
+        return etatDAO.top10Vente(period,protNo);
     }
 
     @GetMapping(value = "/statCaisseDuJour&protNo={protNo}")
@@ -71,6 +71,11 @@ public class EtatRessource {
     @GetMapping(value = "/detteDuJour&protNo={protNo}")
     public List<Object> detteDuJour(@PathVariable int protNo){
         return etatDAO.detteDuJour(protNo);
+    }
+
+    @GetMapping(value = "/detteDuMois&protNo={protNo}")
+    public List<Object> detteDuMois(@PathVariable int protNo){
+        return etatDAO.detteDuMois(protNo);
     }
 
 }

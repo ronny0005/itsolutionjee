@@ -79,7 +79,15 @@ public class FProtectioncialRessource {
     public Object connexionProctectionByProtNo(@PathVariable int protNo) {
         return fProtectioncialDAO.connexionProctectionByProtNoJSON(protNo);
     }
-
+    @GetMapping(value = "/getBarreMenu&protNo={protNo}")
+    public Object getBarreMenu(@PathVariable int protNo) {
+        try {
+            return fProtectioncialDAO.getBarreMenu(protNo);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     @GetMapping(value = "/ajoutUser&username={username}&description={description}&password={password}&email={email}&protRight={protRight}&protUserProfil={protUserProfil}&protPwdStatus={protPwdStatus}&securiteAdmin={securiteAdmin}&protNo={protNo}&depot={depot}")
     public Object ajoutUser(@PathVariable String username,@PathVariable String description,@PathVariable String password
             ,@PathVariable String email,@PathVariable int protRight,@PathVariable int protUserProfil,@PathVariable int protPwdStatus

@@ -24,7 +24,82 @@ public class FProtectioncial implements Serializable {
             ,PROT_ETAT_STAT_COLLAB_PAR_ARTICLE,PROT_ETAT_STAT_COLLAB_PAR_FAMILLE,PROT_ETAT_STAT_FRS_PAR_FAMILLE,PROT_ETAT_STAT_FRS_PAR_ARTICLE
             ,PROT_ETAT_STAT_ACHAT_ANALYTIQUE,ProtectAdmin
             ,PROT_ETAT_RELEVE_ECH_CLIENT,PROT_ETAT_RELEVE_ECH_FRS,PROT_VENTE_COMPTOIR
-            ,PROT_SAISIE_PX_VENTE_REMISE,PROT_TARIFICATION_CLIENT,PROT_Administrator;
+            ,PROT_SAISIE_PX_VENTE_REMISE,PROT_TARIFICATION_CLIENT,PROT_Administrator
+            ,PROT_CLOTURE_CAISSE,PROT_PLAN_COMPTABLE,PROT_PLAN_ANALYTIQUE,PROT_TAUX_TAXE,PROT_CODE_JOURNAUX,PROT_LISTE_BANQUE
+            ,PROT_LISTE_MODELE_REGLEMENT,PROT_DOCUMENT_INTERNE_5
+            ,PROT_REAPPROVISIONNEMENT;
+
+    public Integer getPROT_REAPPROVISIONNEMENT() {
+        return PROT_REAPPROVISIONNEMENT;
+    }
+
+    public void setPROT_REAPPROVISIONNEMENT(Integer PROT_REAPPROVISIONNEMENT) {
+        this.PROT_REAPPROVISIONNEMENT = PROT_REAPPROVISIONNEMENT;
+    }
+
+    public Integer getPROT_CLOTURE_CAISSE() {
+        return PROT_CLOTURE_CAISSE;
+    }
+
+    public void setPROT_CLOTURE_CAISSE(Integer PROT_CLOTURE_CAISSE) {
+        this.PROT_CLOTURE_CAISSE = PROT_CLOTURE_CAISSE;
+    }
+
+    public Integer getPROT_PLAN_COMPTABLE() {
+        return PROT_PLAN_COMPTABLE;
+    }
+
+    public void setPROT_PLAN_COMPTABLE(Integer PROT_PLAN_COMPTABLE) {
+        this.PROT_PLAN_COMPTABLE = PROT_PLAN_COMPTABLE;
+    }
+
+    public Integer getPROT_PLAN_ANALYTIQUE() {
+        return PROT_PLAN_ANALYTIQUE;
+    }
+
+    public void setPROT_PLAN_ANALYTIQUE(Integer PROT_PLAN_ANALYTIQUE) {
+        this.PROT_PLAN_ANALYTIQUE = PROT_PLAN_ANALYTIQUE;
+    }
+
+    public Integer getPROT_TAUX_TAXE() {
+        return PROT_TAUX_TAXE;
+    }
+
+    public void setPROT_TAUX_TAXE(Integer PROT_TAUX_TAXE) {
+        this.PROT_TAUX_TAXE = PROT_TAUX_TAXE;
+    }
+
+    public Integer getPROT_CODE_JOURNAUX() {
+        return PROT_CODE_JOURNAUX;
+    }
+
+    public void setPROT_CODE_JOURNAUX(Integer PROT_CODE_JOURNAUX) {
+        this.PROT_CODE_JOURNAUX = PROT_CODE_JOURNAUX;
+    }
+
+    public Integer getPROT_LISTE_BANQUE() {
+        return PROT_LISTE_BANQUE;
+    }
+
+    public void setPROT_LISTE_BANQUE(Integer PROT_LISTE_BANQUE) {
+        this.PROT_LISTE_BANQUE = PROT_LISTE_BANQUE;
+    }
+
+    public Integer getPROT_LISTE_MODELE_REGLEMENT() {
+        return PROT_LISTE_MODELE_REGLEMENT;
+    }
+
+    public void setPROT_LISTE_MODELE_REGLEMENT(Integer PROT_LISTE_MODELE_REGLEMENT) {
+        this.PROT_LISTE_MODELE_REGLEMENT = PROT_LISTE_MODELE_REGLEMENT;
+    }
+
+    public Integer getPROT_DOCUMENT_INTERNE_5() {
+        return PROT_DOCUMENT_INTERNE_5;
+    }
+
+    public void setPROT_DOCUMENT_INTERNE_5(Integer PROT_DOCUMENT_INTERNE_5) {
+        this.PROT_DOCUMENT_INTERNE_5 = PROT_DOCUMENT_INTERNE_5;
+    }
 
     private String PROT_User,PROT_Pwd,ProfilName,PROT_Description,PROT_PwdStatus, PROT_CBCREATEUR;
 

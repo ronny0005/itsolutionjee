@@ -255,6 +255,7 @@ public class FProtectioncialMapper extends ObjectMapper {
             "        ,ISNULL([33068],0) PROT_CBCREATEUR\n" +
             "\t\t,ISNULL([33541],0) PROT_CLIENT\n" +
             ",ISNULL([33537],0) PROT_FAMILLE\n" +
+            ",ISNULL([12132],0) PROT_OUVERTURE_TOUTE_LES_CAISSES\n" +
             ",ISNULL([33538],0) PROT_ARTICLE\n" +
             ",ISNULL([34051],0) PROT_DOCUMENT_STOCK\n" +
             ",ISNULL([34049],0) PROT_DOCUMENT_VENTE\n" +
@@ -284,6 +285,7 @@ public class FProtectioncialMapper extends ObjectMapper {
             ",ISNULL([12129],0) PROT_QTE_NEGATIVE\n" +
             ",ISNULL([12124],0) PROT_DATE_RGLT\n" +
             ",ISNULL([9985],0) PROT_RISQUE_CLIENT\n" +
+            ",ISNULL([5122],0) PROT_CATCOMPTA -- traitement liste client complément\n" +
             ",ISNULL([8195],0) PROT_DEPRECIATION_STOCK\n" +
             ",ISNULL([12136],0) PROT_CTRL_TT_CAISSE\n" +
             ",ISNULL([12137],0) PROT_AFFICHAGE_VAL_CAISSE\n" +
@@ -300,8 +302,6 @@ public class FProtectioncialMapper extends ObjectMapper {
             ",ISNULL([12134],0) PROT_MODIFICATION_CLIENT\n" +
             ",ISNULL([36678],0) PROT_ETAT_INVENTAIRE_PREP\n" +
             ",ISNULL([36677],0) PROT_ETAT_LIVRE_INV\n" +
-            ",ISNULL([12132],0) PROT_OUVERTURE_TOUTE_LES_CAISSES\n" +
-
             ",ISNULL([36672],0) PROT_ETAT_STAT_ARTICLE_PAR_ART\n" +
             ",ISNULL([36673],0) PROT_ETAT_STAT_ARTICLE_PAR_FAM\n" +
             ",ISNULL([36674],0) PROT_ETAT_STAT_ARTICLE_PALMARES\n" +
@@ -326,13 +326,18 @@ public class FProtectioncialMapper extends ObjectMapper {
             ",ISNULL([12130],0) PROT_SAISIE_PX_VENTE_REMISE\n" +
             ",ISNULL([5126],0) PROT_TARIFICATION_CLIENT\n" +
             ",ISNULL([34095],0) PROT_CLOTURE_CAISSE\n" +
-            ",cbModification\n" +
-            ",PROT_DateCreate\n" +
+            ",ISNULL([34817],0) PROT_PLAN_COMPTABLE\n" +
+            ",ISNULL([34818],0) PROT_PLAN_ANALYTIQUE\n" +
+            ",ISNULL([34819],0) PROT_TAUX_TAXE\n" +
+            ",ISNULL([34820],0) PROT_CODE_JOURNAUX\n" +
+            ",ISNULL([34821],0) PROT_LISTE_BANQUE\n" +
+            ",ISNULL([34822],0) PROT_LISTE_MODELE_REGLEMENT\n" +
+            ",ISNULL([34319],0) PROT_REAPPROVISIONNEMENT\n" +
+            ",ISNULL([12309],0) PROT_DOCUMENT_INTERNE_5\n" +
+            "\n" +
             "FROM(\n" +
             "        SELECT\tP.cbMarq\n" +
             "                ,PROT_User\n" +
-            "                ,P.cbModification\n" +
-            "                ,P.PROT_DateCreate\n" +
             "                ,PROT_Pwd\n" +
             "                ,P.Prot_No\n" +
             "                ,Prot_UserProfil\n" +
@@ -368,10 +373,10 @@ public class FProtectioncialMapper extends ObjectMapper {
             "        WHERE (PROT_Right<>0 OR (PROT_Right=0 AND b.EPROT_Cmd IN (\t'33541','33537','33538','34051','34049'\n" +
             "                                ,'6150','6145','34050','8193','8194','34067','12306'\n" +
             "                                ,'36678','36677','36672','36673','36674','6404','12132'\n" +
-            "                                ,'12133','36736','36737','36738','36357','36358'\n" +
-            "                                ,'34316','36645','36646','36647','34562','12130','34095'\n" +
-            "                                ,'34056','6147','34089','6148','6149','33547','33542','33546'\n" +
-            "                                ,'30081','12125','12126','12119','12116','12117','12118','34563','12134','5126'\n" +
+            "                                ,'12133','36736','36737','36738','36357','36358','5122','34819'\n" +
+            "                                ,'34316','36645','36646','36647','34562','12130','34095','34817','34822','34319'\n" +
+            "                                ,'34056','6147','34089','6148','6149','33547','33542','33546','34818','34820','12309'\n" +
+            "                                ,'30081','12125','12126','12119','12116','12117','12118','34563','12134','5126','34821'\n" +
             "                                ,'12129','12124','9985','8195','12136','12137','4868','12121','6401','6406','12128','11009','11010','11011'\n" +
             "                                ,'36356','36688','36689','36690','36661','36662','34306','33068')))\n" +
             "        )A\n" +
@@ -382,9 +387,9 @@ public class FProtectioncialMapper extends ObjectMapper {
             "                            ,[34056],[6147],[34089],[6148],[6149],[33547],[33542],[33546],[34067],[12306]\n" +
             "                            ,[30081],[12125],[12126],[12119],[12116],[12117],[12118],[34563],[12134]\n" +
             "                            ,[36678],[36677],[36672],[36673],[36674],[34562],[6404],[12132]\n" +
-            "                            ,[12133],[36736],[36737],[36738],[36357],[36358],[34095]\n" +
-            "                            ,[36356],[36688],[36689],[36690],[34306],[12130],[33068]\n" +
-            "                            ,[34316],[36645],[36646],[36647],[36661],[36662],[5126]\n" +
+            "                            ,[12133],[36736],[36737],[36738],[36357],[36358],[34095],[34817],[34822]\n" +
+            "                            ,[36356],[36688],[36689],[36690],[34306],[12130],[33068],[5122],[34820],[34821]\n" +
+            "                            ,[34316],[36645],[36646],[36647],[36661],[36662],[5126],[34818],[34819],[34319],[12309]\n" +
             "                            ,[12129],[12124],[9985],[8195],[12136],[12137],[4868],[12121],[6401],[6406],[12128],[11009],[11010],[11011]))AS PIVOTTABLE\n" +
             "                        WHERE (@protNo=0 AND PROT_User=@user AND PROT_Pwd=@mdp) OR (@protNo!=0 AND PROT_No=@protNo) "
             ;
