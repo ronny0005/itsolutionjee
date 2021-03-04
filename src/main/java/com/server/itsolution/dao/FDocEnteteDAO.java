@@ -1149,112 +1149,132 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             , String doCoord1, String doCoord2, String doCoord3, String doCoord4, int doStatut, int catTarif, int catCompta, int deNo, int caNo, int coNo, String reference, double longitude, double latitude) {
         fDocEntete.setTypeFac(typeFacture);
         fDocEntete.defaultValue();
+        int delai = this.getDelai();
+        if(delai!=0) {
+            Date dateLimiteMoinsDate = new Date();
+            Calendar cMoins = Calendar.getInstance();
+            cMoins.setTime(dateLimiteMoinsDate);
+            cMoins.add(Calendar.DATE, -delai);
+            dateLimiteMoinsDate = cMoins.getTime();
 
-        String controleClient = null;
-        PParametreLivrDAO pParametreLivrDAO = new PParametreLivrDAO(this.getDataSource());
-        PParametreLivr pparametreLivr = pParametreLivrDAO.getpParametreLivrObject(1);
-        if(pparametreLivr.getPL_Reliquat()==2 && !fDocEntete.getTypeFacture().equals("Devis")) {
-            FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
-            FComptet fComptet = fComptetDAO.getF_Comptet(fDocEntete.getDO_Tiers(),fDocEntete.getCtType());
-            controleClient = fComptetDAO.controleEncours(fComptet, fDocEntete.getTypeFacture(),0,"",Double.valueOf(fDocEntete.getTtc()));
-        }
+            Date dateLimitePlusDate = new Date();
+            Calendar cPlus = Calendar.getInstance();
+            cPlus.setTime(dateLimitePlusDate);
+            cPlus.add(Calendar.DATE, delai);
+            dateLimitePlusDate = cPlus.getTime();
 
-        if(controleClient != null)
-            return controleClient;
+            Date dateFacture = new Date(doDate);
+            Boolean isFacture = true;
+            if(dateFacture.compareTo(dateLimiteMoinsDate)>=0 && dateFacture.compareTo(dateLimitePlusDate)<=0)
+                isFacture = false;
 
-        String DO_Coord01 = (doCoord1 != null) ? doCoord1 : "";
-        String DO_Coord02 = (doCoord2 != null) ? doCoord2 : "";
-        String DO_Coord03 = (doCoord3 != null) ? doCoord3 : "";
-        String DO_Coord04 = (doCoord4 != null) ? doCoord4 : "";
-        String do_piece = (do_pieceG != null) ? do_pieceG : "";
-        String affaire = (affaireG.equals("null") || affaireG.equals("0") || affaireG.equals("") || affaireG.equals(" ")) ? null : affaireG;
-        String date_ech = (doDateEch == null || doDateEch.equals("")) ? doDate : doDateEch;
-        String machine = (machineName != null) ? machineName : "";
-        List<Object> list = null;
-        if(do_piece.equals(""))
-            do_piece = this.getEnteteDocument(typeFacture,doSouche);
-        do_piece=this.getEnteteDispo(do_piece);
+            String controleClient = null;
 
-
-        if(fDocEntete.getDO_Domaine()==0 || fDocEntete.getDO_Domaine()==1) {
-            FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
-            int ctType = 0;
-            if (fDocEntete.getDO_Domaine() == 1)
-                ctType = 1;
-
-
-            FComptet fComptet = fComptetDAO.getF_Comptet(client, ctType);
-
-            if (fComptet.getMR_No() != 0) {
-                list = fComptetDAO.getOptionModeleReglementByMRNo(fComptet.getMR_No());
-                FEModeleRDAO fEModeleRDAO = new FEModeleRDAO(this.getDataSource());
-                FEModeleR modeleR = fEModeleRDAO.findByMRNo(1);
-                if (list.size() > 0) {
-                    int nbjour = modeleR.getER_NbJour();
-                    int jour = modeleR.getER_JourTb01();
-                    int condition = modeleR.getER_Condition();
-                    date_ech = getCalculDateEcheance(condition, nbjour, jour, date_ech);
-                }
+            PParametreLivrDAO pParametreLivrDAO = new PParametreLivrDAO(this.getDataSource());
+            PParametreLivr pparametreLivr = pParametreLivrDAO.getpParametreLivrObject(1);
+            if (pparametreLivr.getPL_Reliquat() == 2 && !fDocEntete.getTypeFacture().equals("Devis")) {
+                FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
+                FComptet fComptet = fComptetDAO.getF_Comptet(fDocEntete.getDO_Tiers(), fDocEntete.getCtType());
+                controleClient = fComptetDAO.controleEncours(fComptet, fDocEntete.getTypeFacture(), 0, "", Double.valueOf(fDocEntete.getTtc()));
             }
 
-            FCaisseDAO fCaisseDAO = new FCaisseDAO(this.getDataSource());
-            FCaisse fCaisse = (fCaisseDAO).getF_Caisse(caNo);
-            int liNo = 0;
-            if (fDocEntete.getDO_Domaine()==0)
-                liNo = fComptetDAO.getFLivraisonByCTNum(client);
-            fDocEntete.setDefaultValueVente(fComptet);
-            fDocEntete.setDefaultValueAchat(fComptet);
-            fDocEntete.setInfoAjoutEntete();
-            fDocEntete.setLI_No(liNo);
-            fDocEntete.setCO_NoCaissier(fCaisse.getCO_NoCaissier());
-        }
-        fDocEntete.setDO_Tiers(client);
-        if(typeFacture.equals("Entree") || typeFacture.equals("Sortie"))
-            fDocEntete.setDO_Tiers(String.valueOf(deNo));
-        fDocEntete.setDO_Date(doDate);
-        fDocEntete.setDO_Ref(reference);
-        fDocEntete.setCO_No(coNo);
-        fDocEntete.setDE_No(deNo);
-        if(typeFacture.equals("Entree") || typeFacture.equals("Sortie"))
-            fDocEntete.setDE_No(0);
+            if (controleClient != null)
+                return controleClient;
 
-        fDocEntete.setCA_Num(affaire);
-        fDocEntete.setDO_Souche(doSouche);
-        fDocEntete.setN_CatCompta(catCompta);
-        fDocEntete.setCA_No(caNo);
-        fDocEntete.setDO_Tarif(catTarif);
-        fDocEntete.setLongitude(longitude);
-        fDocEntete.setLatitude(latitude);
-        fDocEntete.setDO_Piece(do_piece);
-        fDocEntete.setDO_Statut(doStatut);
-        fDocEntete.setDO_Coord02(doCoord2);
-        fDocEntete.setDO_Coord03(doCoord3);
-        fDocEntete.setDO_Coord04(doCoord4);
-        fDocEntete.setCbCreateur(String.valueOf(protNo));
+            String DO_Coord01 = (doCoord1 != null) ? doCoord1 : "";
+            String DO_Coord02 = (doCoord2 != null) ? doCoord2 : "";
+            String DO_Coord03 = (doCoord3 != null) ? doCoord3 : "";
+            String DO_Coord04 = (doCoord4 != null) ? doCoord4 : "";
+            String do_piece = (do_pieceG != null) ? do_pieceG : "";
+            String affaire = (affaireG.equals("null") || affaireG.equals("0") || affaireG.equals("") || affaireG.equals(" ")) ? null : affaireG;
+            String date_ech = (doDateEch == null || doDateEch.equals("")) ? doDate : doDateEch;
+            String machine = (machineName != null) ? machineName : "";
+            List<Object> list = null;
+            if (do_piece.equals(""))
+                do_piece = this.getEnteteDocument(typeFacture, doSouche);
+            do_piece = this.getEnteteDispo(do_piece);
 
-        if(fDocEntete.getDO_Domaine()!=0 && fDocEntete.getDO_Domaine()!=1) {
-            if(fDocEntete.getTypeFacture().equals("Entree") || fDocEntete.getTypeFacture().equals("Sortie"))
-                fDocEntete.setDO_DateLivr("1900-01-01");
-            fDocEntete.setValueMvt();
-        }
-        BigDecimal cbMarqInsert = insertDocEntete(fDocEntete);
-        this.updateEnteteTable(this.getEnteteDispo(fDocEntete.getDO_Piece()),fDocEntete);
-        if(typeFacture.equals("Vente") || typeFacture.equals("Ticket")  || typeFacture.equals("AchatRetour")   || typeFacture.equals("VenteRetour") || typeFacture.equals("Achat") || typeFacture.equals("PreparationCommande")
-                || typeFacture.equals("AchatPreparationCommande"))
-        {
-            FDocReglDAO fDocReglDAO = new FDocReglDAO(getDataSource());
-            FDocRegl fDocRegl = new FDocRegl();
-            fDocRegl.setDO_Domaine(fDocEntete.getDO_Domaine());
-            fDocRegl.setDO_Type(fDocEntete.getDO_Type());
-            fDocRegl.setDO_Piece(fDocEntete.getDO_Piece());
-            fDocRegl.setDR_Regle(0);
-            fDocRegl.setN_Reglement(1);
-            fDocRegl.setDR_Date(date_ech);
-            fDocRegl.setCbCreateur(String.valueOf(protNo));
 
-            fDocReglDAO.ajoutDocRegl(fDocRegl);
+            if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1) {
+                FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
+                int ctType = 0;
+                if (fDocEntete.getDO_Domaine() == 1)
+                    ctType = 1;
+
+
+                FComptet fComptet = fComptetDAO.getF_Comptet(client, ctType);
+
+                if (fComptet.getMR_No() != 0) {
+                    list = fComptetDAO.getOptionModeleReglementByMRNo(fComptet.getMR_No());
+                    FEModeleRDAO fEModeleRDAO = new FEModeleRDAO(this.getDataSource());
+                    FEModeleR modeleR = fEModeleRDAO.findByMRNo(1);
+                    if (list.size() > 0) {
+                        int nbjour = modeleR.getER_NbJour();
+                        int jour = modeleR.getER_JourTb01();
+                        int condition = modeleR.getER_Condition();
+                        date_ech = getCalculDateEcheance(condition, nbjour, jour, date_ech);
+                    }
+                }
+
+                FCaisseDAO fCaisseDAO = new FCaisseDAO(this.getDataSource());
+                FCaisse fCaisse = (fCaisseDAO).getF_Caisse(caNo);
+                int liNo = 0;
+                if (fDocEntete.getDO_Domaine() == 0)
+                    liNo = fComptetDAO.getFLivraisonByCTNum(client);
+                fDocEntete.setDefaultValueVente(fComptet);
+                fDocEntete.setDefaultValueAchat(fComptet);
+                fDocEntete.setInfoAjoutEntete();
+                fDocEntete.setLI_No(liNo);
+                fDocEntete.setCO_NoCaissier(fCaisse.getCO_NoCaissier());
+            }
+            fDocEntete.setDO_Tiers(client);
+            if (typeFacture.equals("Entree") || typeFacture.equals("Sortie"))
+                fDocEntete.setDO_Tiers(String.valueOf(deNo));
+            fDocEntete.setDO_Date(doDate);
+            fDocEntete.setDO_Ref(reference);
+            fDocEntete.setCO_No(coNo);
+            fDocEntete.setDE_No(deNo);
+            if (typeFacture.equals("Entree") || typeFacture.equals("Sortie"))
+                fDocEntete.setDE_No(0);
+
+            fDocEntete.setCA_Num(affaire);
+            fDocEntete.setDO_Souche(doSouche);
+            fDocEntete.setN_CatCompta(catCompta);
+            fDocEntete.setCA_No(caNo);
+            fDocEntete.setDO_Tarif(catTarif);
+            fDocEntete.setLongitude(longitude);
+            fDocEntete.setLatitude(latitude);
+            fDocEntete.setDO_Piece(do_piece);
+            fDocEntete.setDO_Statut(doStatut);
+            fDocEntete.setDO_Coord02(doCoord2);
+            fDocEntete.setDO_Coord03(doCoord3);
+            fDocEntete.setDO_Coord04(doCoord4);
+            fDocEntete.setCbCreateur(String.valueOf(protNo));
+
+            if (fDocEntete.getDO_Domaine() != 0 && fDocEntete.getDO_Domaine() != 1) {
+                if (fDocEntete.getTypeFacture().equals("Entree") || fDocEntete.getTypeFacture().equals("Sortie"))
+                    fDocEntete.setDO_DateLivr("1900-01-01");
+                fDocEntete.setValueMvt();
+            }
+            BigDecimal cbMarqInsert = insertDocEntete(fDocEntete);
+            this.updateEnteteTable(this.getEnteteDispo(fDocEntete.getDO_Piece()), fDocEntete);
+            if (typeFacture.equals("Vente") || typeFacture.equals("Ticket") || typeFacture.equals("AchatRetour") || typeFacture.equals("VenteRetour") || typeFacture.equals("Achat") || typeFacture.equals("PreparationCommande")
+                    || typeFacture.equals("AchatPreparationCommande")) {
+                FDocReglDAO fDocReglDAO = new FDocReglDAO(getDataSource());
+                FDocRegl fDocRegl = new FDocRegl();
+                fDocRegl.setDO_Domaine(fDocEntete.getDO_Domaine());
+                fDocRegl.setDO_Type(fDocEntete.getDO_Type());
+                fDocRegl.setDO_Piece(fDocEntete.getDO_Piece());
+                fDocRegl.setDR_Regle(0);
+                fDocRegl.setN_Reglement(1);
+                fDocRegl.setDR_Date(date_ech);
+                fDocRegl.setCbCreateur(String.valueOf(protNo));
+
+                fDocReglDAO.ajoutDocRegl(fDocRegl);
+            }
+            return (List<Object>) getFDocEnteteJSon(cbMarqInsert);
         }
-        return (List<Object>) getFDocEnteteJSon(cbMarqInsert);
+        return null;
     }
 
     public void removeFacRglt(BigDecimal cbMarqEntete,BigDecimal rgNo){

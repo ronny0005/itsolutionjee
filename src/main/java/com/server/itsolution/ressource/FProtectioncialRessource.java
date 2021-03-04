@@ -79,10 +79,10 @@ public class FProtectioncialRessource {
     public Object connexionProctectionByProtNo(@PathVariable int protNo) {
         return fProtectioncialDAO.connexionProctectionByProtNoJSON(protNo);
     }
-    @GetMapping(value = "/getBarreMenu&protNo={protNo}")
-    public Object getBarreMenu(@PathVariable int protNo) {
+    @GetMapping(value = "/getBarreMenu&protNo={protNo}&type={type}")
+    public Object getBarreMenu(@PathVariable int protNo,@PathVariable String type) {
         try {
-            return fProtectioncialDAO.getBarreMenu(protNo);
+            return fProtectioncialDAO.getBarreMenu(protNo,type);
         } catch (JSONException e) {
             e.printStackTrace();
         }

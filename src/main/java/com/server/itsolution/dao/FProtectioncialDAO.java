@@ -404,7 +404,7 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
         menuItem.put("subMenu", subMenu);
         return menuItem;
     }
-    public Object getBarreMenu (int protNo) throws JSONException {
+    public Object getBarreMenu (int protNo,String type) throws JSONException {
         FProtectioncial fProtectioncial = getfProtectioncial("","",protNo);
         JSONArray menu = new JSONArray();
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE() != 2) {
@@ -657,176 +657,176 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
 
 
         //Etat Compta
+        if(type.equals("Haut")) {
+            JSONArray menuEtat = new JSONArray();
 
-        JSONArray menuEtat = new JSONArray();
+            JSONArray subEtat = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0) {
+                subEtat.put(getMenuItem("customMenu", 5, 6, "", "Echéance client"
+                        , "indexMVC.php?module=5&action=6", "GrdLivreDesTiers", null));
+                subEtat.put(getMenuItem("customMenu", 5, 30, "", "Echéance client agé"
+                        , "indexMVC.php?module=5&action=30", "BalanceDesTiersCommercial", null));
+                subEtat.put(getMenuItem("customMenu", 5, 26, "", "Echéance client 2"
+                        , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
 
-        JSONArray subEtat = new JSONArray();
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0) {
-            subEtat.put(getMenuItem("customMenu", 5, 6, "", "Echéance client"
-                    , "indexMVC.php?module=5&action=6", "GrdLivreDesTiers", null));
-            subEtat.put(getMenuItem("customMenu", 5, 30, "", "Echéance client agé"
-                    , "indexMVC.php?module=5&action=30", "BalanceDesTiersCommercial", null));
-            subEtat.put(getMenuItem("customMenu", 5, 26, "", "Echéance client 2"
-                    , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
+                menuEtat.put(getMenuItem("customMenu", 5, 32, "", "Grand livre tiers commercial"
+                        , "#", "#", subEtat));
+            }
 
-            menuEtat.put(getMenuItem("customMenu", 5, 32, "", "Grand livre tiers commercial"
+            subEtat = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 26, "", "Statistique article par agence"
+                        , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 20, "", "Statistique des articles par fournisseur"
+                        , "indexMVC.php?module=5&action=20", "JustificatifSoldeTiers", null));
+            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique article"
                     , "#", "#", subEtat));
+
+            subEtat = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 19, "", "Statistique des Achats"
+                        , "indexMVC.php?module=5&action=19", "JustificatifSoldeTiers", null));
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 18, "", "Statistique des Achats analytique"
+                        , "indexMVC.php?module=5&action=18", "JustificatifSoldeTiers", null));
+            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique Achat"
+                    , "#", "#", subEtat));
+
+            subEtat = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_ARTICLE() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 13, "", "Statistique collaborateur par article"
+                        , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_TIERS() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 11, "", "Statistique collaborateur par client"
+                        , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
+            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique collaborateur"
+                    , "#", "#", subEtat));
+
+            subEtat = new JSONArray();
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 5, "", "Statistique client par agence"
+                        , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
+                subEtat.put(getMenuItem("customMenu", 5, 39, "", "Statistique client par article"
+                        , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
+            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique client"
+                    , "#", "#", subEtat));
+
+            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Mouvement de stock"
+                    , "indexMVC.php?module=5&action=1", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_MVT_STOCK() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 33, "", "Articles Absent Boutique"
+                        , "indexMVC.php?module=5&action=33", "#", null));
+            if (fProtectioncial.getPROT_Right() == 1) {
+                menuEtat.put(getMenuItem("customMenu", 5, 34, "", "Articles Dormants"
+                        , "indexMVC.php?module=5&action=34", "#", null));
+            }
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_FRS() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 6, "", "Echéance fournisseur"
+                        , "indexMVC.php?module=5&action=6", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1)
+                menuEtat.put(getMenuItem("customMenu", 5, 7, "", "Règlement client"
+                        , "indexMVC.php?module=5&action=7", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_CPTE_CLIENT() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 6, "", "Relevé compte client"
+                        , "indexMVC.php?module=5&action=6", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_CAISSE_MODE_RGLT() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 9, "", "Etat caisse"
+                        , "indexMVC.php?module=5&action=9", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 10, "", "Etat des dettes"
+                        , "indexMVC.php?module=5&action=10", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_LIVRE_INV() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 12, "", "Livre d'inventaire"
+                        , "indexMVC.php?module=5&action=12", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 14, "", "Versement distant"
+                        , "indexMVC.php?module=5&action=14", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 15, "", "Versement bancaire"
+                        , "indexMVC.php?module=5&action=15", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 16, "", "Ctrle report fond de caisse"
+                        , "indexMVC.php?module=5&action=16", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1)
+                menuEtat.put(getMenuItem("customMenu", 5, 22, "", "Ech tiers"
+                        , "indexMVC.php?module=5&action=22", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_REAPPROVISIONNEMENT() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 23, "", "Etat de réapprovisionnement"
+                        , "indexMVC.php?module=5&action=23", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 24, "", "Etat d'exploitation"
+                        , "indexMVC.php?module=5&action=24", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 25, "", "Transfert de caisse"
+                        , "indexMVC.php?module=5&action=25", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1)
+                menuEtat.put(getMenuItem("customMenu", 5, 27, "", "Stock grand depot"
+                        , "indexMVC.php?module=5&action=27", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 28, "", "Etat du compte de résultat"
+                        , "indexMVC.php?module=5&action=28", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 29, "", "Fichier central rap"
+                        , "indexMVC.php?module=5&action=29", "#", null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
+                menuEtat.put(getMenuItem("customMenu", 5, 31, "", "Ecriture comptable"
+                        , "indexMVC.php?module=5&action=31", "#", null));
+
+            menuEtat.put(getMenuItem("customMenu", 5, 43, "", "Stock magasin"
+                    , "indexMVC.php?module=5&action=43", "#", null));
+
+
+            menu.put(getMenuItem("customMenu", 5, 1, "", "Etats"
+                    , "#", "#", menuEtat));
+
+            JSONArray subEtatCompta = new JSONArray();
+            subEtatCompta.put(getMenuItem("customMenu", 5, 40, "", "Grand livre des tiers"
+                    , "indexMVC.php?module=5&action=40", "GrdLivreDesTiers", null));
+            subEtatCompta.put(getMenuItem("customMenu", 5, 21, "", "Balance des tiers commercial"
+                    , "indexMVC.php?module=5&action=21", "BalanceDesTiersCommercial", null));
+            subEtatCompta.put(getMenuItem("customMenu", 5, 41, "", "Justificatif solde tiers"
+                    , "indexMVC.php?module=5&action=41", "JustificatifSoldeTiers", null));
+            subEtatCompta.put(getMenuItem("customMenu", 5, 42, "", "Statistiques tiers"
+                    , "indexMVC.php?module=5&action=42", "StatistiquesTiers", null));
+
+            JSONArray menuEtatCompta = new JSONArray();
+            menuEtatCompta.put(getMenuItem("customMenu", 5, 32, "", "Grand livre tiers commercial"
+                    , "indexMVC.php?module=5&action=32", "GrdLivreTiersCommercial", subEtatCompta));
+
+            subEtatCompta = new JSONArray();
+            subEtatCompta.put(getMenuItem("customMenu", 5, 38, "", "Journal"
+                    , "indexMVC.php?module=5&action=38", "EtatJournal", null));
+            subEtatCompta.put(getMenuItem("customMenu", 5, 35, "", "Balance Analytique"
+                    , "indexMVC.php?module=5&action=35", "BalanceAnalytique", null));
+            subEtatCompta.put(getMenuItem("customMenu", 5, 37, "", "Grand livre analytique"
+                    , "indexMVC.php?module=5&action=37", "GrandLivreAnalytique", null));
+
+            menuEtatCompta.put(getMenuItem("customMenu", 5, 36, "", "Balance des comptes"
+                    , "indexMVC.php?module=5&action=36", "BalanceDesComptes", subEtatCompta));
+
+            menu.put(getMenuItem("customMenu", 5, 1, "", "Etat compta"
+                    , "#", "#", menuEtatCompta));
         }
-
-        subEtat = new JSONArray();
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 26, "", "Statistique article par agence"
-                    , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 20, "", "Statistique des articles par fournisseur"
-                    , "indexMVC.php?module=5&action=20", "JustificatifSoldeTiers", null));
-        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique article"
-                , "#", "#", subEtat));
-
-        subEtat = new JSONArray();
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 19, "", "Statistique des Achats"
-                    , "indexMVC.php?module=5&action=19", "JustificatifSoldeTiers", null));
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 18, "", "Statistique des Achats analytique"
-                    , "indexMVC.php?module=5&action=18", "JustificatifSoldeTiers", null));
-        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique Achat"
-                , "#", "#", subEtat));
-
-        subEtat = new JSONArray();
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_ARTICLE() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 13, "", "Statistique collaborateur par article"
-                    , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_TIERS() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 11, "", "Statistique collaborateur par client"
-                    , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
-        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique collaborateur"
-                , "#", "#", subEtat));
-
-        subEtat = new JSONArray();
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 5, "", "Statistique client par agence"
-                    , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
-            subEtat.put(getMenuItem("customMenu", 5, 39, "", "Statistique client par article"
-                    , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
-        menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique client"
-                , "#", "#", subEtat));
-
-        menuEtat.put(getMenuItem("customMenu",5,1,"","Mouvement de stock"
-                ,"indexMVC.php?module=5&action=1","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_MVT_STOCK() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,33,"","Articles Absent Boutique"
-                    ,"indexMVC.php?module=5&action=33","#",null));
-        if (fProtectioncial.getPROT_Right() == 1){
-            menuEtat.put(getMenuItem("customMenu",5,34,"","Articles Dormants"
-                    ,"indexMVC.php?module=5&action=34","#",null));
-        }
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_FRS() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,6,"","Echéance fournisseur"
-                    ,"indexMVC.php?module=5&action=6","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1)
-            menuEtat.put(getMenuItem("customMenu",5,7,"","Règlement client"
-                    ,"indexMVC.php?module=5&action=7","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_CPTE_CLIENT() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,6,"","Relevé compte client"
-                    ,"indexMVC.php?module=5&action=6","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_CAISSE_MODE_RGLT() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,9,"","Etat caisse"
-                    ,"indexMVC.php?module=5&action=9","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,10,"","Etat des dettes"
-                    ,"indexMVC.php?module=5&action=10","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_LIVRE_INV() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,12,"","Livre d'inventaire"
-                    ,"indexMVC.php?module=5&action=12","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,14,"","Versement distant"
-                    ,"indexMVC.php?module=5&action=14","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,15,"","Versement bancaire"
-                    ,"indexMVC.php?module=5&action=15","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,16,"","Ctrle report fond de caisse"
-                    ,"indexMVC.php?module=5&action=16","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1)
-            menuEtat.put(getMenuItem("customMenu",5,22,"","Ech tiers"
-                    ,"indexMVC.php?module=5&action=22","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_REAPPROVISIONNEMENT() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,23,"","Etat de réapprovisionnement"
-                    ,"indexMVC.php?module=5&action=23","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,24,"","Etat d'exploitation"
-                    ,"indexMVC.php?module=5&action=24","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,25,"","Transfert de caisse"
-                    ,"indexMVC.php?module=5&action=25","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1)
-            menuEtat.put(getMenuItem("customMenu",5,27,"","Stock grand depot"
-                    ,"indexMVC.php?module=5&action=27","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,28,"","Etat du compte de résultat"
-                    ,"indexMVC.php?module=5&action=28","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,29,"","Fichier central rap"
-                    ,"indexMVC.php?module=5&action=29","#",null));
-
-        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-            menuEtat.put(getMenuItem("customMenu",5,31,"","Ecriture comptable"
-                    ,"indexMVC.php?module=5&action=31","#",null));
-
-        menuEtat.put(getMenuItem("customMenu",5,43,"","Stock magasin"
-                ,"indexMVC.php?module=5&action=43","#",null));
-
-
-        menu.put(getMenuItem("customMenu",5,1,"","Etats"
-                ,"#","#",menuEtat));
-
-        JSONArray subEtatCompta = new JSONArray();
-        subEtatCompta.put(getMenuItem("customMenu",5,40,"","Grand livre des tiers"
-                ,"indexMVC.php?module=5&action=40","GrdLivreDesTiers",null));
-        subEtatCompta.put(getMenuItem("customMenu",5,21,"","Balance des tiers commercial"
-                ,"indexMVC.php?module=5&action=21","BalanceDesTiersCommercial",null));
-        subEtatCompta.put(getMenuItem("customMenu",5,41,"","Justificatif solde tiers"
-                ,"indexMVC.php?module=5&action=41","JustificatifSoldeTiers",null));
-        subEtatCompta.put(getMenuItem("customMenu",5,42,"","Statistiques tiers"
-                ,"indexMVC.php?module=5&action=42","StatistiquesTiers",null));
-
-        JSONArray menuEtatCompta = new JSONArray();
-        menuEtatCompta.put(getMenuItem("customMenu",5,32,"","Grand livre tiers commercial"
-                ,"indexMVC.php?module=5&action=32","GrdLivreTiersCommercial",subEtatCompta));
-
-        subEtatCompta = new JSONArray();
-        subEtatCompta.put(getMenuItem("customMenu",5,38,"","Journal"
-                ,"indexMVC.php?module=5&action=38","EtatJournal",null));
-        subEtatCompta.put(getMenuItem("customMenu",5,35,"","Balance Analytique"
-                ,"indexMVC.php?module=5&action=35","BalanceAnalytique",null));
-        subEtatCompta.put(getMenuItem("customMenu",5,37,"","Grand livre analytique"
-                ,"indexMVC.php?module=5&action=37","GrandLivreAnalytique",null));
-
-        menuEtatCompta.put(getMenuItem("customMenu",5,36,"","Balance des comptes"
-                ,"indexMVC.php?module=5&action=36","BalanceDesComptes",subEtatCompta));
-
-            menu.put(getMenuItem("customMenu",5,1,"","Etat compta"
-                    ,"#","#",menuEtatCompta));
-
 
         return menu.toString();
     }
