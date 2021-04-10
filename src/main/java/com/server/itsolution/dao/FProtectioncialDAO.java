@@ -1,9 +1,6 @@
 package com.server.itsolution.dao;
 
-import com.server.itsolution.entities.FCaisse;
-import com.server.itsolution.entities.FCollaborateur;
-import com.server.itsolution.entities.FProtectioncial;
-import com.server.itsolution.entities.SaisieAnalytique;
+import com.server.itsolution.entities.*;
 import com.server.itsolution.mapper.FCaisseMapper;
 import com.server.itsolution.mapper.FProtectioncialMapper;
 import org.json.JSONArray;
@@ -55,6 +52,33 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
     public List<Object> allProfil(){
         String sql = FProtectioncialMapper.allProfil;
         return this.getJdbcTemplate().query(sql,mapper);
+    }
+
+    public Object connexion(String protUser,String pwd,int jour,int heure){
+        ZCalendarUserDAO zCalendarUserDAO = new ZCalendarUserDAO(this.getDataSource());
+        fProtectioncial=getfProtectioncial(protUser,pwd,0);
+        net.minidev.json.JSONObject json = new net.minidev.json.JSONObject();
+        int isCalendar = 0;
+        int isConnect = 0;
+        if(fProtectioncial != null){
+            isCalendar = zCalendarUserDAO.isCalendarUser(fProtectioncial.getProt_No());
+            isConnect = 1;
+            if(isCalendar == 1)
+                isConnect = zCalendarUserDAO.canConnect(fProtectioncial.getProt_No(),jour,heure);
+            else
+                isConnect = 1;
+        }
+
+        if(fProtectioncial != null || isConnect == 0){
+            if(isCalendar ==2)
+                json.put("message", "Horaire de connexion non autorisé");
+            if(isCalendar ==1)
+                json.put("message", "Login ou mot de passe incorrect");
+        }
+
+        updateLastLogin(fProtectioncial.getProt_No());
+
+        return fProtectioncial;
     }
 
     public FProtectioncial connexionProctectionByProtNo(int protNo) {

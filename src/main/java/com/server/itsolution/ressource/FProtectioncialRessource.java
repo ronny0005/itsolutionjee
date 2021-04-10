@@ -60,6 +60,12 @@ public class FProtectioncialRessource {
         return fProtectioncialDAO.getUserList();
     }
 
+    @GetMapping(value = "/connexion&protUser={protUser}&pwd={pwd}&jour={jour}&heure={heure}")
+    public Object connexion(@PathVariable String protUser,@PathVariable String pwd,@PathVariable int jour,@PathVariable int heure){
+        return fProtectioncialDAO.connexion(protUser,pwd,jour,heure);
+    }
+
+
     @GetMapping(value = "/getDepotUser&protNo={protNo}")
     public Object getDepotUser(@PathVariable int protNo) {
         return fProtectioncialDAO.getDepotUser(protNo);

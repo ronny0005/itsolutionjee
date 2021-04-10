@@ -61,6 +61,38 @@ public class FArtClientDAO extends JdbcDaoSupport {
         return this.getJdbcTemplate().query(sql, params, mapper);
     }
 
+    public FArtClient getFArtClient(String arRef,int acCategorie){
+        String sql = FArtClientMapper.selectFArtClient;
+        params = new Object[] {arRef,acCategorie};
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params);
+        FArtClient fArtClient = new FArtClient();
+        while(sqlRowSet.next()) {
+            fArtClient.setAC_Arrondi(sqlRowSet.getInt("AC_Arrondi"));
+            fArtClient.setAC_Calcul(sqlRowSet.getInt("AC_Calcul"));
+            fArtClient.setAC_Categorie(sqlRowSet.getInt("AC_Categorie"));
+            fArtClient.setAC_Coef(sqlRowSet.getDouble("AC_Coef"));
+            fArtClient.setAC_CoefNouv(sqlRowSet.getDouble("AC_CoefNouv"));
+            fArtClient.setAC_DateApplication(sqlRowSet.getString("AC_DateApplication"));
+            fArtClient.setAC_Devise(sqlRowSet.getInt("AC_Devise"));
+            fArtClient.setAC_PrixDev(sqlRowSet.getDouble("AC_PrixDev"));
+            fArtClient.setAC_PrixDevNouv(sqlRowSet.getDouble("AC_PrixDevNouv"));
+            fArtClient.setAC_PrixTTC(sqlRowSet.getInt("AC_PrixTTC"));
+            fArtClient.setAC_PrixVenNouv(sqlRowSet.getDouble("AC_PrixVenNouv"));
+            fArtClient.setAC_QteMont(sqlRowSet.getInt("AC_QteMont"));
+            fArtClient.setAC_Remise(sqlRowSet.getDouble("AC_Remise"));
+            fArtClient.setAC_RemiseNouv(sqlRowSet.getDouble("AC_RemiseNouv"));
+            fArtClient.setAC_Categorie(sqlRowSet.getInt("AC_Categorie"));
+            fArtClient.setAC_TypeRem(sqlRowSet.getInt("AC_TypeRem"));
+            fArtClient.setAC_RefClient(sqlRowSet.getString("AC_RefClient"));
+            fArtClient.setAR_Ref(sqlRowSet.getString("AR_Ref"));
+            fArtClient.setCbCreateur(sqlRowSet.getString("cbCreateur"));
+            fArtClient.setCbFlag(sqlRowSet.getInt("cbFlag"));
+            fArtClient.setCbModification(sqlRowSet.getString("cbModification"));
+            fArtClient.setCT_Num(sqlRowSet.getString("CT_Num"));
+        }
+        return fArtClient;
+    }
+
     public List<Object> getAll() {
         String sql = FArtClientMapper.BASE_SQL;
         List<Object> list = this.getJdbcTemplate().query(sql, mapper);

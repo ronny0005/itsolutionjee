@@ -4,6 +4,7 @@ import com.server.itsolution.entities.FComptet;
 import com.server.itsolution.entities.FDocEntete;
 import com.server.itsolution.entities.FEModeleR;
 import com.server.itsolution.mapper.FComptetMapper;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -103,19 +104,24 @@ public class FComptetDAO extends JdbcDaoSupport {
         return montantAutorise;
     }
 
-    public String controleEncours(FComptet fcomptet,String typeFacG,double prixG,String acte,double dlMontantTTC){
+    public net.minidev.json.JSONObject controleEncours(FComptet fcomptet, String typeFacG, double prixG, String acte, double dlMontantTTC){
+        net.minidev.json.JSONObject json = new net.minidev.json.JSONObject();
+
         if(typeFacG.equals("Vente") || typeFacG.equals("BonLivraison") || typeFacG=="VenteRetour"){
             double montant = prixG;
             if(acte.equals("modif")){
                 montant = montant-dlMontantTTC;
             }
-            if(fcomptet.getCT_ControlEnc().equals("2"))
-                return "Ce compte client est bloqué !";
+            if(fcomptet.getCT_ControlEnc().equals("2")){
+                json.put("message", "Ce compte client est bloqué !");
+                return json;
+            }
 
             Double montantAutorise = this.getMontantAutorise(fcomptet.getCT_Num(),montant);
 
             if(montantAutorise<0) {
-                return "Le montant de la dette ne doit pas dépasser "+fcomptet.getCT_Encours()+" !";
+                json.put("message", "Le montant de la dette ne doit pas dépasser "+fcomptet.getCT_Encours()+" !");
+                return json;
             }
         }
         return null;

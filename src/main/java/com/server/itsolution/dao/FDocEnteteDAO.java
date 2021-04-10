@@ -1149,25 +1149,34 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             , String doCoord1, String doCoord2, String doCoord3, String doCoord4, int doStatut, int catTarif, int catCompta, int deNo, int caNo, int coNo, String reference, double longitude, double latitude) {
         fDocEntete.setTypeFac(typeFacture);
         fDocEntete.defaultValue();
-        int delai = this.getDelai();
-        if(delai!=0) {
-            Date dateLimiteMoinsDate = new Date();
-            Calendar cMoins = Calendar.getInstance();
-            cMoins.setTime(dateLimiteMoinsDate);
-            cMoins.add(Calendar.DATE, -delai);
-            dateLimiteMoinsDate = cMoins.getTime();
+        FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
+        FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(protNo);
+        Boolean isFacture = true;
 
-            Date dateLimitePlusDate = new Date();
-            Calendar cPlus = Calendar.getInstance();
-            cPlus.setTime(dateLimitePlusDate);
-            cPlus.add(Calendar.DATE, delai);
-            dateLimitePlusDate = cPlus.getTime();
+        if(fProtectioncial.getPROT_Right()!=1) {
+            int delai = this.getDelai();
+            if (delai != 0) {
+                Date dateLimiteMoinsDate = new Date();
+                Calendar cMoins = Calendar.getInstance();
+                cMoins.setTime(dateLimiteMoinsDate);
+                cMoins.add(Calendar.DATE, -delai);
+                dateLimiteMoinsDate = cMoins.getTime();
 
-            Date dateFacture = new Date(doDate);
-            Boolean isFacture = true;
-            if(dateFacture.compareTo(dateLimiteMoinsDate)>=0 && dateFacture.compareTo(dateLimitePlusDate)<=0)
-                isFacture = false;
+                Date dateLimitePlusDate = new Date();
+                Calendar cPlus = Calendar.getInstance();
+                cPlus.setTime(dateLimitePlusDate);
+                cPlus.add(Calendar.DATE, delai);
+                dateLimitePlusDate = cPlus.getTime();
 
+                Date dateFacture = new Date(doDate);
+                if (dateFacture.compareTo(dateLimiteMoinsDate) >= 0 && dateFacture.compareTo(dateLimitePlusDate) <= 0)
+                    isFacture = false;
+            }
+        }
+        int cloture = this.journeeCloture(doDate,caNo);
+
+        if(isFacture && ((!typeFacture.equals("Devis") && !typeFacture.equals("AchatPreparationCommande") && cloture == 0)
+                || typeFacture.equals("Devis") || typeFacture.equals("AchatPreparationCommande"))) {
             String controleClient = null;
 
             PParametreLivrDAO pParametreLivrDAO = new PParametreLivrDAO(this.getDataSource());
@@ -1258,8 +1267,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             }
             BigDecimal cbMarqInsert = insertDocEntete(fDocEntete);
             this.updateEnteteTable(this.getEnteteDispo(fDocEntete.getDO_Piece()), fDocEntete);
-            if (typeFacture.equals("Vente") || typeFacture.equals("Ticket") || typeFacture.equals("AchatRetour") || typeFacture.equals("VenteRetour") || typeFacture.equals("Achat") || typeFacture.equals("PreparationCommande")
-                    || typeFacture.equals("AchatPreparationCommande")) {
+            if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1 || fDocEntete.getDO_Domaine() == 3) {
                 FDocReglDAO fDocReglDAO = new FDocReglDAO(getDataSource());
                 FDocRegl fDocRegl = new FDocRegl();
                 fDocRegl.setDO_Domaine(fDocEntete.getDO_Domaine());
@@ -1269,7 +1277,6 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
                 fDocRegl.setN_Reglement(1);
                 fDocRegl.setDR_Date(date_ech);
                 fDocRegl.setCbCreateur(String.valueOf(protNo));
-
                 fDocReglDAO.ajoutDocRegl(fDocRegl);
             }
             return (List<Object>) getFDocEnteteJSon(cbMarqInsert);

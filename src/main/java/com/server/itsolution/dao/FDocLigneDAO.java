@@ -2,28 +2,20 @@ package com.server.itsolution.dao;
 
 import com.server.itsolution.entities.*;
 import com.server.itsolution.mapper.*;
-import com.server.itsolution.ressource.FDocLigneRessource;
-import com.server.itsolution.ressource.PUniteRessource;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @Repository
@@ -232,6 +224,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
 
     public Object ajoutLigne(BigDecimal cbMarq,int protNo, double dlQte, String arRef, BigDecimal cbMarqEntete, String typeFacture,
                              int catTarif, double dlPrix, String dlRemise, String machineName, String acte,String entetePrev) {
+        JSONObject json = new JSONObject();
+        int vteNegatif = 0;
 
         if(cbMarq.compareTo(BigDecimal.ZERO)!=0) {
             fDocLigne = getFDocLigne(cbMarq);
@@ -241,14 +235,16 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         FCReglementDAO fcReglementDAO = new FCReglementDAO(this.getDataSource());
         List<Object> listReglement = fcReglementDAO.getReglementByClientFacture(cbMarqEntete);
         if(listReglement.size()>0){
-            JSONObject json = new JSONObject();
+            json = new JSONObject();
             json.put("message", "La facture est déjà réglé ! Vous ne pouvez plus la modifier !");
             return json;
         }
         FProtectioncial fProtectioncial = fProtectioncialDAO.connexionProctectionByProtNo(protNo);
 
         int isSecurite = fProtectioncialDAO.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),fDocEntete.getDE_No());
-        boolean isVisu = fDocEntete.isVisu(fProtectioncial.getPROT_Administrator(),fProtectioncial.protectedType(typeFacture),fProtectioncial.getPROT_APRES_IMPRESSION(),isSecurite);
+        boolean isVisu = false;
+        if(!fDocEntete.getTypeFacture().equals("Devis"))
+            isVisu = fDocEntete.isVisu(fProtectioncial.getPROT_Administrator(),fProtectioncial.protectedType(typeFacture),fProtectioncial.getPROT_APRES_IMPRESSION(),isSecurite);
         if(!isVisu) {
             int deNoStock = fDocEntete.getDE_No();
             if(typeFacture.equals("Entree") || typeFacture.equals("Sortie"))
@@ -256,70 +252,94 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             FArticle fArticle = fArticleDAO.getF_Article(arRef);
             FArtStock fArtStock = fArtStockDAO.isStock(arRef, deNoStock);
             PPreferences pPreferences = pPreferencesDAO.getObject();
+            vteNegatif = pPreferences.getPR_StockNeg();
+            FArtStockDAO fArtStockDAO = new FArtStockDAO(this.getDataSource());
 
-            if (((       fArticle.getQte_Gros() != 0 && ((fArticle.getQte_Gros() <= dlQte)
-                    ||  (fArticle.getQte_Gros() > dlQte && fArticle.getPrix_Min() < dlPrix)))
-                    ||  fArticle.getQte_Gros() == 0) || (fDocEntete.getDO_Domaine()!=1 && fDocEntete.getDO_Domaine()!=0) ){
-
-                if (fArticle.getAR_SuiviStock()==0 || typeFacture.equals("Achat") || typeFacture.equals("Entree") || typeFacture.equals("AchatPreparationCommande")
-                        || (!typeFacture.equals("Achat") && ((pPreferences.getPR_StockNeg() == 1 && (typeFacture.equals("BonCommande")
-                        || typeFacture.equals("PreparationLivraison") || typeFacture.equals("BonLivraison"))
-                        || (/*$VteNegatif==0 &&*/ (fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) >= (dlQte))))
-                        || typeFacture.equals("Devis") || typeFacture.equals("PreparationCommande") || typeFacture.equals("Avoir") || typeFacture.equals("VenteRetour"))) {
-
-                    String remise = "0";
-                    if (!dlRemise.equals("undefined") && !dlRemise.equals(""))
-                        remise = dlRemise;
-
-                    double ADL_Qte = fDocLigne.getDL_Qte();
-                    int mvtStock = 1;
-                    if (dlQte >= 0 && !typeFacture.equals("VenteRetour")) {
-                        mvtStock = 3;
-                    }
-                    if(fArticle.getAR_SuiviStock()==0)
-                        mvtStock = 0;
-                    int type_remise = 0;
-                    if (!remise.equals("0") && remise.length() != 0) {
-                        if (remise.lastIndexOf("%") != -1 || remise.lastIndexOf("P") != -1) {
-                            if (remise.lastIndexOf("%") != -1)
-                                remise = remise.replace("%", "");
-                            else
-                                remise = remise.replace("P", "");
-                            type_remise = 1;
-                        } else {
-                            remise = remise.replace("U", "");
-                            type_remise = 2;
-                        }
-                    } else remise = "0";
-
-                    if (fDocEntete.getDO_Domaine() == 0  || fDocEntete.getDO_Domaine() == 1 || typeFacture.equals("Entree") || typeFacture.equals("Sortie") || typeFacture.equals("Transfert")) {
-                        if (acte.equals("ajout_ligne")) {
-                            if(fDocEntete.getDO_Domaine() == 0  || fDocEntete.getDO_Domaine() == 1)
-                                return ajoutLigneFacture(typeFacture,dlQte,mvtStock,remise,type_remise,dlPrix,fArticle,catTarif,protNo,fArtStock,entetePrev,machineName,fDocEntete);
-                            if(typeFacture.equals("Entree"))
-                                return ajoutLigneEntree(typeFacture,dlQte,1,remise,type_remise,dlPrix,fArticle,catTarif,protNo,fArtStock,entetePrev,machineName,fDocEntete);
-                            if(typeFacture.equals("Sortie"))
-                                return ajoutligneSortie(typeFacture,dlQte,3,remise,type_remise,dlPrix,fArticle,catTarif,protNo,fArtStock,entetePrev,machineName,fDocEntete);
-                        }
-                        else {
-                            if(typeFacture.equals("Entree") || typeFacture.equals("Transfert") || typeFacture.equals("Sortie"))
-                                return ModifLigneStock(fDocLigne,remise,type_remise,dlPrix,typeFacture,dlQte,fArticle, catTarif
-                                        ,protNo,fArtStock,machineName);
-                            else
-                                return ModifLigneFacturation(fDocLigne,remise,type_remise,dlPrix,typeFacture,dlQte,fArticle, catTarif
-                                        ,protNo,fArtStock,machineName,fDocEntete);
-                        }
-                    }
+            if(catTarif == 1) {
+                if (!(typeFacture.equals("Vente"))
+                        || (fArticle.getQte_Gros() != 0 && ((fArticle.getQte_Gros() <= dlQte) || (fArticle.getQte_Gros() > dlQte && fArticle.getPrix_Min() < dlPrix)))
+                        || fArticle.getQte_Gros() == 0) {
                 } else {
-                    JSONObject json = new JSONObject();
-                    json.put("message", "La quantite de " + arRef + " ne doit pas depasser " + (fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) + " !");
+                    json = new JSONObject();
+                    json.put("message", "La quantité saisie de "+arRef+" ("+dlQte+") < quantité gros ("+fArticle.getQte_Gros()+")");
                     return json;
                 }
-            } else {
-                JSONObject json = new JSONObject();
-                json.put("message", "La quantité saisie de " + arRef + " (" + dlQte + ") < quantité gros (" + fArticle.getQte_Gros() + ")");
+            }else {
+                if(!typeFacture.equals("VenteRetour")) {
+                    FArtClientDAO fArtClientDAO = new FArtClientDAO(this.getDataSource());
+                    FArtClient fArtClient = fArtClientDAO.getFArtClient(arRef,catTarif);
+                    if (fDocEntete.getDO_Domaine() == 0 && catTarif > 1
+                            && ((dlPrix == fArtClient.getAC_Coef() && dlQte < fArtClient.getAC_Remise())
+                            || (dlPrix < fArtClient.getAC_Coef()))) {
+                        if (( dlPrix < fArtClient.getAC_Coef())){
+                            json = new JSONObject();
+                            json.put("message", "Le montant saisie ("+dlPrix+") est inférieur au montant minimum ("+fArtClient.getAC_Coef()+")");
+                            return json;
+                        }
+                    else
+                        json = new JSONObject();
+                        json.put("message", "La quantité saisie ("+dlQte+")  est inférieure à la quantité minimum ("+fArtClient.getAC_Remise()+")");
+                        return json;
+                    }
+                }
+            }
+
+            if (typeFacture.equals("Achat") || typeFacture.equals("AchatPreparationCommande")
+                    || (!typeFacture.equals("Achat")
+                    && ((vteNegatif == 1 && (typeFacture.equals("BonCommande") || typeFacture.equals("PreparationLivraison") || typeFacture.equals("BonLivraison")))
+                    || (/*$VteNegatif==0 &&*/ (fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) >= (dlQte)))) || typeFacture.equals("Devis")
+                    || typeFacture.equals("PreparationCommande") || typeFacture.equals("Avoir") || typeFacture.equals("BonCommande") || typeFacture.equals("VenteRetour")) {
+
+            }else{
+                json = new JSONObject();
+                json.put("message", "La quantité de $ARRefG ne doit pas dépasser " + Math.round(fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) + " !");
                 return json;
             }
+
+            String remise = "0";
+            if (!dlRemise.equals("undefined") && !dlRemise.equals(""))
+                remise = dlRemise;
+
+            double ADL_Qte = fDocLigne.getDL_Qte();
+            int mvtStock = 1;
+            if (dlQte >= 0 && !typeFacture.equals("VenteRetour")) {
+                mvtStock = 3;
+            }
+            if(fArticle.getAR_SuiviStock()==0)
+                mvtStock = 0;
+            int type_remise = 0;
+            if (!remise.equals("0") && remise.length() != 0) {
+                if (remise.lastIndexOf("%") != -1 || remise.lastIndexOf("P") != -1) {
+                    if (remise.lastIndexOf("%") != -1)
+                        remise = remise.replace("%", "");
+                    else
+                        remise = remise.replace("P", "");
+                    type_remise = 1;
+                } else {
+                    remise = remise.replace("U", "");
+                    type_remise = 2;
+                }
+            } else remise = "0";
+
+            if (fDocEntete.getDO_Domaine() == 0  || fDocEntete.getDO_Domaine() == 1 || typeFacture.equals("Entree") || typeFacture.equals("Sortie") || typeFacture.equals("Transfert")) {
+                if (acte.equals("ajout_ligne")) {
+                    if(fDocEntete.getDO_Domaine() == 0  || fDocEntete.getDO_Domaine() == 1)
+                        return ajoutLigneFacture(typeFacture,dlQte,mvtStock,remise,type_remise,dlPrix,fArticle,catTarif,protNo,fArtStock,entetePrev,machineName,fDocEntete);
+                    if(typeFacture.equals("Entree"))
+                        return ajoutLigneEntree(typeFacture,dlQte,1,remise,type_remise,dlPrix,fArticle,catTarif,protNo,fArtStock,entetePrev,machineName,fDocEntete);
+                    if(typeFacture.equals("Sortie"))
+                        return ajoutligneSortie(typeFacture,dlQte,3,remise,type_remise,dlPrix,fArticle,catTarif,protNo,fArtStock,entetePrev,machineName,fDocEntete);
+                }
+                else {
+                    if(typeFacture.equals("Entree") || typeFacture.equals("Transfert") || typeFacture.equals("Sortie"))
+                        return ModifLigneStock(fDocLigne,remise,type_remise,dlPrix,typeFacture,dlQte,fArticle, catTarif
+                                ,protNo,fArtStock,machineName);
+                    else
+                        return ModifLigneFacturation(fDocLigne,remise,type_remise,dlPrix,typeFacture,dlQte,fArticle, catTarif
+                                ,protNo,fArtStock,machineName,fDocEntete);
+                }
+            }
+
         }
         return null;
     }
@@ -350,9 +370,9 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         if (typeFacture.equals("VenteRetour"))
             dlQte = -dlQte;
         ArrayList<Object> tab = getPrixClientHT(arRef, fDocEntete.getN_CatCompta(), catTarif, dlPrix, val_rem, dlQte, type_fourn);
-        String verifborePrix = null;
+        Object verifborePrix = null;
         verifborePrix = verifbornePrix(protNo, (double)tab.get(0) /* Prix_Min*/,
-                (double)tab.get(1) /*"Prix_Max"*/, (double)tab.get(2) /*"DL_PUNetTTC"*/, typeFacture);
+                (double)tab.get(1) /*"Prix_Max"*/, (double)tab.get(2) /*"DL_PUNetTTC"*/, typeFacture,catTarif,arRef,doDomaine);
         String U_Intitule="";
         if (verifborePrix == null) {
             double montantHT = (double)tab.get(3); //objet.getClass().getField("DL_MontantHT").getdouble(objet);
@@ -666,9 +686,9 @@ public class FDocLigneDAO extends JdbcDaoSupport {
     }
 
 
-    public FDocLigne ajoutLigneFacture(String typeFacture,double dlQte,int mvtStock,String remise,int type_remise,double dlPrix
-            ,FArticle fArticle,int catTarif, int protNo,FArtStock fArtStock,String entetePrev
-            ,String machineName,FDocEntete fDocEntete){
+    public Object ajoutLigneFacture(String typeFacture, double dlQte, int mvtStock, String remise, int type_remise, double dlPrix
+            , FArticle fArticle, int catTarif, int protNo, FArtStock fArtStock, String entetePrev
+            , String machineName, FDocEntete fDocEntete){
 
         String arRef = fArticle.getAR_Ref();
         if (fArticle.getAR_SuiviStock()!=0 && typeFacture.equals("AchatRetour")) {
@@ -692,9 +712,10 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         if (typeFacture.equals("VenteRetour"))
             dlQte = -dlQte;
         ArrayList<Object> tab = getPrixClientHT(arRef, fDocEntete.getN_CatCompta(), catTarif, dlPrix, val_rem, dlQte, type_fourn);
-        String verifborePrix = null;
-        verifborePrix = verifbornePrix(protNo, (double)tab.get(0) /* Prix_Min*/,
-                (double)tab.get(1) /*"Prix_Max"*/, (double)tab.get(2) /*"DL_PUNetTTC"*/, typeFacture);
+        Object verifborePrix = null;
+        if(!typeFacture.equals("VenteRetour"))
+            verifborePrix = verifbornePrix(protNo, (double)tab.get(0) /* Prix_Min*/,
+                    (double)tab.get(1) /*"Prix_Max"*/, (double)tab.get(2) /*"DL_PUNetTTC"*/, typeFacture,catTarif,arRef,doDomaine);
         String U_Intitule="";
         if (verifborePrix == null) {
             double montantHT = (double)tab.get(3); //objet.getClass().getField("DL_MontantHT").getdouble(objet);
@@ -711,6 +732,14 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             double DL_MontantTTC = (double)tab.get(14); //objet.getClass().getField("DL_MontantTTC").getdouble(objet);
             double puttc = (double)tab.get(15); //objet.getClass().getField("DL_PUTTC").getdouble(objet) ;
             int typeHT = (int) tab.get(16); //objet.getClass().getField("AC_PrixTTC").getInt(objet) ;
+
+            PParametreLivr pParametreLivr = (new PParametreLivrDAO(this.getDataSource())).getpParametreLivrObject(0);
+            if(pParametreLivr.getPL_Reliquat() == 1 && !fDocEntete.getTypeFacture().equals("Devis")){
+                FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
+                net.minidev.json.JSONObject controle = fComptetDAO.controleEncours(fComptetDAO.getF_Comptet(CT_Num,doDomaine),typeFacture,dlPrix,"ajout",DL_MontantTTC);
+                if(controle != null)
+                    return controle;
+            }
             if(fDocEntete.getDO_Domaine() == 1)
                 typeHT=0;
             U_Intitule = "0";
@@ -1202,18 +1231,45 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         params = new Object[]{cbMarq,nAnalytique,caNum,eaMontant,eaQte};
         this.getJdbcTemplate().update(sql,params);
     }
-    public String verifbornePrix(int protNo, double pxMin, double pxMax, double DL_PUNetTTC,String typeFacture)
+    public Object verifbornePrix(int protNo, double pxMin, double pxMax, double DL_PUNetTTC,String typeFacture,int catTarif, String arRef,int doDomaine)
     {
         FProtectioncial fProtectioncial = fProtectioncialDAO.connexionProctectionByProtNo(protNo);
         PParametrecial pParametrecial = pParametrecialDAO.getObject();
+        PCommunication pCommunication = (new PCommunicationDAO(this.getDataSource())).getPCommunication();
+        FArtClient fArtClient = (new FArtClientDAO(this.getDataSource())).getFArtClient(arRef,catTarif);
+
+        net.minidev.json.JSONObject json = new net.minidev.json.JSONObject();
         int flag_minMax = 0;
         if (pParametrecial.getP_GestionPlanning() == 1 || pParametrecial.getP_ReportPrixRev() == 1)
             flag_minMax = 1;
-        if (((typeFacture.equals("Vente") || typeFacture.equals("BonLivraison")) && fProtectioncial.getPROT_Right() != 1 && flag_minMax == 1)
+        if (((typeFacture.equals("Vente") || typeFacture.equals("Devis") || typeFacture.equals("BonLivraison")) && fProtectioncial.getPROT_Right() != 1 && flag_minMax == 1)
                 || (pxMin == 0 && pxMax == 0)
         ) {
-            if (DL_PUNetTTC < pxMin && pxMin != 0 && pxMax != 0) {
-                return "Le prix doit être compris entre " + pxMin + " et " + pxMax +" !";
+            if(pCommunication.getN_CatTarif()==3){
+                if(catTarif>=2){
+                    pxMin = fArtClient.getAC_PrixVen();
+                    pxMax = fArtClient.getAC_Coef();
+                }
+            }
+            if((pxMin != 0 && pxMax != 0) &&
+                ((catTarif>=2) && (DL_PUNetTTC<pxMin || DL_PUNetTTC > pxMax)
+                || (DL_PUNetTTC < pxMin))){
+                json.put("message", "Le prix doit être compris entre " + pxMin + " et " + pxMax +" !");
+                return json;
+            }
+
+            if(catTarif != 1){
+                if(doDomaine == 0 && catTarif >1 && ((DL_PUNetTTC == fArtClient.getAC_Coef() && DL_PUNetTTC < fArtClient.getAC_Remise()))
+                || (DL_PUNetTTC < fArtClient.getAC_Coef())) {
+                    if(DL_PUNetTTC < fArtClient.getAC_Coef()){
+                        json.put("message", "Le montant saisie ("+DL_PUNetTTC+") est inférieur au montant minimum ("+fArtClient.getAC_Coef()+")");
+                        return json;
+                    }
+                    else{
+                        json.put("message", "La quantité saisie ("+DL_PUNetTTC+")  est inférieure à la quantité minimum ("+fArtClient.getAC_Remise()+")");
+                        return json;
+                    }
+                }
             }
         }
         return null;

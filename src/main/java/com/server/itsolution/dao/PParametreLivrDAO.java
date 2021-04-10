@@ -38,9 +38,9 @@ public class PParametreLivrDAO extends JdbcDaoSupport {
     }
 
     public PParametreLivr getpParametreLivrObject(int cbMarq) {
-        String sql = PParametreLivrMapper.getPParametreLivr;
+        String sql = PParametreLivrMapper.BASE_SQL;
         params = new Object[] {cbMarq};
-        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params);
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql);
         PParametreLivr pParametreLivr = new PParametreLivr();
         while(sqlRowSet.next()) {
             pParametreLivr.setPL_TypeDuree(sqlRowSet.getInt("PL_TypeDuree"));

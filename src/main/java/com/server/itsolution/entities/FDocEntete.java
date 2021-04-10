@@ -123,9 +123,20 @@ public class FDocEntete {
 
     public boolean isVisu(int PROT_Administrator, int protectedDocP, int flagProtApresImpressionP,int isSecurite)
     {
-            if(isSecurite==0)
+        if(PROT_Administrator == 0 && this.typeFacture.equals("Transfert_confirmation")){
+            if(this.DO_Imprim == 1)
+                return true;
+        }else
+        if(this.DO_Type ==7 || this.DO_Type==17) {
+            return true;
+        }
+        else
+        if(isSecurite==0)
             return true;
         else
+            if(this.avance >0)
+                return true;
+            else
         if (PROT_Administrator == 1) {
             if (this.statut.equals("comptant"))
                 return true;
@@ -157,6 +168,10 @@ public class FDocEntete {
 
         if(isSecurite==0)
             return false;
+        else
+        if(this.DO_Type ==7 || this.DO_Type==17) {
+            return false;
+        }
         else
         if(PROT_Administrator==1 || PROT_Right==1) {
             if (this.avance == 0)
