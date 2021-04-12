@@ -3,6 +3,7 @@ package com.server.itsolution.dao;
 import com.server.itsolution.entities.*;
 import com.server.itsolution.mapper.FCReglementMapper;
 import com.server.itsolution.mapper.FDocEnteteMapper;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -326,9 +327,9 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         return 0;
     }
 
-    public List<Object> getListeFacture(int doProvenance,int doType,int doDomaine, int deNo, String datedeb,String dateFin,String client) {
+    public List<Object> getListeFacture(int doProvenance,int doType,int doDomaine, int deNo, String datedeb,String dateFin,String client,int protNo) {
         String sql = FDocEnteteMapper.getListeFacture;
-        params = new Object[]{doProvenance,client,doDomaine,doType,deNo,datedeb,dateFin};
+        params = new Object[]{protNo,doProvenance,deNo,datedeb,dateFin,client,doDomaine,doType};
         List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
         return list;
     }
@@ -350,6 +351,13 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
     public List<Object> getlisteTransfert(String doTiers,String dateDeb,String dateFin){
         String sql = FDocEnteteMapper.listeTransfert;
         params = new Object[]{doTiers,dateDeb,dateFin};
+        List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
+        return list;
+    }
+
+    public List<Object> listeTransfertConfirmation(String dateDeb,String dateFin,int doDomaine,int doType,int protNo,String typeFac){
+        String sql = FDocEnteteMapper.listeTransfertConfirmation;
+        params = new Object[]{dateDeb,dateFin,doDomaine,doType,protNo,typeFac};
         List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
         return list;
     }
@@ -387,7 +395,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         return list;
     }
 
-    public int isVisu(BigDecimal cbMarq,int protNo,String typeFacture)//$PROT_Administrator,$protectedDocP,$flagProtApresImpressionP)
+    public int isVisu(BigDecimal cbMarq,int protNo,String typeFacture)
     {
         FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(protNo);
@@ -399,6 +407,16 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         if(fDocEntete.getCbMarq()!=null)
             deNo = fDocEntete.getDE_No();
         int isSecurite = fProtectioncialDao.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),deNo);
+        if(fProtectioncial.getPROT_Administrator() == 0 && typeFacture.equals("Transfert_confirmation")) {
+            if (fDocEntete.getDO_Imprim() == 1)
+                return 1;
+        }
+        else{
+            if(fDocEntete.getDO_Type()==7 || fDocEntete.getDO_Type()==17)
+            {
+                return 1;
+            }
+        }
         if(isSecurite == 0)
             return 1;
         else
@@ -467,7 +485,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         this.getJdbcTemplate().update(sql, parames.toArray());
     }
 
-    public int isModif(BigDecimal cbMarq,int protNo,String typeFacture){//$PROT_Administrator,$PROT_Right,$protectedDocP,$flagProtApresImpressionP){
+    public int isModif(BigDecimal cbMarq,int protNo,String typeFacture){
         FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(protNo);
         int protAdministrator = fProtectioncial.getPROT_Administrator();
@@ -481,6 +499,9 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         if(isSecurite==0)
             return 0;
         else
+            if(fDocEntete.getDO_Type() == 7 || fDocEntete.getDO_Type() == 17)
+                return 0;
+            else
         if(protAdministrator==1 || fProtectioncial.getPROT_Right()==1) {
             if (fDocEntete.getAvance() == 0)
                 return 1;
@@ -1177,7 +1198,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
 
         if(isFacture && ((!typeFacture.equals("Devis") && !typeFacture.equals("AchatPreparationCommande") && cloture == 0)
                 || typeFacture.equals("Devis") || typeFacture.equals("AchatPreparationCommande"))) {
-            String controleClient = null;
+            net.minidev.json.JSONObject controleClient = null;
 
             PParametreLivrDAO pParametreLivrDAO = new PParametreLivrDAO(this.getDataSource());
             PParametreLivr pparametreLivr = pParametreLivrDAO.getpParametreLivrObject(1);

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -35,6 +36,17 @@ public class FModeleRDAO extends JdbcDaoSupport {
         String sql = FModeleRMapper.BASE_SQL+" WHERE MR_No = ? ";
         return this.getJdbcTemplate().query(sql, new Object[] { mrNo },mapper);
     }
+
+    public List<Object> getDateEcgetTiersheanceSelectSage(int MR_No,int N_Reglement, String date){
+        String sql = FModeleRMapper.getDateEcgetTiersheanceSelectSage;
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(date);
+        params.add(MR_No);
+        params.add(N_Reglement);
+        return  this.getJdbcTemplate().query(sql, params.toArray(),mapper);
+    }
+
+
     public FModeleR findByMRNo(int MR_No){
 
         String sql = FEModeleRMapper.BASE_SQL+" WHERE MR_No = ? ";

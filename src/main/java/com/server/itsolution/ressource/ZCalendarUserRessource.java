@@ -18,7 +18,7 @@ public class ZCalendarUserRessource {
 
 
     @GetMapping(value = "/canConnect/{protNo}/{jour}/{heure}")
-    public Object canConnect(@PathVariable int protNo, @PathVariable int jour,@PathVariable int heure) {
+    public Object canConnect(@PathVariable int protNo, @PathVariable int jour,@PathVariable String heure) {
         int canConnect= zCalendarUserDAO.canConnect(protNo,jour,heure);
         return canConnect;
     }

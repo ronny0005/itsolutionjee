@@ -3,15 +3,15 @@ package com.server.itsolution.dao;
 import com.server.itsolution.entities.*;
 import com.server.itsolution.mapper.FCaisseMapper;
 import com.server.itsolution.mapper.FProtectioncialMapper;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -48,19 +48,39 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
         params = new Object[]{protNo};
         return this.getJdbcTemplate().query(sql,params,mapper);
     }
+    public Object getParametre(int protNo) {
+        String sql = FProtectioncialMapper.getParametre;
+        params = new Object[]{protNo};
+        return this.getJdbcTemplate().query(sql,params,mapper);
+    }
 
+
+    public int IssecuriteAdmin(int protNo ,int deNo)
+    {
+        int isSecurite = 0;
+        fProtectioncial = getfProtectioncial("","",protNo);
+
+        if (fProtectioncial.getProtectAdmin() == 1) {
+            ZDepotUserDAO depotUserDAO = new ZDepotUserDAO(this.getDataSource());
+            for (int i : depotUserDAO.getDepotPrincipal(protNo)) {
+                if (i == deNo)
+                    isSecurite = 1;
+            }
+        } else isSecurite = 1;
+        return isSecurite;
+    }
     public List<Object> allProfil(){
         String sql = FProtectioncialMapper.allProfil;
         return this.getJdbcTemplate().query(sql,mapper);
     }
 
-    public Object connexion(String protUser,String pwd,int jour,int heure){
+    public Object connexion(String protUser,String pwd,int jour,String heure){
         ZCalendarUserDAO zCalendarUserDAO = new ZCalendarUserDAO(this.getDataSource());
         fProtectioncial=getfProtectioncial(protUser,pwd,0);
         net.minidev.json.JSONObject json = new net.minidev.json.JSONObject();
         int isCalendar = 0;
         int isConnect = 0;
-        if(fProtectioncial != null){
+        if(fProtectioncial.getProt_No() != null){
             isCalendar = zCalendarUserDAO.isCalendarUser(fProtectioncial.getProt_No());
             isConnect = 1;
             if(isCalendar == 1)
@@ -69,11 +89,16 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
                 isConnect = 1;
         }
 
-        if(fProtectioncial != null || isConnect == 0){
-            if(isCalendar ==2)
+        if(fProtectioncial.getProt_No() == null || isConnect == 0){
+            if(isCalendar == 1) {
+                json.put("error",2);
                 json.put("message", "Horaire de connexion non autorisé");
-            if(isCalendar ==1)
+            }
+            if(isCalendar == 0) {
+                json.put("error",1);
                 json.put("message", "Login ou mot de passe incorrect");
+            }
+            return json;
         }
 
         updateLastLogin(fProtectioncial.getProt_No());
@@ -226,8 +251,11 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
 
     public FProtectioncial getfProtectioncial(String user,String pwd,int protNo) {
         String sql = FProtectioncialMapper.Connexion;
-        params = new Object[]{user,cryptMdp(pwd),protNo};
-        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params);
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(user);
+        params.add(cryptMdp(pwd));
+        params.add(protNo);
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params.toArray());
         while (sqlRowSet.next()) {
             fProtectioncial.setProfilName(sqlRowSet.getString("ProfilName"));
             fProtectioncial.setPROT_Administrator(sqlRowSet.getInt("PROT_Administrator"));
@@ -324,9 +352,11 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
             fProtectioncial.setPROT_ETAT_STAT_FRS_PAR_ARTICLE(sqlRowSet.getInt("PROT_ETAT_STAT_FRS_PAR_ARTICLE"));
             fProtectioncial.setPROT_ETAT_STAT_ACHAT_ANALYTIQUE(sqlRowSet.getInt("PROT_ETAT_STAT_ACHAT_ANALYTIQUE"));
  */
+            fProtectioncial.setPROT_DOCUMENT_VENTE_BONCOMMANDE(sqlRowSet.getInt("PROT_DOCUMENT_VENTE_BONCOMMANDE"));
             fProtectioncial.setPROT_ETAT_RELEVE_ECH_FRS(sqlRowSet.getInt("PROT_ETAT_RELEVE_ECH_FRS"));
             fProtectioncial.setPROT_SAISIE_PX_VENTE_REMISE(sqlRowSet.getInt("PROT_SAISIE_PX_VENTE_REMISE"));
             fProtectioncial.setPROT_TARIFICATION_CLIENT(sqlRowSet.getInt("PROT_TARIFICATION_CLIENT"));
+            fProtectioncial.setPROT_VIREMENT_DEPOT(sqlRowSet.getInt("PROT_VIREMENT_DEPOT"));
         }
 
         return fProtectioncial;
@@ -405,454 +435,356 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
         return mdp;
     }
 
-    public Object getUser(String username,String mdp,int protNo) {
-        if(mdp.equals("''")) mdp = "";
-        String sql = FProtectioncialMapper.Connexion;
-
-        params = new Object[]{username,cryptMdp(mdp),protNo};
-        List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
-        if(list.size()>0)
-            return list.get(0);
-        return null;
-    }
-
-    public Object getMenuItem(String classe,int module,int action,String type,String menuName,String link,String newLink,Object subMenu) throws JSONException {
-        JSONObject menuItem = new JSONObject();
-        menuItem.put("class", classe);
-        menuItem.put("module", module);
-        menuItem.put("action", action);
-        menuItem.put("type", type);
-        menuItem.put("menuName", menuName);
-        menuItem.put("link", link);
-        menuItem.put("newLink", newLink);
-        menuItem.put("subMenu", subMenu);
-        return menuItem;
-    }
-    public Object getBarreMenu (int protNo,String type) throws JSONException {
-        FProtectioncial fProtectioncial = getfProtectioncial("","",protNo);
+    public Object barreMenu(int protNo,int action,int module,String type,String position) {
+        FProtectioncial fProtectioncial = getfProtectioncial("", "", protNo);
         JSONArray menu = new JSONArray();
+
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE() != 2) {
-            JSONArray menuVente = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE() != 2)
-                menuVente.put(getMenuItem("customMenu",2,1,"Vente","Facture de vente"
-                        ,"indexMVC.php?module=2&action=1&type=Vente","listeFacture-Vente",null));
+        JSONArray menuVente = new JSONArray();
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Vente")) ? "active" : ""),"Facture de vente","listeFacture-Vente",(new JSONObject())));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
-                menuVente.put(getMenuItem("customMenu",2,1,"Devis","Devis"
-                        ,"indexMVC.php?module=2&action=1&type=Devis","listeFacture-Devis",null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Devis")) ? "active" : ""),"Devis","listeFacture-Devis",(new JSONObject())));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
-                menuVente.put(getMenuItem("customMenu",2,1,"BonDeLivraison","Bon de livraison"
-                        ,"indexMVC.php?module=2&action=1&type=BonDeLivraison","listeFacture-BonLivraison",null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_BONCOMMANDE() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("BonCommande")) ? "active" : ""),"Bon De Commande","listeFacture-BonCommande",(new JSONObject())));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
-                menuVente.put(getMenuItem("customMenu",2,1,"VenteAvoir","Facture d'avoir"
-                        ,"indexMVC.php?module=2&action=1&type=VenteAvoir","listeFacture-VenteAvoir",null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_BLIVRAISON() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("BonLivraison")) ? "active" : ""),"Bon De livraison","listeFacture-BonLivraison",(new JSONObject())));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
-                menuVente.put(getMenuItem("customMenu",2,1,"VenteRetour","Facture de retour"
-                        ,"indexMVC.php?module=2&action=1&type=VenteRetour","listeFacture-VenteRetour",null));
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_AVOIR() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Avoir")) ? "active" : ""),"Avoir","listeFacture-Avoir",(new JSONObject())));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_DEVIS() != 2)
-                menuVente.put(getMenuItem("customMenu",2,1,"Ticket","Ticket"
-                        ,"indexMVC.php?module=2&action=1&type=Ticket","listeFacture-Ticket",null));
-            menu.put(getMenuItem("customMenu",2,1,"Vente","Vente"
-                    ,"#","#",menuVente));
-        }
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_VENTE_RETOUR() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("VenteRetour")) ? "active" : ""),"Retour","listeFacture-VenteRetour",(new JSONObject())));
+
+        if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_VENTE_COMPTOIR() != 2)
+            menuVente.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Ticket")) ? "active" : ""),"Ticket","listeFacture-Ticket",(new JSONObject())));
+
+        menu.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Vente")) ? "active" : ""),"Vente","listeFacture-Vente",menuVente));
+    }
+
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT() != 2) {
             JSONArray menuAchat = new JSONArray();
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_FACTURE() != 2)
-                menuAchat.put(getMenuItem("customMenu",7,1,"Achat","Facture d'achat"
-                        ,"indexMVC.php?module=7&action=1&type=Achat","listeFacture-Achat",null));
+                menuAchat.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Achat")) ? "active" : ""),"Facture d'achat","listeFacture-Achat",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_PREPARATION_COMMANDE() != 2)
-                menuAchat.put(getMenuItem("customMenu",7,3,"PreparationCommande","Preparation de commande"
-                        ,"indexMVC.php?module=7&action=3&type=PreparationCommande","listeFacture-PreparationCommande",null));
+                menuAchat.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("PreparationCommande")) ? "active" : ""),"Preparation de commande","listeFacture-PreparationCommande",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_PREPARATION_COMMANDE() != 2)
-                menuAchat.put(getMenuItem("customMenu",7,5,"AchatPreparationCommande","Achat + Préparation de commande"
-                        ,"indexMVC.php?module=7&action=5&type=AchatPreparationCommande","listeFacture-AchatPreparationCommande",null));
+                menuAchat.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("AchatPreparationCommande")) ? "active" : ""),"Achat + Préparation de commande","listeFacture-AchatPreparationCommande",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ACHAT_RETOUR() != 2)
-                menuAchat.put(getMenuItem("customMenu",7,7,"AchatRetour","Achat retour"
-                        ,"indexMVC.php?module=7&action=7&type=AchatRetour","listeFacture-AchatRetour",null));
-            menu.put(getMenuItem("customMenu",7,1,"Achat","Achat"
-                    ,"#","#",menuAchat));
+                menuAchat.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("AchatRetour")) ? "active" : ""),"Achat retour","listeFacture-AchatRetour",(new JSONObject())));
+
+            menu.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Achat")) ? "active" : ""),"Achat","listeFacture-Achat",menuAchat));
         }
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_REGLEMENT() != 2) {
             JSONArray menuReglement = new JSONArray();
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_REGLEMENT() != 2)
-                menuReglement.put(getMenuItem("customMenu",1,2,"","Client"
-                        ,"indexMVC.php?module=1&action=2&typeRegl=Client","listeReglement-Client",null));
+                menuReglement.add(addItem("customMenu",((module == 1 && action == 2) ? "active" : ""),"Client","indexMVC.php?module=1&action=2&typeRegl=Client",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_SAISIE_REGLEMENT_FOURNISSEUR() != 2)
-                menuReglement.put(getMenuItem("customMenu",1,4,"","Fournisseur"
-                        ,"indexMVC.php?module=1&action=4&typeRegl=Fournisseur","listeFacture-PreparationCommande",null));
+                menuReglement.add(addItem("customMenu",((module == 1 && action == 4) ? "active" : ""),"Fournisseur","indexMVC.php?module=1&action=4&typeRegl=Fournisseur",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_GENERATION_RGLT_CLIENT() != 2)
-                menuReglement.put(getMenuItem("customMenu",1,5,"","Bon de caisse"
-                        ,"indexMVC.php?module=1&action=5&typeRegl=Collaborateur","listeFacture-AchatPreparationCommande",null));
+                menuReglement.add(addItem("customMenu",((module == 1 && action == 5) ? "active" : ""),"Bon de caisse","indexMVC.php?module=1&action=5&typeRegl=Collaborateur",(new JSONObject())));
 
-            menu.put(getMenuItem("customMenu",7,1,"","Règlement"
-                    ,"#","#",menuReglement));
+            menu.add(addItem("customMenu",((module == 1) ? "active" : ""),"Règlement","/",menuReglement));
         }
 
-        //Structure
         JSONArray menuStructure = new JSONArray();
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ARTICLE() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,3,"","Article"
-                    ,"indexMVC.php?module=3&action=3","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 3) ? "active" : ""),"Article","listeArticle",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLIENT() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,4,"","Client"
-                    ,"indexMVC.php?module=3&action=4","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 4) ? "active" : ""),"Client","indexMVC.php?module=3&action=4",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_FOURNISSEUR() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,8,"","Fournisseur"
-                    ,"indexMVC.php?module=3&action=8","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 8) ? "active" : ""),"Fournisseur","indexMVC.php?module=3&action=8",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_FAMILLE() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,6,"","Famille"
-                    ,"indexMVC.php?module=3&action=6","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 6) ? "active" : ""),"Famille","indexMVC.php?module=3&action=6",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_FAMILLE() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,5,"","Catalogue"
-                    ,"indexMVC.php?module=3&action=5","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 5) ? "active" : ""),"Catalogue","indexMVC.php?module=3&action=5",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DEPOT() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,10,"","Depot"
-                    ,"indexMVC.php?module=3&action=10","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 10) ? "active" : ""),"Depot","indexMVC.php?module=3&action=10",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_COLLABORATEUR() != 2)
-            menuStructure.put(getMenuItem("customMenu",3,12,"","Collaborateur"
-                    ,"indexMVC.php?module=3&action=12","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 12) ? "active" : ""),"Collaborateur","indexMVC.php?module=3&action=12",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1)
-            menuStructure.put(getMenuItem("customMenu",3,14,"","Caisse"
-                    ,"indexMVC.php?module=3&action=14","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 14) ? "active" : ""),"Caisse","indexMVC.php?module=3&action=14",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1)
-            menuStructure.put(getMenuItem("customMenu",3,16,"","Salarié"
-                    ,"indexMVC.php?module=3&action=16","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 16) ? "active" : ""),"Salarié","indexMVC.php?module=3&action=16",(new JSONObject())));
 
         if (fProtectioncial.getPROT_Right() == 1)
-            menuStructure.put(getMenuItem("customMenu",3,11,"","Rabais remise et ristournes"
-                    ,"indexMVC.php?module=3&action=18","",null));
+            menuStructure.add(addItem("customMenu",((module == 3 && action == 18) ? "active" : ""),"Rabais remise et ristournes","indexMVC.php?module=3&action=18",(new JSONObject())));
 
-        menu.put(getMenuItem("customMenu",3,1,"","Structure"
-                ,"#","#",menuStructure));
-
-//Compta
+        menu.add(addItem("customMenu",((module == 3) ? "active" : ""),"Structure","/",menuStructure));
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLOTURE_CAISSE() != 2) {
             JSONArray menuComptabilite = new JSONArray();
+
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_PLAN_COMPTABLE() != 2)
-                menuComptabilite.put(getMenuItem("customMenu",9,1,"","¨Plan comptable"
-                        ,"indexMVC.php?module=9&action=1","PlanComptable",null));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 1) ? "active" : ""),"Plan comptable","indexMVC.php?module=9&action=1",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_PLAN_ANALYTIQUE() != 2)
-                menuComptabilite.put(getMenuItem("customMenu",9,3,"","Plan analytique"
-                        ,"indexMVC.php?module=9&action=3","PlanAnalytique",null));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 3) ? "active" : ""),"Plan analytique","indexMVC.php?module=9&action=3",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_TAUX_TAXE() != 2)
-                menuComptabilite.put(getMenuItem("customMenu",9,5,"","Taxe"
-                        ,"indexMVC.php?module=9&action=5","Taxe",null));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 5) ? "active" : ""),"Taxe","indexMVC.php?module=9&action=5",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CODE_JOURNAUX() != 2)
-                menuComptabilite.put(getMenuItem("customMenu",9,7,"","Journal"
-                        ,"indexMVC.php?module=9&action=7","Journal",null));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 7) ? "active" : ""),"Journal","indexMVC.php?module=9&action=7",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_LISTE_BANQUE() != 2)
-                menuComptabilite.put(getMenuItem("customMenu",9,9,"","Banque"
-                        ,"indexMVC.php?module=9&action=9","Banque",null));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 9) ? "active" : ""),"Banque","listeBanque",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_LISTE_MODELE_REGLEMENT() != 2)
-                menuComptabilite.put(getMenuItem("customMenu",9,11,"","Modèle de rglt"
-                        ,"indexMVC.php?module=9&action=11","ModeleDeRglt",null));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 11) ? "active" : ""),"Modèle de rglt","indexMVC.php?module=9&action=11",(new JSONObject())));
 
-            if (fProtectioncial.getPROT_Right() == 1) {
-                menuComptabilite.put(getMenuItem("customMenu", 9, 13, "", "Saisie compta"
-                        , "indexMVC.php?module=9&action=13", "SaisieCompta", null));
-                menuComptabilite.put(getMenuItem("customMenu", 9, 15, "", "Ctrle de caisse"
-                        , "indexMVC.php?module=9&action=15", "CtrleDeCaisse", null));
-                menuComptabilite.put(getMenuItem("customMenu", 9, 16, "", "Mise à jour comptable"
-                        , "indexMVC.php?module=9&action=16", "MajComptable", null));
-                menuComptabilite.put(getMenuItem("customMenu", 9, 17, "", "Mise à jour analytique"
-                        , "indexMVC.php?module=9&action=17", "MajAnalytique", null));
-                menuComptabilite.put(getMenuItem("customMenu", 9, 19, "", "Interrogation tiers"
-                        , "indexMVC.php?module=9&action=19", "InterrogationTiers", null));
-                menuComptabilite.put(getMenuItem("customMenu", 9, 19, "", "Interrogation et lettrage"
-                        , "indexMVC.php?module=9&action=19", "InterrogationEtLettrage", null));
+            menuComptabilite.add(addItem("customMenu",((module == 9 && action == 13) ? "active" : ""),"Saisie compta","indexMVC.php?module=9&action=13",(new JSONObject())));
 
-            }
+            menuComptabilite.add(addItem("customMenu",((module == 9 && action == 15) ? "active" : ""),"Ctrle de caisse","indexMVC.php?module=9&action=15",(new JSONObject())));
+
+            menuComptabilite.add(addItem("customMenu",((module == 9 && action == 17) ? "active" : ""),"majAnalytique","indexMVC.php?module=9&action=17",(new JSONObject())));
+
+            menuComptabilite.add(addItem("customMenu",((module == 9 && action == 19 && type.equals("Tiers")) ? "active" : ""),"Interrogation tiers","Interrogation-Tiers",(new JSONObject())));
+
+            menuComptabilite.add(addItem("customMenu",((module == 9 && action == 19 && type.equals("Lettrage")) ? "active" : ""),"Interrogation et lettrage","Interrogation-Lettrage",(new JSONObject())));
+
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLOTURE_CAISSE() != 2)
-            menuComptabilite.put(getMenuItem("customMenu", 9, 18, "", "Clôture de caisse"
-                    , "indexMVC.php?module=9&action=18", "ClotureDeCaisse", null));
-            menu.put(getMenuItem("customMenu",9,1,"","Comptabilité"
-                    ,"#","#",menuComptabilite));
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 18) ? "active" : ""),"Clôture de caisse","clotureDeCaisse",(new JSONObject())));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_CLOTURE_CAISSE() != 2)
+                menuComptabilite.add(addItem("customMenu",((module == 9 && action == 20) ? "active" : ""),"Clôture comptable","clotureComptable",(new JSONObject())));
+
+            menu.add(addItem("customMenu","","Comptabilité","/",menuComptabilite));
         }
 
-        //Mouvement de stock
 
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_STOCK() != 2) {
             JSONArray menuMvt = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DEPRECIATION_STOCK() != 2)
-                menuMvt.put(getMenuItem("customMenu",4,1,"Transfert","Transfert"
-                        ,"indexMVC.php?module=4&action=1&type=Transfert","listeFacture-Vente",null));
+
+            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_VIREMENT_DEPOT() != 2)
+                menuMvt.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Transfert")) ? "active" : ""),"Transfert","listeFacture-Transfert",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_ENTREE() != 2)
-                menuMvt.put(getMenuItem("customMenu",4,3,"Entree","Entrée"
-                        ,"indexMVC.php?module=4&action=3&type=Entree","listeFacture-Devis",null));
+                menuMvt.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Entree")) ? "active" : ""),"Entrée","listeFacture-Entree",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_SORTIE() != 2)
-                menuMvt.put(getMenuItem("customMenu",4,4,"Sortie","Sortie"
-                        ,"indexMVC.php?module=4&action=4&type=Sortie","listeFacture-BonLivraison",null));
+                menuMvt.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Sortie")) ? "active" : ""),"Sortie","listeFacture-Sortie",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_INTERNE_2() != 2)
-                menuMvt.put(getMenuItem("customMenu",4,9,"Transfert_detail","Trsft détail"
-                        ,"indexMVC.php?module=4&action=9&type=Transfert_detail","listeFacture-Transfert_detail",null));
+                menuMvt.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Transfert_detail")) ? "active" : ""),"Trsft détail","listeFacture-Transfert_detail",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_INTERNE_5() != 2)
-                menuMvt.put(getMenuItem("customMenu",4,11,"Transfert_confirmation","Emission"
-                        ,"indexMVC.php?module=4&action=11&type=Transfert_confirmation","listeFacture-Transfert_confirmation",null));
+                menuMvt.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Transfert_confirmation")) ? "active" : ""),"Emission","listeFacture-Transfert_confirmation",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_DOCUMENT_INTERNE_5() != 2)
-                menuMvt.put(getMenuItem("customMenu",4,13,"Transfert_valid_confirmation","Confirmation"
-                        ,"indexMVC.php?module=4&action=13&type=Transfert_valid_confirmation","listeFacture-Transfert_valid_confirmation",null));
-            menu.put(getMenuItem("customMenu",4,1,"","Mouvements"
-                    ,"#","#",menuMvt));
+                menuMvt.add(addItem("customMenu",((module == 2 && action == 1 && type.equals("Transfert_valid_confirmation")) ? "active" : ""),"Confirmation","listeFacture-Transfert_valid_confirmation",(new JSONObject())));
+
+            menu.add(addItem("customMenu","","Mouvements","/",menuMvt));
         }
 
-        //Caisse
         if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_MVT_CAISSE() != 2) {
-            JSONArray menuCaisse = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_MVT_CAISSE() != 2)
-                menuCaisse.put(getMenuItem("customMenu",6,1,"","Caisse"
-                        ,"indexMVC.php?module=6&action=1","MvtCaisse",null));
+            JSONArray menuTreso = new JSONArray();
+
+            menuTreso.add(addItem("customMenu",((module == 6 && action == 1) ? "active" : ""),"Caisse","mvtCaisse",(new JSONObject())));
 
             if (fProtectioncial.getPROT_Right() == 1)
-                menuCaisse.put(getMenuItem("customMenu",6,2,"","Banque"
-                        ,"indexMVC.php?module=6&action=2","MvtBanque",null));
+                menuTreso.add(addItem("customMenu",((module == 6 && action == 2) ? "active" : ""),"Banque","mvtBanque",(new JSONObject())));
 
-            menu.put(getMenuItem("customMenu",4,1,"","Trésorerie"
-                    ,"#","#",menuCaisse));
+            menu.add(addItem("customMenu","","Trésorerie","/",menuTreso));
         }
 
+        menu.add(addItem("customMenu",((module == 1 && action == 6) ? "active" : ""),"Mot de passe","indexMVC.php?module=1&action=6",(new JSONObject())));
 
-        //Administration
-        if (fProtectioncial.getPROT_Right() == 1) {
-            JSONArray menuAdmin = new JSONArray();
-            menuAdmin.put(getMenuItem("customMenu",8,1,"","Utilisateur"
-                    ,"indexMVC.php?module=8&action=1","Utilisateur",null));
-            menuAdmin.put(getMenuItem("customMenu",8,2,"","Profil"
-                    ,"indexMVC.php?module=8&action=2","Profil",null));
-            menuAdmin.put(getMenuItem("customMenu",8,5,"","Droits"
-                    ,"indexMVC.php?module=8&action=5","Droits",null));
-            menuAdmin.put(getMenuItem("customMenu",8,7,"","Envoi mail"
-                    ,"indexMVC.php?module=8&action=7","EnvoiMail",null));
-            menuAdmin.put(getMenuItem("customMenu",8,8,"","Envoi SMS"
-                    ,"indexMVC.php?module=8&action=8","EnvoiSms",null));
-            menuAdmin.put(getMenuItem("customMenu",8,9,"","Compte SMS"
-                    ,"indexMVC.php?module=8&action=9","CompteSms",null));
-            menuAdmin.put(getMenuItem("customMenu",8,10,"","Configuration accès"
-                    ,"indexMVC.php?module=8&action=10","ConfigAcces",null));
-            menuAdmin.put(getMenuItem("customMenu",8,11,"","Configuration profil utilisateur"
-                    ,"indexMVC.php?module=8&action=11","ConfigProfilUtilisateur",null));
-            menuAdmin.put(getMenuItem("customMenu",8,12,"","Déconnexion totale"
-                    ,"indexMVC.php?module=8&action=12","DeconnexionTotale",null));
-            menuAdmin.put(getMenuItem("customMenu",8,13,"","Fusion article"
-                    ,"indexMVC.php?module=8&action=13","FusionArticle",null));
-            menuAdmin.put(getMenuItem("customMenu",8,14,"","Fusion client"
-                    ,"indexMVC.php?module=8&action=14","FusionClient",null));
-            menuAdmin.put(getMenuItem("customMenu",8,15,"","Calendrier connexion"
-                    ,"indexMVC.php?module=8&action=15","CalendrierConnexion",null));
-            menuAdmin.put(getMenuItem("customMenu",8,16,"","Suppr. Ligne mvt"
-                    ,"indexMVC.php?module=8&action=16","SupprLigneMvt",null));
-            menuAdmin.put(getMenuItem("customMenu",8,17,"","Fix cat compta"
-                    ,"indexMVC.php?module=8&action=17","FixCatCompta",null));
-
-            menu.put(getMenuItem("customMenu",8,1,"","Administration"
-                    ,"#","#",menuAdmin));
-        }
-
-
-
-
-        //Etat Compta
-        if(type.equals("Haut")) {
+        if(position.equals("Haut")){
             JSONArray menuEtat = new JSONArray();
-
             JSONArray subEtat = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0) {
-                subEtat.put(getMenuItem("customMenu", 5, 6, "", "Echéance client"
-                        , "indexMVC.php?module=5&action=6", "GrdLivreDesTiers", null));
-                subEtat.put(getMenuItem("customMenu", 5, 30, "", "Echéance client agé"
-                        , "indexMVC.php?module=5&action=30", "BalanceDesTiersCommercial", null));
-                subEtat.put(getMenuItem("customMenu", 5, 26, "", "Echéance client 2"
-                        , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
 
-                menuEtat.put(getMenuItem("customMenu", 5, 32, "", "Grand livre tiers commercial"
-                        , "#", "#", subEtat));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0)) {
+                subEtat.add(addItem("customMenu",((module == 5 && action == 6) ? "active" : ""),"Echéance client","indexMVC.php?module=5&action=6&typeTiers=0",(new net.minidev.json.JSONObject())));
+                subEtat.add(addItem("customMenu",((module == 5 && action == 30) ? "active" : ""),"Echéance client agé","indexMVC.php?module=5&action=30&typeTiers=0",(new net.minidev.json.JSONObject())));
+                subEtat.add(addItem("customMenu",((module == 5 && action == 26) ? "active" : ""),"Echéance client 2","indexMVC.php?module=5&action=26&typeTiers=0",(new net.minidev.json.JSONObject())));
+                menuEtat.add(addItem("customMenu",((module == 5 && (action == 6 || action == 30 || action == 26)) ? "active" : ""),"Echéance client","/",subEtat));
             }
 
             subEtat = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 26, "", "Statistique article par agence"
-                        , "indexMVC.php?module=5&action=26", "JustificatifSoldeTiers", null));
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 20, "", "Statistique des articles par fournisseur"
-                        , "indexMVC.php?module=5&action=20", "JustificatifSoldeTiers", null));
-            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique article"
-                    , "#", "#", subEtat));
+            if ((fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 4) ? "active" : ""),"Statistique article par agence","indexMVC.php?module=5&action=4",(new net.minidev.json.JSONObject())));
+
+            if ((fProtectioncial.getPROT_ETAT_STAT_FRS() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 20) ? "active" : ""),"Statistique des articles par fournisseur","indexMVC.php?module=5&action=20",(new net.minidev.json.JSONObject())));
+            menuEtat.add(addItem("customMenu",((module == 5 && (action == 4 || action == 20)) ? "active" : ""),"Statistique article","/",subEtat));
 
             subEtat = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 19, "", "Statistique des Achats"
-                        , "indexMVC.php?module=5&action=19", "JustificatifSoldeTiers", null));
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_FRS() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 18, "", "Statistique des Achats analytique"
-                        , "indexMVC.php?module=5&action=18", "JustificatifSoldeTiers", null));
-            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique Achat"
-                    , "#", "#", subEtat));
+            if ((fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 19) ? "active" : ""),"Statistique des Achats","indexMVC.php?module=5&action=19",(new net.minidev.json.JSONObject())));
+
+            if ((fProtectioncial.getPROT_ETAT_STAT_FRS() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 18) ? "active" : ""),"Statistique des Achats analytique","indexMVC.php?module=5&action=18",(new net.minidev.json.JSONObject())));
+            menuEtat.add(addItem("customMenu",((module == 5 && (action == 18 || action == 19)) ? "active" : ""),"Statistique Achat","/",subEtat));
 
             subEtat = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_ARTICLE() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 13, "", "Statistique collaborateur par article"
-                        , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_TIERS() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 11, "", "Statistique collaborateur par client"
-                        , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
-            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique collaborateur"
-                    , "#", "#", subEtat));
+            if ((fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_ARTICLE() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 13) ? "active" : ""),"Statistique collaborateur par article","indexMVC.php?module=5&action=13",new JSONObject()));
+
+            if ((fProtectioncial.getPROT_ETAT_STAT_COLLAB_PAR_TIERS() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 11) ? "active" : ""),"Statistique collaborateur par client","indexMVC.php?module=5&action=11",new JSONObject()));
+            menuEtat.add(addItem("customMenu",((module == 5 && (action == 18 || action == 13)) ? "active" : ""),"Statistique collaborateur","/",subEtat));
 
             subEtat = new JSONArray();
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 5, "", "Statistique client par agence"
-                        , "indexMVC.php?module=5&action=13", "JustificatifSoldeTiers", null));
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0)
-                subEtat.put(getMenuItem("customMenu", 5, 39, "", "Statistique client par article"
-                        , "indexMVC.php?module=5&action=11", "JustificatifSoldeTiers", null));
-            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Statistique client"
-                    , "#", "#", subEtat));
+            if ((fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 5) ? "active" : ""),"Statistique client par agence","indexMVC.php?module=5&action=5",new JSONObject()));
 
-            menuEtat.put(getMenuItem("customMenu", 5, 1, "", "Mouvement de stock"
-                    , "indexMVC.php?module=5&action=1", "#", null));
+            if ((fProtectioncial.getPROT_ETAT_PALMARES_CLT() == 0))
+                subEtat.add(addItem("customMenu",((module == 5 && action == 39) ? "active" : ""),"Statistique client par article","indexMVC.php?module=5&action=39",new JSONObject()));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_MVT_STOCK() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 33, "", "Articles Absent Boutique"
-                        , "indexMVC.php?module=5&action=33", "#", null));
-            if (fProtectioncial.getPROT_Right() == 1) {
-                menuEtat.put(getMenuItem("customMenu", 5, 34, "", "Articles Dormants"
-                        , "indexMVC.php?module=5&action=34", "#", null));
-            }
+            menuEtat.add(addItem("customMenu",((module == 5 && (action == 5 || action == 39)) ? "active" : ""),"Statistique client","/",new JSONObject()));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_FRS() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 6, "", "Echéance fournisseur"
-                        , "indexMVC.php?module=5&action=6", "#", null));
+            menuEtat.add(addItem("customMenu",((module == 5 && action == 1) ? "active" : ""),"Mouvement de stock","indexMVC.php?module=5&action=1",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_MVT_STOCK() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 3) ? "active" : ""),"Equation de stock","indexMVC.php?module=5&action=3",new JSONObject()));
 
             if (fProtectioncial.getPROT_Right() == 1)
-                menuEtat.put(getMenuItem("customMenu", 5, 7, "", "Règlement client"
-                        , "indexMVC.php?module=5&action=7", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_CPTE_CLIENT() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 6, "", "Relevé compte client"
-                        , "indexMVC.php?module=5&action=6", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_CAISSE_MODE_RGLT() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 9, "", "Etat caisse"
-                        , "indexMVC.php?module=5&action=9", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 10, "", "Etat des dettes"
-                        , "indexMVC.php?module=5&action=10", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_LIVRE_INV() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 12, "", "Livre d'inventaire"
-                        , "indexMVC.php?module=5&action=12", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 14, "", "Versement distant"
-                        , "indexMVC.php?module=5&action=14", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_RISQUE_CLIENT() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 15, "", "Versement bancaire"
-                        , "indexMVC.php?module=5&action=15", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 16, "", "Ctrle report fond de caisse"
-                        , "indexMVC.php?module=5&action=16", "#", null));
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 33) ? "active" : ""),"Articles Absent Boutique","indexMVC.php?module=5&action=33",new JSONObject()));
 
             if (fProtectioncial.getPROT_Right() == 1)
-                menuEtat.put(getMenuItem("customMenu", 5, 22, "", "Ech tiers"
-                        , "indexMVC.php?module=5&action=22", "#", null));
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 34) ? "active" : ""),"Articles Dormants","indexMVC.php?module=5&action=34",new JSONObject()));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_REAPPROVISIONNEMENT() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 23, "", "Etat de réapprovisionnement"
-                        , "indexMVC.php?module=5&action=23", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 24, "", "Etat d'exploitation"
-                        , "indexMVC.php?module=5&action=24", "#", null));
-
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 25, "", "Transfert de caisse"
-                        , "indexMVC.php?module=5&action=25", "#", null));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_RELEVE_ECH_FRS() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 6) ? "active" : ""),"Echéance fournisseur","indexMVC.php?module=5&action=6&typeTiers=1",new JSONObject()));
 
             if (fProtectioncial.getPROT_Right() == 1)
-                menuEtat.put(getMenuItem("customMenu", 5, 27, "", "Stock grand depot"
-                        , "indexMVC.php?module=5&action=27", "#", null));
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 7) ? "active" : ""),"Règlement client","indexMVC.php?module=5&action=7",new JSONObject()));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 28, "", "Etat du compte de résultat"
-                        , "indexMVC.php?module=5&action=28", "#", null));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_RELEVE_CPTE_CLIENT() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 8) ? "active" : ""),"Relevé compte client","indexMVC.php?module=5&action=8",new JSONObject()));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 29, "", "Fichier central rap"
-                        , "indexMVC.php?module=5&action=29", "#", null));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_CAISSE_MODE_RGLT() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 9) ? "active" : ""),"Etat caisse","indexMVC.php?module=5&action=9",new JSONObject()));
 
-            if (fProtectioncial.getPROT_Right() == 1 || fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0)
-                menuEtat.put(getMenuItem("customMenu", 5, 31, "", "Ecriture comptable"
-                        , "indexMVC.php?module=5&action=31", "#", null));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_RELEVE_ECH_CLIENT() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 10) ? "active" : ""),"Etat des dettes","indexMVC.php?module=5&action=10",new JSONObject()));
 
-            menuEtat.put(getMenuItem("customMenu", 5, 43, "", "Stock magasin"
-                    , "indexMVC.php?module=5&action=43", "#", null));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_LIVRE_INV() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 12) ? "active" : ""),"Livre d'inventaire","indexMVC.php?module=5&action=12",new JSONObject()));
 
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_RISQUE_CLIENT() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 14) ? "active" : ""),"Versement distant","indexMVC.php?module=5&action=14",new JSONObject()));
 
-            menu.put(getMenuItem("customMenu", 5, 1, "", "Etats"
-                    , "#", "#", menuEtat));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_RISQUE_CLIENT() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 15) ? "active" : ""),"Versement bancaire","indexMVC.php?module=5&action=15",new JSONObject()));
 
-            JSONArray subEtatCompta = new JSONArray();
-            subEtatCompta.put(getMenuItem("customMenu", 5, 40, "", "Grand livre des tiers"
-                    , "indexMVC.php?module=5&action=40", "GrdLivreDesTiers", null));
-            subEtatCompta.put(getMenuItem("customMenu", 5, 21, "", "Balance des tiers commercial"
-                    , "indexMVC.php?module=5&action=21", "BalanceDesTiersCommercial", null));
-            subEtatCompta.put(getMenuItem("customMenu", 5, 41, "", "Justificatif solde tiers"
-                    , "indexMVC.php?module=5&action=41", "JustificatifSoldeTiers", null));
-            subEtatCompta.put(getMenuItem("customMenu", 5, 42, "", "Statistiques tiers"
-                    , "indexMVC.php?module=5&action=42", "StatistiquesTiers", null));
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 16) ? "active" : ""),"Ctrle report fond de caisse","indexMVC.php?module=5&action=16",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1)
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 22) ? "active" : ""),"Ech tiers","indexMVC.php?module=5&action=22",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_REAPPROVISIONNEMENT() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 23) ? "active" : ""),"Etat de réapprovisionnement","indexMVC.php?module=5&action=23",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 24) ? "active" : ""),"Etat d'exploitation","indexMVC.php?module=5&action=24",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 25) ? "active" : ""),"Transfert de caisse","indexMVC.php?module=5&action=25",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1)
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 27) ? "active" : ""),"Stock grand depot","indexMVC.php?module=5&action=27",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_STAT_CAISSE_ARTICLE() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 28) ? "active" : ""),"Etat du compte de résultat","indexMVC.php?module=5&action=28",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 29) ? "active" : ""),"Fichier central rap","indexMVC.php?module=5&action=29",new JSONObject()));
+
+            if (fProtectioncial.getPROT_Right() == 1 || (fProtectioncial.getPROT_ETAT_STAT_ARTICLE_PAR_ART() == 0))
+                menuEtat.add(addItem("customMenu",((module == 5 && action == 31) ? "active" : ""),"Ecriture comptable","indexMVC.php?module=5&action=31",new JSONObject()));
+
+            menuEtat.add(addItem("customMenu",((module == 5 && action == 43) ? "active" : ""),"Stock magasin","indexMVC.php?module=5&action=43",new JSONObject()));
+
+            menu.add(addItem("customMenu",((module == 5) ? "active" : ""),"Etats","/",menuEtat));
+
 
             JSONArray menuEtatCompta = new JSONArray();
-            menuEtatCompta.put(getMenuItem("customMenu", 5, 32, "", "Grand livre tiers commercial"
-                    , "indexMVC.php?module=5&action=32", "GrdLivreTiersCommercial", subEtatCompta));
+            menuEtatCompta.add(addItem("customMenu",((module == 5 && action == 32) ? "active" : ""),"Grand livre tiers commercial","indexMVC.php?module=5&action=32",new JSONObject()));
+            menuEtatCompta.add(addItem("customMenu",((module == 5 && action == 36) ? "active" : ""),"Balance des comptes","indexMVC.php?module=5&action=36",new JSONObject()));
 
-            subEtatCompta = new JSONArray();
-            subEtatCompta.put(getMenuItem("customMenu", 5, 38, "", "Journal"
-                    , "indexMVC.php?module=5&action=38", "EtatJournal", null));
-            subEtatCompta.put(getMenuItem("customMenu", 5, 35, "", "Balance Analytique"
-                    , "indexMVC.php?module=5&action=35", "BalanceAnalytique", null));
-            subEtatCompta.put(getMenuItem("customMenu", 5, 37, "", "Grand livre analytique"
-                    , "indexMVC.php?module=5&action=37", "GrandLivreAnalytique", null));
+            subEtat = new JSONArray();
+            subEtat.add(addItem("customMenu",((module == 5 && action == 40) ? "active" : ""),"Grand livre des tiers","indexMVC.php?module=5&action=40",new JSONObject()));
+            subEtat.add(addItem("customMenu",((module == 5 && action == 21) ? "active" : ""),"Balance des tiers commercial","indexMVC.php?module=5&action=21",new JSONObject()));
+            subEtat.add(addItem("customMenu",((module == 5 && action == 41) ? "active" : ""),"Justificatif solde tiers","indexMVC.php?module=5&action=41",new JSONObject()));
+            subEtat.add(addItem("customMenu",((module == 5 && action == 42) ? "active" : ""),"Statistiques tiers","indexMVC.php?module=5&action=42",new JSONObject()));
+            menuEtatCompta.add(addItem("customMenu","","Etat tiers","/",subEtat));
 
-            menuEtatCompta.put(getMenuItem("customMenu", 5, 36, "", "Balance des comptes"
-                    , "indexMVC.php?module=5&action=36", "BalanceDesComptes", subEtatCompta));
+            subEtat = new JSONArray();
+            subEtat.add(addItem("customMenu",((module == 5 && action == 38) ? "active" : ""),"Journal","indexMVC.php?module=5&action=38",new JSONObject()));
+            subEtat.add(addItem("customMenu",((module == 5 && action == 35) ? "active" : ""),"Balance Analytique","indexMVC.php?module=5&action=35",new JSONObject()));
+            subEtat.add(addItem("customMenu",((module == 5 && action == 37) ? "active" : ""),"Grand livre analytique","indexMVC.php?module=5&action=37",new JSONObject()));
+            menuEtatCompta.add(addItem("customMenu","","Etats analytiques","/",subEtat));
 
-            menu.put(getMenuItem("customMenu", 5, 1, "", "Etat compta"
-                    , "#", "#", menuEtatCompta));
+            menu.add(addItem("customMenu","","Etat compta","/",menuEtatCompta));
         }
 
-        return menu.toString();
+
+        if (fProtectioncial.getPROT_Right() == 1) {
+            JSONArray menuAdmin = new JSONArray();
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 1) ? "active" : ""),"Utilisateur","indexMVC.php?module=8&action=1",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 2) ? "active" : ""),"Profil","indexMVC.php?module=8&action=2",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 5) ? "active" : ""),"Droits","indexMVC.php?module=8&action=5",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 7) ? "active" : ""),"Envoi mail","indexMVC.php?module=8&action=7",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 8) ? "active" : ""),"Envoi SMS","indexMVC.php?module=8&action=8",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 9) ? "active" : ""),"Compte SMS","indexMVC.php?module=8&action=9",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 10) ? "active" : ""),"Configuration accès","indexMVC.php?module=8&action=10",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 11) ? "active" : ""),"Configuration profil utilisateur","indexMVC.php?module=8&action=11",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 12) ? "active" : ""),"Déconnexion totale","indexMVC.php?module=8&action=12",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 13) ? "active" : ""),"Fusion article","indexMVC.php?module=8&action=13",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 14) ? "active" : ""),"Fusion client","indexMVC.php?module=8&action=14",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 15) ? "active" : ""),"Calendrier connexion","indexMVC.php?module=8&action=15",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 16) ? "active" : ""),"Suppr. Ligne mvt","indexMVC.php?module=8&action=16",new JSONObject()));
+            menuAdmin.add(addItem("customMenu",((module == 8 && action == 17) ? "active" : ""),"Fix cat compta","indexMVC.php?module=8&action=17",new JSONObject()));
+            menu.add(addItem("customMenu","","Administration","/",menuAdmin));
+        } else {
+        }
+        return menu;
+    }
+
+    public JSONObject addItem(String classe,String active,String menuName,String link,Object subMenu){
+        JSONObject tmp = new JSONObject();
+        tmp.put("class" , classe);
+        tmp.put("active",active);
+        tmp.put("menuName" , menuName);
+        tmp.put("link" , link);
+        tmp.put("subMenu" , subMenu);
+        return tmp;
+    }
+
+    public Object getUser(String username,String mdp,int protNo) {
+        if(mdp.equals("''")) mdp = "";
+        String sql = FProtectioncialMapper.Connexion;
+
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(username);
+        params.add(mdp);
+        params.add(protNo);
+
+        List<Object> list = this.getJdbcTemplate().query(sql, params.toArray(), mapper);
+        if(list.size()>0)
+            return list.get(0);
+        return null;
     }
 
     public List<Object> getSoucheDepotGrpSouche(int protNo,String type){

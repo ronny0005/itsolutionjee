@@ -101,7 +101,7 @@ public class FCaisseDAO extends JdbcDaoSupport {
 
     public List<Object> getCaisseDepot(int protNo) {
         String sql = FCaisseMapper.getCaisseDepot;
-        params = new Object[] {protNo,protNo};
+        params = new Object[] {protNo};
         return this.getJdbcTemplate().query(sql, params,mapper);
     }
 

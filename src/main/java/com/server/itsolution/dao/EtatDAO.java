@@ -58,9 +58,9 @@ public class EtatDAO extends JdbcDaoSupport {
         return false;
     }
 
-    public List<Object> top10Vente(String period,int protNo){
+    public List<Object> top10Vente(String period,int time,int protNo){
         String sql = EtatMapper.top10Vente;
-        params = new Object[]{period,protNo};
+        params = new Object[]{period,time,protNo};
         return this.getJdbcTemplate().query(sql,params, mapper);
     }
 
@@ -121,9 +121,9 @@ public class EtatDAO extends JdbcDaoSupport {
         return this.getJdbcTemplate().query(sql,params, mapper);
     }
 
-    public List<Object> detteDuMois(int protNo){
+    public List<Object> detteDuMois(int protNo,int period){
         String sql = EtatMapper.detteDuMois;
-        params = new Object[]{protNo};
+        params = new Object[]{protNo,period};
         return this.getJdbcTemplate().query(sql,params, mapper);
     }
 

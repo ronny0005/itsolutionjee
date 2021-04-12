@@ -137,50 +137,50 @@ public class FDocEnteteMapper extends ObjectMapper {
 					"                ENABLE TRIGGER TG_UPD_F_DOCREGL ON F_DOCREGL;\n" +
 					"                ENABLE TRIGGER TG_UPD_F_REGLECH ON F_REGLECH;";
 
-    public static final String statutAchat ="DECLARE @type as VARCHAR(50) = ? \n" +
-            " SELECT * FROM(\n" +
-            "            SELECT *,CASE WHEN (Val=0 AND D_Saisie=1) OR (Val=1 AND D_Confirme=1) OR (Val=2 AND D_Valide=1) THEN 1 ELSE 0 END FLAG\n" +
-            "                FROM(\n" +
-            "                    SELECT *\n" +
-            "                    FROM (\n" +
-            "                    SELECT 'Saisi' as Lib ,0 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'A facturer' as Lib ,2 as Val)A\n" +
-            "                    WHERE ('BonLivraison'=@type)\n" +
-            "                    UNION\n" +
-            "                    SELECT *\n" +
-            "                    FROM (\n" +
-            "                    SELECT 'Saisi' as Lib ,0 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Accepté' as Lib ,2 as Val)A\n" +
-            "                    WHERE 'Devis'=@type OR 'PreparationCommande'=@type\n" +
-            "                    UNION\n" +
-            "                    SELECT *\n" +
-            "                    FROM (\n" +
-            "                    SELECT 'Saisi' as Lib ,0 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'A comptabiliser' as Lib ,2 as Val)A\n" +
-            "                    WHERE 'Vente'=@type OR 'Achat'=@type OR 'Retour'=@type)A\n" +
-            "            INNER JOIN (SELECT *\n" +
-            "                    FROM(\n" +
-            "                    SELECT cbIndice, D_Valide,D_Saisie,D_Confirme,\n" +
-            "                    CASE WHEN cbIndice=2 THEN 'PreparationCommande' \n" +
-            "                            WHEN cbIndice=3 THEN 'BonCommande' \n" +
-            "                            WHEN cbIndice=4 THEN 'BonLivraison' \n" +
-            "                            WHEN cbIndice=5 THEN 'BonRetour'  \n" +
-            "                            WHEN cbIndice=6 THEN 'BonAvoirFinancier'\n" +
-            "                            WHEN cbIndice=7 THEN 'Achat' \n" +
-            "                            WHEN cbIndice=8 THEN 'Retour'\n" +
-            "                            WHEN cbIndice=9 THEN 'Avoir' \n" +
-            "                            WHEN cbIndice=10 THEN 'Comptabilise' ELSE '' END AS Typ\n" +
-            "                        FROM P_ORGAACH )A) B ON B.Typ = @type)A\n" +
-            "                    WHERE FLAG=1";
+    public static final String statutAchat ="DECLARE @type NVARCHAR(50) = ?\n" +
+			"SELECT * FROM(\n" +
+			"            SELECT *,CASE WHEN (Val=0 AND D_Saisie=1) OR (Val=1 AND D_Confirme=1) OR (Val=2 AND D_Valide=1) THEN 1 ELSE 0 END FLAG\n" +
+			"                FROM(\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'A facturer' as Lib ,2 as Val)A\n" +
+			"                    WHERE ('BonLivraison'= @type)\n" +
+			"                    UNION\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Accepté' as Lib ,2 as Val)A\n" +
+			"                    WHERE 'Devis'=@type OR 'PreparationCommande'=@type\n" +
+			"                    UNION\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'A comptabiliser' as Lib ,2 as Val)A\n" +
+			"                    WHERE 'Vente'=@type OR 'Achat'= @type OR 'Retour'= @type)A\n" +
+			"            INNER JOIN (SELECT *\n" +
+			"                    FROM(\n" +
+			"                    SELECT cbIndice, D_Valide,D_Saisie,D_Confirme,\n" +
+			"                    CASE WHEN cbIndice=2 THEN 'PreparationCommande' \n" +
+			"                            WHEN cbIndice=3 THEN 'BonCommande' \n" +
+			"                            WHEN cbIndice=4 THEN 'BonLivraison' \n" +
+			"                            WHEN cbIndice=5 THEN 'BonRetour'  \n" +
+			"                            WHEN cbIndice=6 THEN 'BonAvoirFinancier'\n" +
+			"                            WHEN cbIndice=7 THEN 'Achat' \n" +
+			"                            WHEN cbIndice=8 THEN 'Retour'\n" +
+			"                            WHEN cbIndice=9 THEN 'Avoir' \n" +
+			"                            WHEN cbIndice=10 THEN 'Comptabilise' ELSE '' END AS Typ\n" +
+			"                        FROM P_ORGAACH )A) B ON B.Typ = @type)A\n" +
+			"                    WHERE FLAG=1";
 
     public static final String 	getLigneTransfert =
 			"DECLARE @cbMarq AS INT = ?; \n" +
@@ -205,51 +205,64 @@ public class FDocEnteteMapper extends ObjectMapper {
 					"                                            AND E.DO_Piece = M.DO_Piece \n" +
 					"                                        WHERE\tM.DL_MvtStock=1 AND E.cbMarq = @cbMarq)B \n" +
 					"                            ) B ON (B.Ligne-A.Ligne )=10000 AND A.AR_Ref = B.AR_Ref";
-    public static final String statutVente =" DECLARE @type as VARCHAR(50) = ? \n" +
-            "            SELECT * FROM(\n" +
-            "            SELECT *,CASE WHEN (Val=0 AND D_Saisie=1) OR (Val=1 AND D_Confirme=1) OR (Val=2 AND D_Valide=1) THEN 1 ELSE 0 END FLAG\n" +
-            "                FROM(\n" +
-            "                    SELECT *\n" +
-            "                    FROM (\n" +
-            "                    SELECT 'Saisi' as Lib ,0 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'A facturer' as Lib ,2 as Val)A\n" +
-            "                    WHERE ('BonLivraison'=@type)\n" +
-            "                    UNION\n" +
-            "                    SELECT *\n" +
-            "                    FROM (\n" +
-            "                    SELECT 'Saisi' as Lib ,0 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Accepté' as Lib ,2 as Val)A\n" +
-            "                    WHERE 'Devis'=@type\n" +
-            "                    UNION\n" +
-            "                    SELECT *\n" +
-            "                    FROM (\n" +
-            "                    SELECT 'Saisi' as Lib ,0 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
-            "                    UNION\n" +
-            "                    SELECT 'A comptabiliser' as Lib ,2 as Val)A\n" +
-            "                    WHERE 'Vente'=@type OR 'ACHAT'=@type OR 'Retour'=@type OR 'Avoir'=@type)A\n" +
-            "                    INNER JOIN (SELECT *\n" +
-            "                    FROM(\n" +
-            "                    SELECT cbIndice, D_Valide,D_Saisie,D_Confirme,\n" +
-            "                    CASE WHEN cbIndice=1 THEN 'Devis'  \n" +
-        "                               WHEN cbIndice=2 THEN 'BonCommande'  \n" +
-        "                                    WHEN cbIndice=3 THEN 'PreparationLivraison' \n" +
-    "                                            WHEN cbIndice=4 THEN 'BonLivraison'  \n" +
-"                                                    WHEN cbIndice=5 THEN 'BonRetour' \n" +
-"                                                      WHEN cbIndice=6 THEN 'BonAvoirFinancier'  \n" +
-"                                                            WHEN cbIndice=7 THEN 'Vente'  \n" +
-"                                                               WHEN cbIndice=8 THEN 'Retour'  \n" +
-    "                                                              WHEN cbIndice=9 THEN 'Avoir'  \n" +
-        "                                                            WHEN cbIndice=10 THEN 'Comptabilise' ELSE '' END AS Typ\n" +
-            "                    FROM P_ORGAVEN)A) B ON B.Typ =@type)A\n" +
-            "                    WHERE FLAG=1\n";
+    public static final String statutVente ="  DECLARE @type NVARCHAR(30) = ?\n" +
+			"SELECT * \n" +
+			"FROM(\n" +
+			"            SELECT *,CASE WHEN (Val=0 AND D_Saisie=1) OR (Val=1 AND D_Confirme=1) OR (Val=2 AND D_Valide=1) THEN 1 ELSE 0 END FLAG\n" +
+			"                FROM(\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'A facturer' as Lib ,2 as Val)A\n" +
+			"                    WHERE ('BonLivraison'=@type)\n" +
+			"                    UNION\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'A préparer' as Lib ,2 as Val)A\n" +
+			"                    WHERE 'BonCommande'=@type\n" +
+			"                    UNION\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Accepté' as Lib ,2 as Val)A\n" +
+			"                    WHERE 'Devis'=@type\n" +
+			"                    UNION\n" +
+			"                    SELECT *\n" +
+			"                    FROM (\n" +
+			"                    SELECT 'Saisi' as Lib ,0 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'Confirmé' as Lib ,1 as Val\n" +
+			"                    UNION\n" +
+			"                    SELECT 'A comptabiliser' as Lib ,2 as Val)A\n" +
+			"                    WHERE CASE WHEN 'Vente'=@type THEN 1\n" +
+			"                                WHEN 'ACHAT'=@type THEN 1\n" +
+			"                                 WHEN 'VenteRetour'=@type THEN 1 \n" +
+			"                                  WHEN 'Avoir'=@type THEN 1 END = 1)A\n" +
+			"            INNER JOIN (SELECT *\n" +
+			"                    FROM(\n" +
+			"                    SELECT cbIndice, D_Valide,D_Saisie,D_Confirme,\n" +
+			"                    CASE WHEN cbIndice=1 THEN 'Devis' ELSE \n" +
+			"                            CASE WHEN cbIndice=2 THEN 'BonCommande' ELSE \n" +
+			"                                    CASE WHEN cbIndice=3 THEN 'PreparationLivraison' ELSE\n" +
+			"                                            CASE WHEN cbIndice=4 THEN 'BonLivraison' ELSE \n" +
+			"                                                    CASE WHEN cbIndice=5 THEN 'BonRetour' ELSE\n" +
+			"                                                            CASE WHEN cbIndice=6 THEN 'BonAvoirFinancier' ELSE \n" +
+			"                                                            CASE WHEN cbIndice=7 THEN 'Vente' ELSE \n" +
+			"                                                            CASE WHEN cbIndice=8 THEN 'VenteRetour' ELSE \n" +
+			"                                                            CASE WHEN cbIndice=9 THEN 'Avoir' ELSE \n" +
+			"                                                            CASE WHEN cbIndice=10 THEN 'Comptabilise' ELSE '' END END END END END END END END END END AS Typ\n" +
+			"                    FROM P_ORGAVEN)A) B ON B.Typ = @type)A\n" +
+			"                    WHERE FLAG=1";
 
     public static final String suppressionReglement =
 			"DECLARE @doPiece VARCHAR(20) = ?" +
@@ -353,49 +366,42 @@ public class FDocEnteteMapper extends ObjectMapper {
             "                    ORDER BY E.cbMarq";
 
     public static final String listeTransfertDetail =
-			"DECLARE @dotiers AS VARCHAR(30) = ?,\n" +
-					"                    @datedebut AS DATE = ?,\n" +
-					"                     @datefin AS DATE = ?;\n" +
-					"                    SELECT *\n" +
-					"                    FROM(\n" +
-					"                    SELECT  PROT_User\n" +
-					"                            ,DO_Imprim\n" +
-					"                            ,DO_Modif = CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert from P_PREFERENCES) THEN 1 ELSE 0 END \n" +
-					"                            ,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.cbDO_Piece,E.DO_Ref\n" +
-					"                            ,DO_Date = CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10))\n" +
-					"                            ,CT_Num = E.DO_Tiers,E.DE_No,DE_Intitule\n" +
-					"                            ,ttc = ISNULL(SUM(L.DL_Qte * DL_CMUP),0)\n" +
-					"                    FROM F_DOCENTETE E\n" +
-					"                    LEFT JOIN F_DOCLIGNE L \n" +
-					"                        on  E.cbDO_Piece=L.cbDO_Piece \n" +
-					"                        AND E.DO_Domaine= L.DO_Domaine \n" +
-					"                        AND E.DO_Type=L.DO_Type\n" +
-					"                    INNER JOIN F_DEPOT DE \n" +
-					"                        ON  DE.DE_No=E.DE_No \n" +
-					"                    LEFT JOIN F_PROTECTIONCIAL P \n" +
-					"                        ON  E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
-					"                    WHERE E.DO_Domaine=4 AND E.DO_Type=41 AND ('0'= @dotiers OR E.DE_No = @dotiers ) \n" +
-					"                        AND CAST(E.DO_Date as DATE) BETWEEN @datedebut AND @datefin\n" +
-					"                    GROUP BY PROT_User,DO_Imprim,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.cbDO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,E.DE_No,DE_Intitule)A\n" +
-					"                    LEFT JOIN(\n" +
-					"                    SELECT  DO_Type_dest = E.DO_Type \n" +
-					"                            ,DO_Domaine_dest = E.DO_Domaine\n" +
-					"                            ,DO_Piece_dest = E.DO_Piece\n" +
-					"                            ,cbDO_Piece_dest = E.cbDO_Piece\n" +
-					"                            ,DO_Ref_dest = E.DO_Ref\n" +
-					"                            ,DO_Date_dest = CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10))\n" +
-					"                            ,CT_Num_dest = E.DO_Tiers,E.DE_No AS DE_No_dest,DE_Intitule AS DE_Intitule_dest\n" +
-					"                    ,ISNULL(SUM(L.DL_Qte * DL_CMUP),0) AS ttc_dest\n" +
-					"                    FROM F_DOCENTETE E\n" +
-					"                    LEFT JOIN F_DOCLIGNE L \n" +
-					"                        ON  E.cbDO_Piece=L.cbDO_Piece \n" +
-					"                        AND E.DO_Domaine= L.DO_Domaine \n" +
-					"                        AND E.DO_Type=L.DO_Type\n" +
-					"                    INNER JOIN F_DEPOT DE \n" +
-					"                        ON  DE.DE_No=E.DE_No \n" +
-					"                    WHERE   E.DO_Domaine=4 \n" +
-					"                    AND     E.DO_Type=40\n" +
-					"                    GROUP BY E.DO_Type,E.DO_Domaine,E.DO_Piece,E.cbDO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,E.DE_No,DE_Intitule) B ON A.cbDO_PIECE=B.cbDO_Piece_dest ";
+			"DECLARE @doTiers AS INT = ?\n" +
+			"                    DECLARE @dateDeb AS NVARCHAR(20) = ? \n" +
+			"                    DECLARE @dateFin AS NVARCHAR(20) = ?\n" +
+			"                    SELECT *\n" +
+			"                    FROM(\n" +
+			"                    SELECT PROT_User,'' DL_PieceBL,DO_Imprim,CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert\n" +
+			"from P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.cbDO_Piece,E.DO_Ref,CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,E.DO_Tiers as CT_Num,E.DE_No,DE_Intitule\n" +
+			"                    ,ISNULL(SUM(L.DL_Qte * DL_CMUP),0) AS ttc\n" +
+			"                    FROM F_DOCENTETE E\n" +
+			"                    LEFT JOIN F_DOCLIGNE L \n" +
+			"                        ON  E.cbDO_Piece=L.cbDO_Piece \n" +
+			"                        AND E.DO_Domaine= L.DO_Domaine \n" +
+			"                        AND E.DO_Type=L.DO_Type\n" +
+			"                    INNER JOIN F_DEPOT DE \n" +
+			"                        ON  DE.DE_No=E.DE_No \n" +
+			"                    LEFT JOIN F_PROTECTIONCIAL P \n" +
+			"                        ON  E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
+			"                    WHERE   E.DO_Domaine=4 \n" +
+			"                    AND     E.DO_Type=41 \n" +
+			"                    AND     ('0'=@doTiers OR E.DE_No =@doTiers) \n" +
+			"                    AND     CAST(E.DO_Date as DATE) BETWEEN @dateDeb AND @dateFin\n" +
+			"                    GROUP BY PROT_User,DO_Imprim,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.cbDO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,E.DE_No,DE_Intitule)A\n" +
+			"                    LEFT JOIN(\n" +
+			"                    SELECT E.DO_Type AS DO_Type_dest,E.DO_Domaine AS DO_Domaine_dest,E.DO_Piece AS DO_Piece_dest,E.cbDO_Piece AS cbDO_Piece_dest,E.DO_Ref AS DO_Ref_dest,\n" +
+			"                    CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date_dest,E.DO_Tiers as CT_Num_dest,E.DE_No AS DE_No_dest,DE_Intitule AS DE_Intitule_dest\n" +
+			"                    ,ISNULL(SUM(L.DL_Qte * DL_CMUP),0) AS ttc_dest\n" +
+			"                    FROM F_DOCENTETE E\n" +
+			"                    LEFT JOIN F_DOCLIGNE L \n" +
+			"                        on  E.cbDO_Piece=L.cbDO_Piece \n" +
+			"                        AND E.DO_Domaine= L.DO_Domaine \n" +
+			"                        AND E.DO_Type=L.DO_Type\n" +
+			"                    INNER JOIN F_DEPOT DE \n" +
+			"                        ON  DE.DE_No=E.DE_No \n" +
+			"                    WHERE   E.DO_Domaine=4 \n" +
+			"                    AND     E.DO_Type=40\n" +
+			"                    GROUP BY E.DO_Type,E.DO_Domaine,E.DO_Piece,E.cbDO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,E.DE_No,DE_Intitule) B ON A.cbDO_PIECE=B.cbDO_Piece_dest";
     public static final String listeSortie =
             "DECLARE @doTiers as VARCHAR(30) = ?\n" +
             "                DECLARE @dateDeb as DATE = ?\n" +
@@ -413,67 +419,210 @@ public class FDocEnteteMapper extends ObjectMapper {
                     "                 GROUP BY PROT_User,DO_Imprim,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers\n" +
                     "                    ORDER BY E.cbMarq ";
 
-
+	public static final String listeTransfertConfirmation =
+	"DECLARE @doTiers NVARCHAR(50);\n" +
+	"                    DECLARE @dateDeb NVARCHAR(50); \n" +
+	"                    DECLARE @dateFin NVARCHAR(50);\n" +
+	"                    DECLARE @typeFac NVARCHAR(50);\n" +
+	"                    DECLARE @doDomaine INT; \n" +
+	"                    DECLARE @doType INT;\n" +
+	"                    DECLARE @admin INT;\n" +
+	"                    DECLARE @PROT_No INT;\n" +
+	"                    SET @doTiers = ?;\n" +
+	"                    SET @dateDeb = ?; \n" +
+	"                    SET @dateFin = ?;\n" +
+	"                    SET @doDomaine = ?; \n" +
+	"                    SET @doType = ?;\n" +
+	"                    SET @PROT_No = ?;\n" +
+	"                    SET @typeFac = ?;\n" +
+	"                    SET NOCOUNT ON;\n" +
+	"                    CREATE TABLE #TMPDEPOT (DE_No INT);\n" +
+	"                    SELECT @admin = CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No = @PROT_No \n" +
+	"                    IF (@admin=0)\n" +
+	"                    BEGIN \n" +
+	"                        INSERT INTO #TMPDEPOT\n" +
+	"                        SELECT\tA.DE_No \n" +
+	"                        FROM\tF_DEPOT A\n" +
+	"                        LEFT JOIN Z_DEPOTUSER D \n" +
+	"                            ON  A.DE_No=D.DE_No\n" +
+	"                        WHERE\t(1 = (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No=@PROT_No) OR D.PROT_No =@PROT_No)\n" +
+	"                        AND     (@doTiers='0' OR @doTiers=A.DE_No)\n" +
+	"                        AND     IsPrincipal = 1\n" +
+	"                        GROUP BY A.DE_No\n" +
+	"                    END\n" +
+	"                    ELSE \n" +
+	"                    BEGIN\n" +
+	"                        INSERT\tINTO #TMPDEPOT \n" +
+	"                        SELECT  DE_No \n" +
+	"                        FROM    F_DEPOT \n" +
+	"                        WHERE   (@doTiers='0' OR @doTiers=DE_No)\n" +
+	"                    END ;\n" +
+	"                    \n" +
+	"                    SELECT PROT_User\n" +
+	"                        ,DL_PieceBL = '' \n" +
+	"                        ,DO_Imprim\n" +
+	"                        ,DO_Modif = CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert\n" +
+	"from P_PREFERENCES) THEN 1 ELSE 0 END \n" +
+	"                        ,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref\n" +
+	"                        ,N_CatCompta = ISNULL(MAX(E.N_CatCompta),1) \n" +
+	"                        ,DO_Date = CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10))\n" +
+	"                        ,CT_Num = E.DO_Coord02\n" +
+	"                        ,ttc = ISNULL(SUM(L.DL_MontantTTC),0)\n" +
+	"                        ,CT_Intitule = MAX(DS.DE_Intitule)\n" +
+	"                        ,DE_Intitule_dest = MAX(DS.DE_Intitule)\n" +
+	"                        ,DE_Intitule = MAX(DE.DE_Intitule)\n" +
+	"                        ,avance = 0\n" +
+	"                        ,latitude = MAX(latitude) \n" +
+	"                        ,longitude = MAX(longitude) \n" +
+	"                        ,statut = ''\n" +
+	"                 FROM  F_DOCENTETE E \n" +
+	"                 LEFT JOIN F_DOCLIGNE L \n" +
+	"                     on E.cbDO_Piece=L.cbDO_Piece \n" +
+	"                     AND E.DO_Domaine= L.DO_Domaine \n" +
+	"                    AND E.DO_Type=L.DO_Type\n" +
+	"                 INNER JOIN F_DEPOT DE \n" +
+	"                     ON DE.DE_No=E.DE_No \n" +
+	"                 INNER JOIN F_DEPOT DS \n" +
+	"                     ON DS.DE_No=E.DO_Coord02\n" +
+	"                 /*INNER JOIN (SELECT cbMarqEntete FROM Z_LIGNE_CONFIRMATION GROUP BY cbMarqEntete) LC \n" +
+	"                     ON LC.cbMarqEntete =E.cbMarq*/\n" +
+	"                 LEFT JOIN F_PROTECTIONCIAL P \n" +
+	"                     ON E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
+	"                WHERE   \n" +
+	"                ((E.DE_No  IN (SELECT DE_No FROM #TMPDEPOT) AND @typeFac ='Transfert_confirmation')  \n" +
+	"                    OR (E.DO_Coord02 IN (SELECT DE_No FROM #TMPDEPOT)  AND @typeFac ='Transfert_valid_confirmation'))\n" +
+	"                AND     CAST(E.DO_Date as DATE) BETWEEN @dateDeb AND @dateFin\n" +
+	"                AND     E.DO_Domaine = @doDomaine\n" +
+	"                AND     E.DO_Type = @doType\n" +
+	"                GROUP BY PROT_User,DO_Imprim,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Coord02\n" +
+	"                ORDER BY E.cbMarq ";
     public static final String listeTransfert =
             "   DECLARE @doTiers as VARCHAR(30) = ?\n" +
-            "                DECLARE @dateDeb as DATE = ?\n" +
-            "                DECLARE @dateFin as DATE = ?\n" +
-            "SELECT PROT_User,DO_Imprim,CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert\n" +
-                    "from P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref,ISNULL(MAX(E.N_CatCompta),1) N_CatCompta,CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,E.DO_Tiers as CT_Num, ISNULL(SUM(L.DL_MontantTTC),0) AS ttc,\n" +
-                    "                MAX(DS.DE_Intitule) AS CT_Intitule,MAX(DS.DE_Intitule) AS DE_Intitule_dest,MAX(DE.DE_Intitule) AS DE_Intitule,0 as avance,MAX(latitude) latitude,MAX(longitude) longitude,'' as statut\n" +
-                    "                 FROM  F_DOCENTETE E \n" +
-                    "                 LEFT JOIN F_DOCLIGNE L on E.DO_Piece=L.DO_Piece AND E.DO_Domaine= L.DO_Domaine AND E.DO_Type=L.DO_Type\n" +
-                    "                 INNER JOIN F_DEPOT DE ON DE.DE_No=E.DE_No \n" +
-                    "                 INNER JOIN F_DEPOT DS ON DS.DE_No=E.DO_Tiers\n" +
-                    "                 LEFT JOIN F_PROTECTIONCIAL P ON E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
-                    "                WHERE ('0' = @doTiers OR (E.DE_No =@doTiers OR E.DO_Tiers =@doTiers))\n" +
-                    "                 AND E.cbMarq NOT IN (SELECT cbMarqEntete FROM Z_LIGNE_CONFIRMATION GROUP BY cbMarqEntete)\n" +
-                    "                 AND E.DO_Domaine=2 AND E.DO_Type=23 AND CAST(E.DO_Date as DATE) BETWEEN @dateDeb AND @dateFin \n" +
-                    "                 GROUP BY PROT_User,DO_Imprim,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers\n" +
-                    "                ORDER BY E.cbMarq ";
+			"                    DECLARE @dateDeb as DATE = ?\n" +
+			"                    DECLARE @dateFin as DATE = ?\n" +
+			"        SELECT    PROT_User,'' DL_PieceBL,DO_Imprim\n" +
+			"                            ,CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert from P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif\n" +
+			"                            ,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref\n" +
+			"                            ,ISNULL(MAX(E.N_CatCompta),1) N_CatCompta,CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,E.DO_Tiers as CT_Num, ISNULL(SUM(L.DL_MontantTTC),0) AS ttc\n" +
+			"                            ,MAX(DS.DE_Intitule) AS CT_Intitule,MAX(DS.DE_Intitule) AS DE_Intitule_dest,MAX(DE.DE_Intitule) AS DE_Intitule,0 as avance,MAX(latitude) latitude,MAX(longitude) longitude,'' as statut\n" +
+			"                 FROM       F_DOCENTETE E \n" +
+			"                 LEFT JOIN  F_DOCLIGNE L \n" +
+			"                    ON  E.cbDO_Piece=L.cbDO_Piece \n" +
+			"                    AND E.DO_Domaine= L.DO_Domaine \n" +
+			"                    AND E.DO_Type=L.DO_Type\n" +
+			"                 INNER JOIN F_DEPOT DE \n" +
+			"                     ON DE.DE_No=E.DE_No \n" +
+			"                 INNER JOIN F_DEPOT DS \n" +
+			"                     ON DS.DE_No=E.DO_Tiers\n" +
+			"                 LEFT JOIN F_PROTECTIONCIAL P \n" +
+			"                     ON E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
+			"                WHERE   ('0' = @doTiers OR (E.DE_No =@doTiers OR E.DO_Tiers =@doTiers))\n" +
+			"                AND     E.cbMarq NOT IN (SELECT cbMarqEntete FROM Z_LIGNE_CONFIRMATION GROUP BY cbMarqEntete)\n" +
+			"                AND     E.DO_Domaine=2 \n" +
+			"                AND     E.DO_Type=23 \n" +
+			"                AND     CAST(E.DO_Date as DATE) BETWEEN @dateDeb AND @dateFin\n" +
+			"                GROUP BY PROT_User,DO_Imprim,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers\n" +
+			"                ORDER BY E.cbMarq";
 
-    public static final String getListeFacture = "DECLARE @do_provenance as INT = ?\n" +
-            "DECLARE @client as VARCHAR(60) = ?\n" +
-            "DECLARE @do_domaine as INT = ?\n" +
-            "DECLARE @do_type as INT = ?\n" +
-            "DECLARE @de_no as INT = ?\n" +
-            "DECLARE @datedeb as DATE = ?\n" +
-            "DECLARE @datefin as DATE = ?\n" +
-            "\n" +
-            "\n" +
-            "SELECT PROT_User,DO_Imprim,CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert\n" +
-            "from P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif, E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece,E.DO_Ref,CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,E.DO_Tiers as CT_Num,CT_Intitule, (ISNULL(ROUND(SUM(L.DL_MontantTTC),0),0)) AS ttc, \n" +
-            "                    ISNULL(MAX(CASE WHEN E.N_CatCompta=0 THEN (C.N_CatCompta) ELSE (E.N_CatCompta) END),'0') N_CatCompta,ISNULL(MAX(latitude),0) as latitude,ISNULL(MAX(longitude),0) as longitude,ISNULL(sum(avance),0) AS avance,\n" +
-            "                    CASE WHEN (SUM(L.DL_MontantTTC)>=0 AND SUM(avance) IS NULL OR sum(avance)<SUM(L.DL_MontantTTC)) OR (SUM(L.DL_MontantTTC)<0 AND SUM(avance) IS NULL OR sum(avance)>SUM(L.DL_MontantTTC)) OR  (ISNULL(SUM(L.DL_MontantTTC),0)=0 AND ISNULL(SUM(avance),0)=0 ) OR  (SUM(L.DL_MontantTTC) IS NULL AND SUM(avance) IS NULL) THEN 'crédit' else 'comptant' END AS statut\n" +
-            "                    FROM F_DOCENTETE E \n" +
-            "                    LEFT JOIN (SELECT DO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,SUM(DL_MontantTTC) DL_MontantTTC FROM F_DOCLIGNE L GROUP BY DO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num) L on E.DO_Piece=L.DO_Piece  AND E.DO_Domaine= L.DO_Domaine AND E.DO_Type=L.DO_Type\n" +
-            "                    LEFT JOIN (SELECT DO_Domaine,DO_Type,DO_Piece,SUM(avance)avance\n" +
-            "                                FROM(SELECT DO_Domaine,DO_Type,DO_Piece,avance\n" +
-            "                                FROM F_DOCREGL Re\n" +
-            "                                LEFT JOIN(\n" +
-            "                                SELECT DR_No, SUM(RC_MONTANT) avance \n" +
-            "                                FROM F_REGLECH R \n" +
-            "                                INNER JOIN F_Creglement Re on Re.RG_No=R.RG_No GROUP BY DR_No)A ON A.DR_No = Re.DR_No)A\n" +
-            "                                GROUP BY DO_Domaine,DO_Type,DO_Piece) R on R.DO_Piece=E.DO_Piece AND E.DO_Domaine= R.DO_Domaine AND E.DO_Type=R.DO_Type \n" +
-            "                    INNER JOIN F_DEPOT D on D.DE_No=E.DE_No \n" +
-            "                    INNER JOIN F_COMPTET C on C.CT_Num=E.DO_Tiers\n" +
-            "                    LEFT JOIN F_PROTECTIONCIAL P ON E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
-            "                    WHERE ((@do_provenance=0 AND E.DO_Provenance NOT IN (1,2,4)) OR (@do_provenance<>0 AND E.DO_Provenance = @do_provenance))\n" +
-            "                    AND E.DO_Domaine=@do_domaine AND ((@do_type = 67 AND E.DO_Type IN (6,7)) OR E.DO_Type=@do_type OR (@do_type = 1617 AND E.DO_Type IN (16,17)) ) \n" +
-            "                    AND (0=@de_no OR E.DE_No =@de_no)  \n" +
-            "                    AND ('0'=@client OR E.DO_Tiers =@client) \n" +
-            "                    AND CAST(E.DO_Date as DATE) >= @datedeb AND CAST(E.DO_Date as DATE) <=@datefin\n" +
-            "                    GROUP BY PROT_User,DO_Imprim,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,CT_Intitule\n" +
-            "                    ORDER BY E.cbMarq ";
+    public static final String getListeFacture = "" +
+			"DECLARE @protNo AS INT\n" +
+			"                            ,@doProvenance AS INT\n" +
+			"                            ,@deNo AS INT\n" +
+			"                            ,@dateDeb AS NVARCHAR(20)\n" +
+			"                            ,@dateFin AS NVARCHAR(20)\n" +
+			"                            ,@client AS NVARCHAR(50)\n" +
+			"                            ,@doDomaine AS INT\n" +
+			"                            ,@doType AS INT;\n" +
+			"                    SET @protNo = ?;\n" +
+			"                    SET @doProvenance = ? ;\n" +
+			"                    SET @deNo  = ?;\n" +
+			"                    SET @dateDeb  = ?;\n" +
+			"                    SET @dateFin  = ?;\n" +
+			"                    SET @client = ?;\n" +
+			"                    SET @doDomaine  = ?;\n" +
+			"                    SET @doType = ?;\n" +
+			"        \n" +
+			"                    WITH _Depot_ AS (\n" +
+			"                        SELECT DE_No,PROT_No\n" +
+			"                        FROM(\n" +
+			"                            SELECT  fDe.DE_No,fPro.PROT_No\n" +
+			"                            FROM    F_DEPOT fDe,F_PROTECTIONCIAL fPro\n" +
+			"                            WHERE\t(fPro.PROT_Administrator =1) OR (PROT_Right=1)\n" +
+			"                            GROUP BY fDe.DE_No,fPro.PROT_No\n" +
+			"                            UNION\n" +
+			"                            SELECT  DE_No,Prot_No\n" +
+			"                            FROM    Z_DEPOTUSER\n" +
+			"                            WHERE   IsPrincipal=1\n" +
+			"                        ) Uni\n" +
+			"                        WHERE PROT_No = @protNo\n" +
+			"                        GROUP BY DE_No,PROT_No\n" +
+			"                    ) \n" +
+			"                    ,_DocLigne_ AS (\n" +
+			"                        SELECT  cbDO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,SUM(DL_MontantTTC) DL_MontantTTC,DL_PieceBL \n" +
+			"                        FROM    F_DOCLIGNE L \n" +
+			"                        GROUP BY cbDO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,DL_PieceBL\n" +
+			"                    )\n" +
+			"                    ,_ReglEch_ AS (\n" +
+			"                                    SELECT  DR_No, SUM(RC_MONTANT) avance \n" +
+			"                                    FROM    F_REGLECH R \n" +
+			"                                    INNER JOIN F_Creglement Re \n" +
+			"                                        ON  Re.RG_No=R.RG_No \n" +
+			"                                    GROUP BY DR_No)\n" +
+			"                    ,_DocRegl_ AS (  SELECT  DO_Domaine,DO_Type,cbDO_Piece,SUM(avance)avance\n" +
+			"                                    FROM(   SELECT  DO_Domaine,DO_Type,cbDO_Piece,avance\n" +
+			"                                            FROM    F_DOCREGL Re\n" +
+			"                                            LEFT JOIN _ReglEch_ A \n" +
+			"                                                ON A.DR_No = Re.DR_No)A\n" +
+			"                                    GROUP BY DO_Domaine,DO_Type,cbDO_Piece)\n" +
+			"                    SELECT  PROT_User,DO_Imprim,DL_PieceBL\n" +
+			"                            ,CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert FROM P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif\n" +
+			"                            ,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece\n" +
+			"                            ,E.DO_Ref,CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,E.DO_Tiers as CT_Num,CT_Intitule\n" +
+			"                            ,(ISNULL(ROUND(SUM(L.DL_MontantTTC),0),0)) AS ttc\n" +
+			"                            ,ISNULL(MAX(CASE WHEN E.N_CatCompta=0 THEN (C.N_CatCompta) ELSE (E.N_CatCompta) END),'0') N_CatCompta\n" +
+			"                            ,ISNULL(MAX(latitude),0) as latitude\n" +
+			"                            ,ISNULL(MAX(longitude),0) as longitude\n" +
+			"                            ,ISNULL(sum(avance),0) AS avance\n" +
+			"                            ,CASE WHEN (SUM(L.DL_MontantTTC)>=0 AND SUM(avance) IS NULL \n" +
+			"                                            OR sum(avance)<SUM(L.DL_MontantTTC)) \n" +
+			"                                            OR (SUM(L.DL_MontantTTC)<0 AND SUM(avance) IS NULL OR sum(avance)>SUM(L.DL_MontantTTC)) OR  (ISNULL(SUM(L.DL_MontantTTC),0)=0 AND ISNULL(SUM(avance),0)=0 ) OR  (SUM(L.DL_MontantTTC) IS NULL AND SUM(avance) IS NULL) THEN 'crédit' ELSE 'comptant' END AS statut\n" +
+			"                    FROM F_DOCENTETE E \n" +
+			"                    LEFT JOIN _DocLigne_ L \n" +
+			"                        ON  E.cbDO_Piece=L.cbDO_Piece  \n" +
+			"                        AND E.DO_Domaine= L.DO_Domaine \n" +
+			"                        AND E.DO_Type=L.DO_Type\n" +
+			"                    LEFT JOIN _DocRegl_ R \n" +
+			"                        ON  R.cbDO_Piece=E.cbDO_Piece \n" +
+			"                        AND E.DO_Domaine= R.DO_Domaine \n" +
+			"                        AND E.DO_Type=R.DO_Type \n" +
+			"                    INNER JOIN F_DEPOT D \n" +
+			"                        ON  D.DE_No=E.DE_No \n" +
+			"                    INNER JOIN F_COMPTET C \n" +
+			"                        ON  C.CT_Num=E.DO_Tiers\n" +
+			"                    LEFT JOIN F_PROTECTIONCIAL P \n" +
+			"                        ON  E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
+			"                    WHERE ((@doProvenance=0 AND E.DO_Provenance NOT IN (1,2,4)) OR (@doProvenance<>0 AND E.DO_Provenance = @doProvenance))\n" +
+			"                    AND E.DO_Domaine=@doDomaine AND ((@doType = 67 AND E.DO_Type IN (6,7)) OR E.DO_Type=@doType OR (@doType = 1617 AND E.DO_Type IN (16,17)) ) \n" +
+			"                    AND ((0=@deNo AND E.DE_No IN (SELECT DE_No FROM  _Depot_)) OR E.DE_No =@deNo)  \n" +
+			"                    AND ('0'=@client OR E.DO_Tiers =@client) \n" +
+			"                    AND CAST(E.DO_Date as DATE) >= @dateDeb AND CAST(E.DO_Date as DATE) <= @dateFin\n" +
+			"                    GROUP BY PROT_User,DO_Imprim,DL_PieceBL,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,CT_Intitule\n" +
+			"                    ORDER BY E.cbMarq ";
 
     public static final String PR_DelaiPreAlert //
             =   "SELECT PR_DelaiPreAlert "
             +"FROM P_PREFERENCES";
 
     public static final String getEnteteTable //
-            =   "SELECT ISNULL((SELECT DC_Piece\n" +
-            "                from F_DOCCURRENTPIECE D\n" +
-            "                WHERE DC_Domaine=? AND DC_Souche=? AND DC_IdCol=?),0) as DC_Piece";
+            =   "DECLARE @doDomaine NVARCHAR(50) = ?\n" +
+			"                    DECLARE @dcSouche INT = ?\n" +
+			"                    DECLARE @dcIdCol INT = ?\n" +
+			"                              \n" +
+			"                    SELECT  ISNULL((SELECT DC_Piece\n" +
+			"                    FROM    F_DOCCURRENTPIECE D\n" +
+			"                    WHERE   DC_Domaine=@doDomaine \n" +
+			"                    AND     DC_Souche=@dcSouche \n" +
+			"                    AND     DC_IdCol= @dcIdCol),0) as DC_Piece";
 
     public static final String getEnteteByDOPiece
     =" DECLARE @do_type INT = ? " +

@@ -147,10 +147,39 @@ public class FComptetMapper extends ObjectMapper {
 					"                        FROM(\tSELECT\tSUM(TTC)TTC,MAX(CT_Encours)CT_Encours,MAX(CT_ControlEnc)CT_ControlEnc \n" +
 					"                                FROM _Requete_ A \n" +
 					"                        WHERE ((DO_Provenance =0 AND ttc>0) OR DO_Provenance=1) AND NOT (TTC=AVANCE) )A";
-    public static  final String getFLivraisonByCTNum
-            =   "SELECT ISNULL((SELECT Max(LI_No) FROM F_LIVRAISON WHERE CT_Num =?),0) AS LI_No";
+	public static  final String getFLivraisonByCTNum
+			=   "SELECT ISNULL((SELECT Max(LI_No) FROM F_LIVRAISON WHERE CT_Num =?),0) AS LI_No";
 
-    public static final String insertFComptetg
+	public static  final String getTiersByNumIntituleSearch
+			=   "DECLARE @ctType INT = ?\n" +
+			"                DECLARE @ctSommeil INT = ?\n" +
+			"                DECLARE @value  NVARCHAR(100) = ?\n" +
+			"                DECLARE @typeSelect NVARCHAR(100) = ?;\n" +
+			"                WITH _Intitule_ AS (SELECT TOP 10 CT_Num\n" +
+			"                            ,CT_Intitule\n" +
+			"                            ,CO_No\n" +
+			"                            ,N_CatCompta\n" +
+			"                            ,N_CatTarif\n" +
+			"                            ,numLib = CONCAT(CONCAT(CT_Num,' - '),CT_Intitule)\n" +
+			"                FROM F_COMPTET\n" +
+			"                WHERE (@ctType = -1 OR CT_Type = @ctType) AND CONCAT(CONCAT(CT_Num,' - '),CT_Intitule) LIKE CONCAT(CONCAT('%',@value),'%')\n" +
+			"                AND (@ctSommeil =-1 OR CT_Sommeil = @ctSommeil) \n" +
+			"                UNION SELECT *,numLib = CONCAT(CONCAT(CT_Num,' - '),CT_Intitule)\n" +
+			"                            FROM (SELECT '0' CT_Num,@typeSelect CT_Intitule,0 CO_No,0 N_CatCompta,0 N_CatTarif)A\n" +
+			"                            WHERE CONCAT(CONCAT(CT_Num,' - '),CT_Intitule) LIKE CONCAT(CONCAT('%',@value),'%')) \n" +
+			"                SELECT  label = CT_Intitule\n" +
+			"                        ,CT_Intitule\n" +
+			"                        ,text = CT_Intitule\n" +
+			"                        ,numLib\n" +
+			"                        ,value = CT_Num\n" +
+			"                        ,id = CT_Num\n" +
+			"                        ,CT_Num\n" +
+			"                        ,CO_No\n" +
+			"                        ,N_CatCompta\n" +
+			"                        ,N_CatTarif\n" +
+			"                FROM    _Intitule_";
+
+	public static final String insertFComptetg
 			=    "DECLARE @ctNum VARCHAR(50) = ?\n" +
 			"                            ,@cgNum VARCHAR(50) = ?\n" +
 			"                        INSERT INTO [F_COMPTETG]\n" +

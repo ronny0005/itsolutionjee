@@ -17,6 +17,7 @@ public class FEModeleRMapper extends ObjectMapper {
             "            , ER_VRepart\n" +
             "            , cbModification\n" +
             "            , cbMarq FROM F_EModeleR ";
+
 /*
     public FModeleR mapRow(ResultSet rs, int rowNum) throws SQLException {
         FModeleR fModeleR= new FModeleR();

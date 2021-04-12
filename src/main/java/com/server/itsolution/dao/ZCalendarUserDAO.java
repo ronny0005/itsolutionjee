@@ -42,7 +42,7 @@ public class ZCalendarUserDAO extends JdbcDaoSupport {
         return 0;
     }
 
-    public int canConnect(int PROT_No,int jour,int heure) {
+    public int canConnect(int PROT_No,int jour,String heure) {
         String sql = ZCalendarUserMapper.getCalendarUserConnexion;
         params = new Object[] {heure,PROT_No,jour};
         SqlRowSet sqlRowSet  = this.getJdbcTemplate().queryForRowSet(sql, params);

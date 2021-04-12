@@ -19,10 +19,16 @@ public class FModeleRRessource {
         List<Object> list = fModeleRDAO.getAll();
         return list;
     }
+
     @GetMapping(value = "/mrNo={mrNo}")
     public List<Object> getMrNo(@PathVariable int mrNo) {
         List<Object> list = fModeleRDAO.getMrNo(mrNo);
         return list;
+    }
+
+    @GetMapping(value = "/getDateEcgetTiersheanceSelectSage&mrNo={mrNo}&nReglement={nReglement}&date={date}")
+    public List<Object> getDateEcgetTiersheanceSelectSage(@PathVariable int mrNo,@PathVariable int nReglement,@PathVariable String date) {
+        return fModeleRDAO.getDateEcgetTiersheanceSelectSage(mrNo,nReglement,date);
     }
 }
 

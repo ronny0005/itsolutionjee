@@ -139,27 +139,13 @@ public class FComptetDAO extends JdbcDaoSupport {
             String typeSelect = "TOUT LES CLIENTS";
             if(type==1)
                 typeSelect = "TOUT LES FOURNISSEURS";
-            String sql = "DECLARE @ctSommeil AS INT = " +ctSommeil+
-                    "; DECLARE @ctIntitule AS NVARCHAR(300) = '" +intitule+"'"+
-                    "; DECLARE @ctType AS INT = " +type+
-                    ";       SELECT TOP 10 CT_Num\n" +
-                    "                    ,CT_Intitule\n" +
-                    "                    ,[value] = CT_Num \n" +
-                    "                    ,[label] = CT_Intitule \n" +
-                    "                    ,CO_No\n" +
-                    "                    ,N_CatCompta\n" +
-                    "                    ,N_CatTarif\n" +
-                    "            FROM   F_COMPTET\n" +
-                    "            WHERE  CT_Type = @ctType " +
-                    "            AND    CONCAT(CONCAT(CT_Num,' - '),CT_Intitule) LIKE CONCAT(CONCAT('%',@ctIntitule),'%') \n" +
-                    "            AND    (@ctSommeil =-1 OR CT_Sommeil = @ctSommeil)" +
-                    "       UNION " +
-                    "        SELECT *\n" +
-                    "            FROM   (SELECT '0' CT_Num,'"+typeSelect+"' CT_Intitule" +
-                    "                           ,item = '0',value = '"+typeSelect+"'"+
-                    "                           ,0 CO_No,0 N_CatCompta,0 N_CatTarif)A\n" +
-                    "            WHERE  CONCAT(CONCAT(CT_Num,' - '),CT_Intitule) LIKE CONCAT(CONCAT('%',@ctIntitule),'%') ";
-            return this.getJdbcTemplate().query(sql, mapper);
+            String sql = FComptetMapper.getTiersByNumIntituleSearch;
+            ArrayList<Object> params = new ArrayList<Object>();
+            params.add(type);
+            params.add(ctSommeil);
+            params.add(intitule);
+            params.add(typeSelect);
+            return  this.getJdbcTemplate().query(sql, params.toArray(),mapper);
         }else{
             FCollaborateurDAO fCollaborateurDAO = new FCollaborateurDAO(this.getDataSource());
             return fCollaborateurDAO.getCaissierByIntitule(intitule);

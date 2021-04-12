@@ -59,14 +59,40 @@ public class FProtectioncialMapper extends ObjectMapper {
                     "           SELECT @protNoResult AS PROT_No" +
                     "       ;\n";
 
-    public static final String getDepotUser =
+    public static final String getParametre =
             "DECLARE @protNo INT = ?\n" +
-                    "SELECT\tC.DE_No,DE_Intitule\n" +
-                    "\t\t,ISNULL(IsPrincipal,0) IsPrincipal\n" +
-                    "\t\t,Valide_Depot = CASE WHEN @protNo=Prot_No THEN 1 ELSE 0 END \n" +
-                    "FROM\tF_DEPOT C \n" +
-                    "LEFT JOIN (SELECT DE_No,IsPrincipal,Prot_No FROM Z_DEPOTUSER WHERE PROT_No=@protNo) D \n" +
-                    "\tON C.DE_No = D.DE_No";
+            "                SELECT  P.PROT_No,PROT_Right,PROT_Administrator,PROT_User,PROT_UserProfil,ISNULL(CA_Souche,1)CA_Souche,ISNULL(DE_No,1)DE_No,ISNULL(CA_No,1)CA_No,ISNULL(CO_No,1)CO_No,ISNULL(CO_NoCaissier,0) CO_NoCaissier\n" +
+            "                FROM    F_PROTECTIONCIAL P\n" +
+            "                LEFT JOIN (SELECT C.CO_No,CA.CA_No,DE_No,CA_Souche,PROT_No,CO_Nom,CA.CO_NoCaissier\n" +
+            "                            FROM F_COLLABORATEUR C \n" +
+            "                            LEFT JOIN F_CAISSECAISSIER CC \n" +
+            "                                ON C.CO_No= CC.CO_No\n" +
+            "                            LEFT JOIN F_CAISSE CA \n" +
+            "                                ON CA.CA_No = CC.CA_No) A \n" +
+            "                    ON  A.CO_Nom=P.PROT_User\n" +
+            "                WHERE   P.Prot_No=@protNo";
+
+    public static final String getDepotUser =
+            "DECLARE @admin INT\n" +
+            "                    DECLARE @ProtNo INT\n" +
+            "                    SET @ProtNo = ?\n" +
+            "                    \n" +
+            "                    SELECT @admin = CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No = @ProtNo \n" +
+            "                    \n" +
+            "                    IF (@admin=0)\n" +
+            "                    BEGIN \n" +
+            "                        SELECT\tA.DE_No,DE_Intitule,ISNULL(D.IsPrincipal,0)IsPrincipal\n" +
+            "                        FROM\tF_DEPOT A\n" +
+            "                        LEFT JOIN Z_DEPOTUSER D ON A.DE_No=D.DE_No\n" +
+            "                        WHERE\t(1 = (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No=@ProtNo) OR D.PROT_No =@ProtNo)\n" +
+            "                        AND IsPrincipal = 1\n" +
+            "                        GROUP BY A.DE_No,DE_Intitule,IsPrincipal\n" +
+            "                    END\n" +
+            "                    ELSE \n" +
+            "                    BEGIN \n" +
+            "                        SELECT DE_No,DE_Intitule, 1 as IsPrincipal\n" +
+            "                        FROM F_DEPOT \n" +
+            "                    END ";
 
     public static final String getUserList =
             "WITH _Profil_ AS (\n" +
@@ -99,23 +125,22 @@ public class FProtectioncialMapper extends ObjectMapper {
     public static final String getSoucheDepotGrpSouche =
             "                    DECLARE @prot_no as INT = ?\n" +
             "                    DECLARE @type as VARCHAR(50) = ?\n" +
-            "                    \n" +
-            "                    SELECT cbIndice,S_Intitule,ISNULL(MAX(IsPrincipal),0)IsPrincipal\n" +
-            "                    FROM(\n" +
-            "                    SELECT  Prot_No,D.DE_No,IsPrincipal,\n" +
-            "                    CASE WHEN @type IN ('Vente','Devis','BonLivraison','Retour','Avoir') THEN CA_SoucheVente ELSE \n" +
-            "                            CASE WHEN @type IN('Achat','AchatRetour','AchatPreparationCommande','PreparationCommande') THEN CA_SoucheAchat ELSE CA_SoucheStock END END AS cbIndice,\n" +
-            "                    CASE WHEN @type IN ('Vente','Devis','BonLivraison','Retour','Avoir') THEN V.S_Intitule ELSE \n" +
-            "                            CASE WHEN @type IN ('Achat','AchatRetour','AchatPreparationCommande','PreparationCommande')  THEN A.S_Intitule ELSE St.S_Intitule END END AS S_Intitule,S.CA_Num,CA_Intitule\n" +
-            "                    FROM Z_DEPOTUSER D \n" +
-            "                    LEFT JOIN Z_DEPOTSOUCHE S ON D.DE_No=S.DE_No\n" +
-            "                    LEFT JOIN P_SOUCHEVENTE V ON V.cbIndice-1 = CA_SoucheVente AND V.S_Valide=1\n" +
-            "                    LEFT JOIN P_SOUCHEACHAT A ON A.cbIndice-1 = CA_SoucheAchat AND A.S_Valide=1\n" +
-            "                    LEFT JOIN P_SOUCHEINTERNE St ON St.cbIndice-1 = CA_SoucheStock AND St.S_Valide=1\n" +
-            "                    LEFT JOIN F_COMPTEA Af ON Af.CA_Num = S.CA_Num\n" +
-            "                    WHERE Prot_No=@prot_no)A\n" +
-            "                        WHERE cbIndice is not null\n" +
-            "                    GROUP BY cbIndice,S_Intitule";
+                "                    SELECT cbIndice,S_Intitule,ISNULL(MAX(IsPrincipal),0)IsPrincipal\n" +
+                "                    FROM(\n" +
+                "                    SELECT  Prot_No,D.DE_No,IsPrincipal,\n" +
+                "                    CASE WHEN @type IN ('Vente','Devis','BonLivraison','VenteRetour','Avoir') THEN CA_SoucheVente ELSE \n" +
+                "                            CASE WHEN @type IN('Achat','AchatRetour','AchatPreparationCommande','PreparationCommande') THEN CA_SoucheAchat ELSE CA_SoucheStock END END AS cbIndice,\n" +
+                "                    CASE WHEN @type IN ('Vente','Devis','BonLivraison','VenteRetour','Avoir') THEN V.S_Intitule ELSE \n" +
+                "                            CASE WHEN @type IN ('Achat','AchatRetour','AchatPreparationCommande','PreparationCommande')  THEN A.S_Intitule ELSE St.S_Intitule END END AS S_Intitule,S.CA_Num,CA_Intitule\n" +
+                "                    FROM Z_DEPOTUSER D \n" +
+                "                    LEFT JOIN Z_DEPOTSOUCHE S ON D.DE_No=S.DE_No\n" +
+                "                    LEFT JOIN P_SOUCHEVENTE V ON V.cbIndice-1 = CA_SoucheVente AND V.S_Valide=1\n" +
+                "                    LEFT JOIN P_SOUCHEACHAT A ON A.cbIndice-1 = CA_SoucheAchat AND A.S_Valide=1\n" +
+                "                    LEFT JOIN P_SOUCHEINTERNE St ON St.cbIndice-1 = CA_SoucheStock AND St.S_Valide=1\n" +
+                "                    LEFT JOIN F_COMPTEA Af ON Af.CA_Num = S.CA_Num\n" +
+                "                    WHERE Prot_No=@protNo)A\n" +
+                "                        WHERE cbIndice is not null\n" +
+                "                    GROUP BY cbIndice,S_Intitule";
 
     public static final String getSoucheDepotCaisse =
             " DECLARE @souche AS INT = ?\n" +
@@ -125,7 +150,7 @@ public class FProtectioncialMapper extends ObjectMapper {
                     " DECLARE @type AS VARCHAR(50) = ?\n" +
                     " SELECT DE_No,CA_No,CA_Souche,CA_Num,CA_CatTarif\n" +
                     "                FROM (SELECT D.DE_No,ISNULL(CA_No,0)CA_No,\n" +
-                    "                    ISNULL(CASE WHEN (@type='Vente') OR (@type='Devis') OR (@type='Retour') OR (@type='BonLivraison') THEN CA_SoucheVente ELSE \n" +
+                    "                    ISNULL(CASE WHEN (@type='Vente') OR (@type='Devis') OR (@type='VenteRetour') OR (@type='BonLivraison') THEN CA_SoucheVente ELSE \n" +
                     "                                CASE WHEN @type='Achat' OR @type='AchatRetour' OR @type='AchatPreparationCommande'  THEN CA_SoucheAchat ELSE CA_SoucheStock END END,0) CA_Souche,\n" +
                     "                    ISNULL(CA_Num,'')CA_Num\n" +
                     "                    ,ISNULL(CA_CatTarif,1)CA_CatTarif\n" +
@@ -196,7 +221,7 @@ public class FProtectioncialMapper extends ObjectMapper {
                     "           ELSE SELECT -1 cbMarq\n" +
                     "       END";
     public static final String getSoucheDepotGrpAffaire=
-            " DECLARE @type AS VARCHAR(50)= ?\n" +
+            " DECLARE @type AS VARCHAR(50) = ?\n" +
             " DECLARE @prot_no AS INT = ?\n" +
             " DECLARE @sommeil AS INT = ?\n" +
             " SELECT CA_Num,CA_Intitule,ISNULL(MAX(IsPrincipal),0)IsPrincipal\n" +
@@ -334,7 +359,8 @@ public class FProtectioncialMapper extends ObjectMapper {
             ",ISNULL([34822],0) PROT_LISTE_MODELE_REGLEMENT\n" +
             ",ISNULL([34319],0) PROT_REAPPROVISIONNEMENT\n" +
             ",ISNULL([12309],0) PROT_DOCUMENT_INTERNE_5\n" +
-            "\n" +
+            ",ISNULL([6146],0) PROT_DOCUMENT_VENTE_BONCOMMANDE\n" +
+            ",ISNULL([8196],0) PROT_VIREMENT_DEPOT\n" +
             "FROM(\n" +
             "        SELECT\tP.cbMarq\n" +
             "                ,PROT_User\n" +
@@ -371,9 +397,9 @@ public class FProtectioncialMapper extends ObjectMapper {
             "        LEFT JOIN Z_ProtUser zpu            \n" +
             "            ON zpu.PROT_No = P.PROT_No\n" +
             "        WHERE (PROT_Right<>0 OR (PROT_Right=0 AND b.EPROT_Cmd IN (\t'33541','33537','33538','34051','34049'\n" +
-            "                                ,'6150','6145','34050','8193','8194','34067','12306'\n" +
+            "                                ,'6150','6145','34050','8193','8194','34067','12306','8196'\n" +
             "                                ,'36678','36677','36672','36673','36674','6404','12132'\n" +
-            "                                ,'12133','36736','36737','36738','36357','36358','5122','34819'\n" +
+            "                                ,'12133','36736','36737','36738','36357','36358','5122','34819','6146'\n" +
             "                                ,'34316','36645','36646','36647','34562','12130','34095','34817','34822','34319'\n" +
             "                                ,'34056','6147','34089','6148','6149','33547','33542','33546','34818','34820','12309'\n" +
             "                                ,'30081','12125','12126','12119','12116','12117','12118','34563','12134','5126','34821'\n" +
@@ -386,8 +412,8 @@ public class FProtectioncialMapper extends ObjectMapper {
             "        FOR EPROT_Cmd IN (\t[33541],[33537],[33538],[34051],[34049],[6150],[6145],[34050],[8193],[8194]\n" +
             "                            ,[34056],[6147],[34089],[6148],[6149],[33547],[33542],[33546],[34067],[12306]\n" +
             "                            ,[30081],[12125],[12126],[12119],[12116],[12117],[12118],[34563],[12134]\n" +
-            "                            ,[36678],[36677],[36672],[36673],[36674],[34562],[6404],[12132]\n" +
-            "                            ,[12133],[36736],[36737],[36738],[36357],[36358],[34095],[34817],[34822]\n" +
+            "                            ,[36678],[36677],[36672],[36673],[36674],[34562],[6404],[12132],[6146]\n" +
+            "                            ,[12133],[36736],[36737],[36738],[36357],[36358],[34095],[34817],[34822],[8196]\n" +
             "                            ,[36356],[36688],[36689],[36690],[34306],[12130],[33068],[5122],[34820],[34821]\n" +
             "                            ,[34316],[36645],[36646],[36647],[36661],[36662],[5126],[34818],[34819],[34319],[12309]\n" +
             "                            ,[12129],[12124],[9985],[8195],[12136],[12137],[4868],[12121],[6401],[6406],[12128],[11009],[11010],[11011]))AS PIVOTTABLE\n" +

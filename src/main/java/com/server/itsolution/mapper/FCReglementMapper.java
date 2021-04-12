@@ -168,43 +168,22 @@ public class FCReglementMapper extends ObjectMapper {
 					"                DECLARE @DO_Type as VARCHAR(10) = ?\n" +
 					"                DECLARE @DO_Domaine as VARCHAR(10) = ?;\n" +
 					"                \n" +
-					"                with cte (ligne,do_piece,ct_numpayeur,RG_No,RG_Date,DR_Date,RG_Libelle,RG_Montant,CA_No,RC_Montant,DL_MontantTTC,cumul) \n" +
+					"               with cte (ligne,do_piece,ct_numpayeur,RG_No,RG_Date,DR_Date,RG_Libelle,RG_Montant,CA_No,RC_Montant,DL_MontantTTC,cumul) \n" +
 					"                as( \n" +
 					"                SELECT 0 AS ligne,'SOLDE INITIALE' do_piece,'' ct_numpayeur,'' RG_No,'' RG_Date,''DR_Date,'SOLDE INITIALE' RG_Libelle,0 RG_Montant,'' CA_No,0 RC_Montant, 0 DL_MontantTTC,DL_MontantTTC AS cumul \n" +
 					"                FROM F_CREGLEMENT C \n" +
-					"                LEFT JOIN (SELECT RG_No,DR_No,sum(RC_Montant) AS RC_Montant " +
-					"							FROM F_REGLECH 	" +
-					"							GROUP BY RG_No,DR_No) R " +
-					"					ON R.RG_No=c.RG_No \n" +
-					"                INNER JOIN F_DOCREGL D " +
-					"					ON D.DR_No = R.DR_No \n" +
-					"                INNER JOIN (SELECT cbDO_PIECE,DO_Type,DO_Domaine,SUM(DL_MontantTTC) DL_MontantTTC " +
-					"							FROM F_DOCLIGNE " +
-					"							GROUP BY cbDO_PIECE,DO_Type,DO_Domaine) DL " +
-					"					ON DL.cbDO_Piece=D.cbDO_Piece " +
-					"						AND DL.DO_Type=D.DO_Type " +
-					"						AND DL.DO_Domaine =D.DO_Domaine \n" +
-					"                where D.DO_Piece = @DO_Piece AND D.DO_Type = @DO_Type " +
-					"				AND D.DO_Domaine = @DO_Domaine " +
-					"				AND CT_NumPayeur=@CT_Num \n" +
+					"                LEFT JOIN (SELECT RG_No,DR_No,sum(RC_Montant) AS RC_Montant FROM F_REGLECH GROUP BY RG_No,DR_No) R ON R.RG_No=c.RG_No \n" +
+					"                INNER JOIN F_DOCREGL D ON D.DR_No = R.DR_No \n" +
+					"                INNER JOIN (SELECT DO_PIECE,DO_Type,DO_Domaine,SUM(DL_MontantTTC) DL_MontantTTC FROM F_DOCLIGNE GROUP BY DO_PIECE,DO_Type,DO_Domaine) DL ON DL.DO_Piece=D.DO_Piece AND DL.DO_Type=D.DO_Type AND DL.DO_Domaine =D.DO_Domaine \n" +
+					"                where D.DO_Piece = @DO_Piece AND D.DO_Type = @DO_Type AND D.DO_Domaine = @DO_Domaine AND CT_NumPayeur=@CT_Num \n" +
 					"                UNION \n" +
 					"                SELECT ROW_NUMBER() OVER(order by c.cbMarq asc) AS ligne,D.do_piece,ct_numpayeur,C.RG_No,RG_Date,DR_Date,RG_Libelle,RG_Montant,CA_No,ISNULL(RC_Montant,0) AS RC_Montant,SUM(DL_MontantTTC) DL_MontantTTC,-ISNULL(RC_Montant,0) CUMUL \n" +
 					"                FROM F_CREGLEMENT C \n" +
 					"                LEFT JOIN (SELECT RG_No,DR_No,sum(RC_Montant) AS RC_Montant FROM F_REGLECH GROUP BY RG_No,DR_No) R ON R.RG_No=c.RG_No \n" +
-					"                INNER JOIN F_DOCREGL D " +
-					"					ON D.DR_No = R.DR_No \n" +
-					"                INNER JOIN (SELECT cbDO_PIECE,DO_Type,DO_Domaine,SUM(DL_MontantTTC) DL_MontantTTC " +
-					"							FROM F_DOCLIGNE " +
-					"							GROUP BY cbDO_PIECE,DO_Type,DO_Domaine) DL " +
-					"					ON DL.cbDO_Piece=D.cbDO_Piece " +
-					"					AND DL.DO_Type=D.DO_Type " +
-					"					AND DL.DO_Domaine =D.DO_Domaine \n" +
-					"                where D.DO_Piece = @DO_Piece " +
-					"				AND D.DO_Type = @DO_Type " +
-					"				AND D.DO_Domaine = @DO_Domaine " +
-					"				AND CT_NumPayeur=@CT_Num \n" +
-					"               group by D.do_piece,ct_numpayeur,C.RG_No,RG_Date,DR_Date,RG_Libelle,RG_Montant,RC_Montant,CA_No,c.cbMarq) \n" +
-
+					"                INNER JOIN F_DOCREGL D ON D.DR_No = R.DR_No \n" +
+					"                INNER JOIN (SELECT DO_PIECE,DO_Type,DO_Domaine,SUM(DL_MontantTTC) DL_MontantTTC FROM F_DOCLIGNE GROUP BY DO_PIECE,DO_Type,DO_Domaine) DL ON DL.DO_Piece=D.DO_Piece AND DL.DO_Type=D.DO_Type AND DL.DO_Domaine =D.DO_Domaine \n" +
+					"                where D.DO_Piece = @DO_Piece AND D.DO_Type = @DO_Type AND D.DO_Domaine = @DO_Domaine AND CT_NumPayeur=@CT_Num \n" +
+					"                group by D.do_piece,ct_numpayeur,C.RG_No,RG_Date,DR_Date,RG_Libelle,RG_Montant,RC_Montant,CA_No,c.cbMarq) \n" +
 					"                SELECT T1.RG_No,T1.ligne,T1.do_piece,T1.ct_numpayeur,T1.RG_No,T1.RG_Date,T1.DR_Date,T1.RG_Libelle,T1.RG_Montant,T1.CA_No,T1.RC_Montant,T1.DL_MontantTTC,SUM(T2.cumul) CUMUL \n" +
 					"                FROM CTE T1 \n" +
 					"                INNER JOIN CTE T2 ON T1.ligne>=T2.ligne \n" +

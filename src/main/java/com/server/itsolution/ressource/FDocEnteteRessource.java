@@ -182,10 +182,10 @@ public class FDocEnteteRessource {
         return null;
     }
 
-    @GetMapping(value = "/getListeFacture&doProvenance={doProvenance}&doType={doType}&doDomaine={doDomaine}&deNo={deNo}&dateDeb={dateDeb}&dateFin={dateFin}&client={client}")
+    @GetMapping(value = "/getListeFacture&doProvenance={doProvenance}&doType={doType}&doDomaine={doDomaine}&deNo={deNo}&dateDeb={dateDeb}&dateFin={dateFin}&client={client}&protNo={protNo}")
     public Object getListeFacture(@PathVariable int doProvenance,@PathVariable int doType,@PathVariable int doDomaine,@PathVariable int deNo,@PathVariable String dateDeb
-            ,@PathVariable String dateFin,@PathVariable String client) {
-        List<Object> list = fDocEnteteDAO.getListeFacture(doProvenance,doType,doDomaine,deNo,dateDeb,dateFin,client);
+            ,@PathVariable String dateFin,@PathVariable String client,@PathVariable int protNo) {
+        List<Object> list = fDocEnteteDAO.getListeFacture(doProvenance,doType,doDomaine,deNo,dateDeb,dateFin,client,protNo);
         return list;
     }
 
@@ -204,6 +204,12 @@ public class FDocEnteteRessource {
     @GetMapping(value = "/getlisteTransfert&client={client}&dateDeb={dateDeb}&dateFin={dateFin}")
     public Object getlisteTransfert(@PathVariable String dateDeb,@PathVariable String dateFin,@PathVariable String client) {
         List<Object> list = fDocEnteteDAO.getlisteTransfert(client,dateDeb,dateFin);
+        return list;
+    }
+
+    @GetMapping(value = "/getlisteTransfertConfirmation&dateDeb={dateDeb}&dateFin={dateFin}&doDomaine={doDomaine}&doType={doType}&protNo={protNo}&typeFac={typeFac}")
+    public Object listeTransfertConfirmation(@PathVariable String dateDeb,@PathVariable String dateFin,@PathVariable int doDomaine,@PathVariable int doType,@PathVariable int protNo,@PathVariable String typeFac){
+        List<Object> list = fDocEnteteDAO.listeTransfertConfirmation(dateDeb,dateFin,doDomaine,doType,protNo,typeFac);
         return list;
     }
 

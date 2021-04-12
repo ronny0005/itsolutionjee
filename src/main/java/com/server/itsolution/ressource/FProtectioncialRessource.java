@@ -38,6 +38,11 @@ public class FProtectioncialRessource {
         return fProtectioncialDAO.getUser(FormatText.getString(username),FormatText.getString(mdp),0);
     }
 
+    @GetMapping(value = "/barreMenu&protNo={protNo}&module={module}&action={action}&type={type}&position={position}")
+    public Object barreMenu(@PathVariable int protNo,@PathVariable int module,@PathVariable int action,@PathVariable String type,@PathVariable String position) {
+        return fProtectioncialDAO.barreMenu(protNo,action,module,type,position);
+    }
+
     @PostMapping(value = "/login")
     public Object login(@RequestBody String data) {
         JSONObject tasse = new JSONObject();
@@ -61,7 +66,7 @@ public class FProtectioncialRessource {
     }
 
     @GetMapping(value = "/connexion&protUser={protUser}&pwd={pwd}&jour={jour}&heure={heure}")
-    public Object connexion(@PathVariable String protUser,@PathVariable String pwd,@PathVariable int jour,@PathVariable int heure){
+    public Object connexion(@PathVariable String protUser,@PathVariable String pwd,@PathVariable int jour,@PathVariable String heure){
         return fProtectioncialDAO.connexion(protUser,pwd,jour,heure);
     }
 
@@ -69,6 +74,15 @@ public class FProtectioncialRessource {
     @GetMapping(value = "/getDepotUser&protNo={protNo}")
     public Object getDepotUser(@PathVariable int protNo) {
         return fProtectioncialDAO.getDepotUser(protNo);
+    }
+    @GetMapping(value = "/getParametre&protNo={protNo}")
+    public Object getParametre(@PathVariable int protNo) {
+        return fProtectioncialDAO.getParametre(protNo);
+    }
+
+    @GetMapping(value = "/IssecuriteAdmin&protNo={protNo}&deNo={deNo}")
+    public Object IssecuriteAdmin(@PathVariable int protNo ,@PathVariable int deNo){
+        return fProtectioncialDAO.getParametre(protNo);
     }
 
     @GetMapping(value = "/allProfil")
@@ -85,15 +99,7 @@ public class FProtectioncialRessource {
     public Object connexionProctectionByProtNo(@PathVariable int protNo) {
         return fProtectioncialDAO.connexionProctectionByProtNoJSON(protNo);
     }
-    @GetMapping(value = "/getBarreMenu&protNo={protNo}&type={type}")
-    public Object getBarreMenu(@PathVariable int protNo,@PathVariable String type) {
-        try {
-            return fProtectioncialDAO.getBarreMenu(protNo,type);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
     @GetMapping(value = "/ajoutUser&username={username}&description={description}&password={password}&email={email}&protRight={protRight}&protUserProfil={protUserProfil}&protPwdStatus={protPwdStatus}&securiteAdmin={securiteAdmin}&protNo={protNo}&depot={depot}")
     public Object ajoutUser(@PathVariable String username,@PathVariable String description,@PathVariable String password
             ,@PathVariable String email,@PathVariable int protRight,@PathVariable int protUserProfil,@PathVariable int protPwdStatus

@@ -184,129 +184,129 @@ public class FDocLigneMapper extends ObjectMapper {
 
     public static final String getPrixClientHT =
     "BEGIN \n" +
-            "                    SET NOCOUNT ON;\n" +
-            "            DECLARE @prix as float,@rem as float,@ar_ref as varchar(30)\n" +
-            "                    ,@fcp_champ as int,@ac_categorie as int,@qte as float\n" +
-            "                    ,@fournisseur as int,@flagpxMinMax as int\n" +
-            "            set @prix = ?;\n" +
-            "            set @rem = ?;\n" +
-            "            set @ar_ref = ?;\n" +
-            "            set @fcp_champ = ?;\n" +
-            "            set @ac_categorie=?;\n" +
-            "            set @qte = ?;\n" +
-            "            set @fournisseur = ?;\n" +
-            "            SELECT\t@flagpxMinMax=P_ReportPrixRev\n" +
-            "            FROM\tP_PARAMETRECIAL;\n" +
-            "            \n" +
-            "            WITH _FARTCOMPTA_ AS (\n" +
-            "                SELECT\tcbAR_Ref\n" +
-            "                        ,ACP_ComptaCPT_Taxe1\n" +
-            "                        ,ACP_ComptaCPT_Taxe2\n" +
-            "                        ,ACP_ComptaCPT_Taxe3\n" +
-            "                FROM\tF_ARTCOMPTA \n" +
-            "                WHERE\tACP_Type=@fournisseur \n" +
-            "                AND\t\tACP_Champ=@fcp_champ \n" +
-            "            )\n" +
-            "            ,_FFAMCOMPTA_ AS (\n" +
-            "                SELECT\tcbFA_CodeFamille\n" +
-            "                        ,FCP_ComptaCPT_Taxe1\n" +
-            "                        ,FCP_ComptaCPT_Taxe2\n" +
-            "                        ,FCP_ComptaCPT_Taxe3\n" +
-            "                        ,FCP_Champ\n" +
-            "                FROM\tF_FAMCOMPTA \n" +
-            "                WHERE\tFCP_Type=@fournisseur \n" +
-            "                AND\t\tFCP_Champ=@fcp_champ \n" +
-            "            )\n" +
-            "            ,_FARTCLIENT_ AS (\n" +
-            "                SELECT\tcbAR_Ref\n" +
-            "                        ,AC_Coef\n" +
-            "                        ,AC_PrixVen\n" +
-            "                        ,AC_PrixTTC \n" +
-            "                FROM\tF_ARTCLIENT \n" +
-            "                WHERE\tAC_Categorie=(SELECT ISNULL((\tSELECT\tAC_Categorie \n" +
-            "                                                        FROM\tF_ARTCLIENT \n" +
-            "                                                        WHERE\tAR_REF = @ar_ref \n" +
-            "                                                        AND\t\tAC_Categorie=@ac_categorie),1))\n" +
-            "            )\n" +
-            "            ,_QUERY_ AS (\n" +
-            "            \n" +
-            "            SELECT\t\n" +
-            "                ISNULL(TU.TA_Intitule,'') as IntituleT1,ISNULL(TD.TA_Intitule,'') as IntituleT2,ISNULL(TT.TA_Intitule,'') as IntituleT3 \n" +
-            "                ,ISNULL(a.FA_CodeFamille,'') FA_CodeFamille, ISNULL(a.AR_Ref,'')AR_Ref, ISNULL(AR_PrixAch,0)AR_PrixAch, ISNULL(AR_Design,'')AR_Design \n" +
-            "                ,ISNULL(AR_PrixVen,0)AR_PrixVen,AC_PrixVen\n" +
-            "                ,CASE WHEN @flagpxMinMax = 0 THEN ISNULL(Prix_Min,0) ELSE ISNULL(AC_Coef,0) END Prix_Min\n" +
-            "                ,CASE WHEN @flagpxMinMax = 0 THEN ISNULL(Prix_Max,0) ELSE ISNULL(AC_PrixVen,0) END Prix_Max\n" +
-            "                ,ISNULL(TU.TA_TTaux,0) AS TU_TA_TTaux\n" +
-            "                ,ISNULL(TD.TA_TTaux,0) AS TD_TA_TTaux,ISNULL(TT.TA_TTaux,0) AS TT_TA_TTaux\n" +
-            "                ,ISNULL(TU.TA_Type,0) AS TU_TA_Type\n" +
-            "                ,ISNULL(TD.TA_Type,0) AS TD_TA_Type,ISNULL(TT.TA_Type,0) AS TT_TA_Type\n" +
-            "                ,ISNULL(CASE WHEN AC_PrixVen<>0 THEN AC_PrixVen ELSE AR_PrixVen END,0) AS Prix\n" +
-            "                ,ISNULL(CASE WHEN AC_PrixTTC IS NULL THEN AR_PrixTTC ELSE AC_PrixTTC END,0) AC_PrixTTC, ISNULL(AR_PrixTTC,0)AR_PrixTTC\n" +
-            "                ,ISNULL((CASE WHEN @fournisseur=1 THEN CASE WHEN ISNULL(TU.TA_Sens,0)=0 THEN 1 ELSE -1 END ELSE CASE WHEN @fournisseur=0 THEN CASE WHEN ISNULL(TU.TA_Sens,0)=0 THEN -1 ELSE 1 END END END)*(CASE WHEN TU.TA_TTaux=0 THEN ISNULL(TU.TA_Taux,0) ELSE CASE WHEN TU.TA_TTaux IN (1,2) THEN ISNULL(TU.TA_Taux,0) ELSE 0 END END),0) as taxe1\n" +
-            "                ,ISNULL((CASE WHEN @fournisseur=1 THEN CASE WHEN ISNULL(TD.TA_Sens,0)=0 THEN 1 ELSE -1 END ELSE CASE WHEN @fournisseur=0 THEN CASE WHEN ISNULL(TD.TA_Sens,0)=0 THEN -1 ELSE 1 END END END)*(CASE WHEN TD.TA_TTaux=0 THEN ISNULL(TD.TA_Taux,0) ELSE CASE WHEN TD.TA_TTaux IN (1,2) THEN ISNULL(TD.TA_Taux,0) ELSE 0 END END),0) as taxe2\n" +
-            "                ,ISNULL((CASE WHEN @fournisseur=1 THEN CASE WHEN ISNULL(TT.TA_Sens,0)=0 THEN 1 ELSE -1 END ELSE CASE WHEN @fournisseur=0 THEN CASE WHEN ISNULL(TT.TA_Sens,0)=0 THEN -1 ELSE 1 END END END)*(CASE WHEN TT.TA_TTaux=0 THEN ISNULL(TT.TA_Taux,0) ELSE CASE WHEN TT.TA_TTaux IN (1,2) THEN ISNULL(TT.TA_Taux,0) ELSE 0 END END),0) as taxe3\n" +
-            "                ,ISNULL(FCP_Champ,0)FCP_Champ  \n" +
-            "            FROM F_ARTICLE A \n" +
-            "            LEFT JOIN _FARTCLIENT_ AR \n" +
-            "                ON AR.cbAR_Ref = A.cbAR_Ref\n" +
-            "            LEFT JOIN _FFAMCOMPTA_ FF \n" +
-            "                ON FF.cbFA_CodeFamille = A.cbFA_CodeFamille \n" +
-            "            LEFT JOIN _FARTCOMPTA_ FA \n" +
-            "                ON FA.cbAR_Ref = A.cbAR_Ref\n" +
-            "            LEFT JOIN F_TAXE TU \n" +
-            "                ON\tTU.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe1,'0') <> ISNULL(ACP_ComptaCPT_Taxe1,'0') \n" +
-            "                AND ACP_ComptaCPT_Taxe1 IS NOT NULL THEN ACP_ComptaCPT_Taxe1 ELSE FCP_ComptaCPT_Taxe1 END)\n" +
-            "            LEFT JOIN F_TAXE TD \n" +
-            "                ON\tTD.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe2,'0') <> ISNULL(ACP_ComptaCPT_Taxe2,'0') \n" +
-            "                AND ACP_ComptaCPT_Taxe2 IS NOT NULL THEN ACP_ComptaCPT_Taxe2 ELSE FCP_ComptaCPT_Taxe2 END) \n" +
-            "            LEFT JOIN F_TAXE TT \n" +
-            "                ON\tTT.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe3,'0') <> ISNULL(ACP_ComptaCPT_Taxe3,'0') \n" +
-            "                AND ACP_ComptaCPT_Taxe3 IS NOT NULL THEN ACP_ComptaCPT_Taxe3 ELSE FCP_ComptaCPT_Taxe3 END) \n" +
-            "            WHERE  A.AR_REF = @ar_ref\n" +
-            "            )\n" +
-            "            ,_CALCUL_PRIX_ AS (\n" +
-            "                \n" +
-            "            SELECT *,\n" +
-            "                    DL_MontantHT =ROUND(CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1) THEN ROUND(((@prix-@rem)* @qte - (CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END)\n" +
-            "                                    -(CASE WHEN TU_TA_TTaux=2 THEN taxe1*@qte ELSE 0 END+CASE WHEN TD_TA_TTaux=2 THEN taxe2*@qte ELSE 0 END+CASE WHEN TT_TA_TTaux=2 THEN taxe3*@qte ELSE 0 END)) /\n" +
-            "                                    (1 +CASE WHEN TU_TA_TTaux=0 THEN taxe1/100 ELSE 0 END+CASE WHEN TD_TA_TTaux=0 THEN taxe2/100 ELSE 0 END+CASE WHEN TT_TA_TTaux=0 THEN taxe3/100 ELSE 0 END)\n" +
-            "                                    ,2) ELSE (@prix-@rem)* @qte END,2) ,\n" +
-            "                    DL_PrixUnitaire = ROUND(CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1) THEN CASE WHEN @qte=0 THEN 0 ELSE ROUND(((@prix)*@qte - (CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END)\n" +
-            "                    -(CASE WHEN TU_TA_TTaux=2 THEN taxe1*@qte ELSE 0 END+CASE WHEN TD_TA_TTaux=2 THEN taxe2*@qte ELSE 0 END+CASE WHEN TT_TA_TTaux=2 THEN taxe3*@qte ELSE 0 END)) /\n" +
-            "                    (1 +CASE WHEN TU_TA_TTaux=0 THEN taxe1/100 ELSE 0 END+CASE WHEN TD_TA_TTaux=0 THEN taxe2/100 ELSE 0 END+CASE WHEN TT_TA_TTaux=0 THEN taxe3/100 ELSE 0 END)\n" +
-            "                    ,2)/@qte END ELSE @prix END,2)  ,\n" +
-            "                    DL_MontantTTC = ROUND((CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1) THEN (@prix-@rem)* @qte ELSE ((@prix-@rem) +\n" +
-            "                                    (CASE WHEN TU_TA_TTaux=0 THEN ((@prix-@rem)*taxe1/100) WHEN TU_TA_TTaux=2 THEN taxe1 ELSE 0 END)+\n" +
-            "                                    (CASE WHEN TD_TA_TTaux=0 THEN ((@prix-@rem)*taxe2/100) WHEN TD_TA_TTaux=2 THEN taxe2 ELSE 0 END)+\n" +
-            "                                    (CASE WHEN TT_TA_TTaux=0 THEN ((@prix-@rem)*taxe3/100) WHEN TT_TA_TTaux=2 THEN taxe3 ELSE 0 END))* @qte +\n" +
-            "                                    CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END END),2)  ,\n" +
-            "                    DL_PUTTC =  ROUND((CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1)  THEN @prix ELSE (@prix +\n" +
-            "                                (CASE WHEN TU_TA_TTaux=0 THEN (@prix*taxe1/100) WHEN TU_TA_TTaux=2 THEN taxe1 ELSE 0 END)+\n" +
-            "                                (CASE WHEN TD_TA_TTaux=0 THEN (@prix*taxe2/100) WHEN TD_TA_TTaux=2 THEN taxe2 ELSE 0 END)+\n" +
-            "                                (CASE WHEN TT_TA_TTaux=0 THEN (@prix*taxe3/100 ) WHEN TT_TA_TTaux=2 THEN taxe3 ELSE 0 END))+\n" +
-            "                                CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END END),2)    \n" +
-            "            FROM _QUERY_ \n" +
-            "            )\n" +
-            "            ,_CALCUL_TAXE_ AS (\n" +
-            "            \n" +
-            "            SELECT *\n" +
-            "                , CASE WHEN TU_TA_TTaux=0 THEN DL_MontantHT*(taxe1/100) \n" +
-            "                    WHEN TU_TA_TTaux=1 THEN taxe1*@qte \n" +
-            "                    ELSE taxe1 END MTT_Taxe1\n" +
-            "                , CASE WHEN TD_TA_TTaux=0 THEN DL_MontantHT*(taxe2/100) \n" +
-            "                    WHEN TD_TA_TTaux=1 THEN taxe2 \n" +
-            "                    ELSE taxe2*@qte END MTT_Taxe2\n" +
-            "                , CASE WHEN TT_TA_TTaux=0 THEN DL_MontantHT*(taxe3/100) \n" +
-            "                    WHEN TT_TA_TTaux=1 THEN taxe3 \n" +
-            "                    ELSE taxe3*@qte END MTT_Taxe3\n" +
-            "            FROM _CALCUL_PRIX_\n" +
-            "            )\n" +
-            "            \n" +
-            "            SELECT *,\n" +
-            "            DL_PUTTC-@rem DL_PUNetTTC\n" +
-            "            FROM _CALCUL_TAXE_\n" +
-            "\n" +
-            "END";
+    "                    SET NOCOUNT ON;\n" +
+    "            DECLARE @prix as float,@rem as float,@ar_ref as varchar(30)\n" +
+    "                    ,@fcp_champ as int,@ac_categorie as int,@qte as float\n" +
+    "                    ,@fournisseur as int,@flagpxMinMax as int\n" +
+    "            set @prix = ?;\n" +
+    "            set @rem = ?;\n" +
+    "            set @ar_ref = ?;\n" +
+    "            set @fcp_champ = ?;\n" +
+    "            set @ac_categorie=?;\n" +
+    "            set @qte = ?;\n" +
+    "            set @fournisseur = ?;\n" +
+    "            SELECT\t@flagpxMinMax=P_ReportPrixRev\n" +
+    "            FROM\tP_PARAMETRECIAL;\n" +
+    "            \n" +
+    "            WITH _FARTCOMPTA_ AS (\n" +
+    "                SELECT\tcbAR_Ref\n" +
+    "                        ,ACP_ComptaCPT_Taxe1\n" +
+    "                        ,ACP_ComptaCPT_Taxe2\n" +
+    "                        ,ACP_ComptaCPT_Taxe3\n" +
+    "                FROM\tF_ARTCOMPTA \n" +
+    "                WHERE\tACP_Type=@fournisseur \n" +
+    "                AND\t\tACP_Champ=@fcp_champ \n" +
+    "            )\n" +
+    "            ,_FFAMCOMPTA_ AS (\n" +
+    "                SELECT\tcbFA_CodeFamille\n" +
+    "                        ,FCP_ComptaCPT_Taxe1\n" +
+    "                        ,FCP_ComptaCPT_Taxe2\n" +
+    "                        ,FCP_ComptaCPT_Taxe3\n" +
+    "                        ,FCP_Champ\n" +
+    "                FROM\tF_FAMCOMPTA \n" +
+    "                WHERE\tFCP_Type=@fournisseur \n" +
+    "                AND\t\tFCP_Champ=@fcp_champ \n" +
+    "            )\n" +
+    "            ,_FARTCLIENT_ AS (\n" +
+    "                SELECT\tcbAR_Ref\n" +
+    "                        ,AC_Coef\n" +
+    "                        ,AC_PrixVen\n" +
+    "                        ,AC_PrixTTC \n" +
+    "                FROM\tF_ARTCLIENT \n" +
+    "                WHERE\tAC_Categorie=(SELECT ISNULL((\tSELECT\tAC_Categorie \n" +
+    "                                                        FROM\tF_ARTCLIENT \n" +
+    "                                                        WHERE\tAR_REF = @ar_ref \n" +
+    "                                                        AND\t\tAC_Categorie=@ac_categorie),1))\n" +
+    "            )\n" +
+    "            ,_QUERY_ AS (\n" +
+    "            \n" +
+    "            SELECT\t\n" +
+    "                ISNULL(TU.TA_Intitule,'') as IntituleT1,ISNULL(TD.TA_Intitule,'') as IntituleT2,ISNULL(TT.TA_Intitule,'') as IntituleT3 \n" +
+    "                ,ISNULL(a.FA_CodeFamille,'') FA_CodeFamille, ISNULL(a.AR_Ref,'')AR_Ref, ISNULL(AR_PrixAch,0)AR_PrixAch, ISNULL(AR_Design,'')AR_Design \n" +
+    "                ,ISNULL(AR_PrixVen,0)AR_PrixVen,AC_PrixVen\n" +
+    "                ,CASE WHEN @flagpxMinMax = 0 THEN ISNULL(Prix_Min,0) ELSE ISNULL(AC_Coef,0) END Prix_Min\n" +
+    "                ,CASE WHEN @flagpxMinMax = 0 THEN ISNULL(Prix_Max,0) ELSE ISNULL(AC_PrixVen,0) END Prix_Max\n" +
+    "                ,ISNULL(TU.TA_TTaux,0) AS TU_TA_TTaux\n" +
+    "                ,ISNULL(TD.TA_TTaux,0) AS TD_TA_TTaux,ISNULL(TT.TA_TTaux,0) AS TT_TA_TTaux\n" +
+    "                ,ISNULL(TU.TA_Type,0) AS TU_TA_Type\n" +
+    "                ,ISNULL(TD.TA_Type,0) AS TD_TA_Type,ISNULL(TT.TA_Type,0) AS TT_TA_Type\n" +
+    "                ,ISNULL(CASE WHEN AC_PrixVen<>0 THEN AC_PrixVen ELSE AR_PrixVen END,0) AS Prix\n" +
+    "                ,ISNULL(CASE WHEN AC_PrixTTC IS NULL THEN AR_PrixTTC ELSE AC_PrixTTC END,0) AC_PrixTTC, ISNULL(AR_PrixTTC,0)AR_PrixTTC\n" +
+    "                ,ISNULL((CASE WHEN @fournisseur=1 THEN CASE WHEN ISNULL(TU.TA_Sens,0)=0 THEN 1 ELSE -1 END ELSE CASE WHEN @fournisseur=0 THEN CASE WHEN ISNULL(TU.TA_Sens,0)=0 THEN -1 ELSE 1 END END END)*(CASE WHEN TU.TA_TTaux=0 THEN ISNULL(TU.TA_Taux,0) ELSE CASE WHEN TU.TA_TTaux IN (1,2) THEN ISNULL(TU.TA_Taux,0) ELSE 0 END END),0) as taxe1\n" +
+    "                ,ISNULL((CASE WHEN @fournisseur=1 THEN CASE WHEN ISNULL(TD.TA_Sens,0)=0 THEN 1 ELSE -1 END ELSE CASE WHEN @fournisseur=0 THEN CASE WHEN ISNULL(TD.TA_Sens,0)=0 THEN -1 ELSE 1 END END END)*(CASE WHEN TD.TA_TTaux=0 THEN ISNULL(TD.TA_Taux,0) ELSE CASE WHEN TD.TA_TTaux IN (1,2) THEN ISNULL(TD.TA_Taux,0) ELSE 0 END END),0) as taxe2\n" +
+    "                ,ISNULL((CASE WHEN @fournisseur=1 THEN CASE WHEN ISNULL(TT.TA_Sens,0)=0 THEN 1 ELSE -1 END ELSE CASE WHEN @fournisseur=0 THEN CASE WHEN ISNULL(TT.TA_Sens,0)=0 THEN -1 ELSE 1 END END END)*(CASE WHEN TT.TA_TTaux=0 THEN ISNULL(TT.TA_Taux,0) ELSE CASE WHEN TT.TA_TTaux IN (1,2) THEN ISNULL(TT.TA_Taux,0) ELSE 0 END END),0) as taxe3\n" +
+    "                ,ISNULL(FCP_Champ,0)FCP_Champ  \n" +
+    "            FROM F_ARTICLE A \n" +
+    "            LEFT JOIN _FARTCLIENT_ AR \n" +
+    "                ON AR.cbAR_Ref = A.cbAR_Ref\n" +
+    "            LEFT JOIN _FFAMCOMPTA_ FF \n" +
+    "                ON FF.cbFA_CodeFamille = A.cbFA_CodeFamille \n" +
+    "            LEFT JOIN _FARTCOMPTA_ FA \n" +
+    "                ON FA.cbAR_Ref = A.cbAR_Ref\n" +
+    "            LEFT JOIN F_TAXE TU \n" +
+    "                ON\tTU.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe1,'0') <> ISNULL(ACP_ComptaCPT_Taxe1,'0') \n" +
+    "                AND ACP_ComptaCPT_Taxe1 IS NOT NULL THEN ACP_ComptaCPT_Taxe1 ELSE FCP_ComptaCPT_Taxe1 END)\n" +
+    "            LEFT JOIN F_TAXE TD \n" +
+    "                ON\tTD.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe2,'0') <> ISNULL(ACP_ComptaCPT_Taxe2,'0') \n" +
+    "                AND ACP_ComptaCPT_Taxe2 IS NOT NULL THEN ACP_ComptaCPT_Taxe2 ELSE FCP_ComptaCPT_Taxe2 END) \n" +
+    "            LEFT JOIN F_TAXE TT \n" +
+    "                ON\tTT.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe3,'0') <> ISNULL(ACP_ComptaCPT_Taxe3,'0') \n" +
+    "                AND ACP_ComptaCPT_Taxe3 IS NOT NULL THEN ACP_ComptaCPT_Taxe3 ELSE FCP_ComptaCPT_Taxe3 END) \n" +
+    "            WHERE  A.AR_REF = @ar_ref\n" +
+    "            )\n" +
+    "            ,_CALCUL_PRIX_ AS (\n" +
+    "                \n" +
+    "            SELECT *,\n" +
+    "                    DL_MontantHT =ROUND(CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1) THEN ROUND(((@prix-@rem)* @qte - (CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END)\n" +
+    "                                    -(CASE WHEN TU_TA_TTaux=2 THEN taxe1*@qte ELSE 0 END+CASE WHEN TD_TA_TTaux=2 THEN taxe2*@qte ELSE 0 END+CASE WHEN TT_TA_TTaux=2 THEN taxe3*@qte ELSE 0 END)) /\n" +
+    "                                    (1 +CASE WHEN TU_TA_TTaux=0 THEN taxe1/100 ELSE 0 END+CASE WHEN TD_TA_TTaux=0 THEN taxe2/100 ELSE 0 END+CASE WHEN TT_TA_TTaux=0 THEN taxe3/100 ELSE 0 END)\n" +
+    "                                    ,2) ELSE (@prix-@rem)* @qte END,2) ,\n" +
+    "                    DL_PrixUnitaire = ROUND(CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1) THEN CASE WHEN @qte=0 THEN 0 ELSE ROUND(((@prix)*@qte - (CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END)\n" +
+    "                    -(CASE WHEN TU_TA_TTaux=2 THEN taxe1*@qte ELSE 0 END+CASE WHEN TD_TA_TTaux=2 THEN taxe2*@qte ELSE 0 END+CASE WHEN TT_TA_TTaux=2 THEN taxe3*@qte ELSE 0 END)) /\n" +
+    "                    (1 +CASE WHEN TU_TA_TTaux=0 THEN taxe1/100 ELSE 0 END+CASE WHEN TD_TA_TTaux=0 THEN taxe2/100 ELSE 0 END+CASE WHEN TT_TA_TTaux=0 THEN taxe3/100 ELSE 0 END)\n" +
+    "                    ,2)/@qte END ELSE @prix END,2)  ,\n" +
+    "                    DL_MontantTTC = ROUND((CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1) THEN (@prix-@rem)* @qte ELSE ((@prix-@rem) +\n" +
+    "                                    (CASE WHEN TU_TA_TTaux=0 THEN ((@prix-@rem)*taxe1/100) WHEN TU_TA_TTaux=2 THEN taxe1 ELSE 0 END)+\n" +
+    "                                    (CASE WHEN TD_TA_TTaux=0 THEN ((@prix-@rem)*taxe2/100) WHEN TD_TA_TTaux=2 THEN taxe2 ELSE 0 END)+\n" +
+    "                                    (CASE WHEN TT_TA_TTaux=0 THEN ((@prix-@rem)*taxe3/100) WHEN TT_TA_TTaux=2 THEN taxe3 ELSE 0 END))* @qte +\n" +
+    "                                    CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END END),2)  ,\n" +
+    "                    DL_PUTTC =  ROUND((CASE WHEN @fournisseur = 0 AND (AC_PrixTTC = 1  OR AR_PrixTTC = 1)  THEN @prix ELSE (@prix +\n" +
+    "                                (CASE WHEN TU_TA_TTaux=0 THEN (@prix*taxe1/100) WHEN TU_TA_TTaux=2 THEN taxe1 ELSE 0 END)+\n" +
+    "                                (CASE WHEN TD_TA_TTaux=0 THEN (@prix*taxe2/100) WHEN TD_TA_TTaux=2 THEN taxe2 ELSE 0 END)+\n" +
+    "                                (CASE WHEN TT_TA_TTaux=0 THEN (@prix*taxe3/100 ) WHEN TT_TA_TTaux=2 THEN taxe3 ELSE 0 END))+\n" +
+    "                                CASE WHEN TU_TA_TTaux=1 THEN taxe1 ELSE 0 END+CASE WHEN TD_TA_TTaux=1 THEN taxe2 ELSE 0 END+CASE WHEN TT_TA_TTaux=1 THEN taxe3 ELSE 0 END END),2)    \n" +
+    "            FROM _QUERY_ \n" +
+    "            )\n" +
+    "            ,_CALCUL_TAXE_ AS (\n" +
+    "            \n" +
+    "            SELECT *\n" +
+    "                ,MTT_Taxe1 = CASE WHEN TU_TA_TTaux=0 THEN DL_MontantHT*(taxe1/100) \n" +
+    "                    WHEN TU_TA_TTaux=1 THEN taxe1*@qte \n" +
+    "                    ELSE taxe1 END \n" +
+    "                ,MTT_Taxe2 = CASE WHEN TD_TA_TTaux=0 THEN DL_MontantHT*(taxe2/100) \n" +
+    "                    WHEN TD_TA_TTaux=1 THEN taxe2 \n" +
+    "                    ELSE taxe2*@qte END \n" +
+    "                ,MTT_Taxe3 = CASE WHEN TT_TA_TTaux=0 THEN DL_MontantHT*(taxe3/100) \n" +
+    "                    WHEN TT_TA_TTaux=1 THEN taxe3 \n" +
+    "                    ELSE taxe3*@qte END \n" +
+    "            FROM _CALCUL_PRIX_\n" +
+    "            )\n" +
+    "            \n" +
+    "            SELECT *,\n" +
+    "            DL_PUNetTTC = DL_PUTTC-@rem \n" +
+    "            FROM _CALCUL_TAXE_\n" +
+    "\n" +
+    "END";
 
     public static final String getCbMarqEntete =
             "SELECT cbMarq\n" +
