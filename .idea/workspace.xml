@@ -21,29 +21,25 @@
   <component name="ChangeListManager">
     <list default="true" id="e97849ef-c3b0-4cf7-bb5b-5b7f3eb201a9" name="Default Changelist" comment="update android rest api">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/EtatDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/EtatDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FArtStockDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FArtStockDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FArticleDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FArticleDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCReglementDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCReglementDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCaisseDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCaisseDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FComptetDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FComptetDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDocEnteteDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDocEnteteDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FModeleRDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FModeleRDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FProtectioncialDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FProtectioncialDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/ZCalendarUserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/ZCalendarUserDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/entities/FProtectioncial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/entities/FProtectioncial.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/EtatMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/EtatMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDocLigneDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDocLigneDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FArtStockMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FArtStockMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FCReglementMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FCReglementMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FCaisseMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FCaisseMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FComptetMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FComptetMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FDocEnteteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FDocEnteteMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FDocLigneMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FDocLigneMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FEModeleRMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FEModeleRMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FModeleRMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FModeleRMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FProtectioncialMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FProtectioncialMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/EtatRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/EtatRessource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FDocReglMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FDocReglMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FReglEchMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/mapper/FReglEchMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FArticleRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FArticleRessource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FCReglementRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FCReglementRessource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FCaisseRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FCaisseRessource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FDocEnteteRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FDocEnteteRessource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FModeleRRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FModeleRRessource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FProtectioncialRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FProtectioncialRessource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/ZCalendarUserRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/ZCalendarUserRessource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FJournauxRessource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/server/itsolution/ressource/FJournauxRessource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -421,7 +417,7 @@
       <workItem from="1614759944941" duration="18684000" />
       <workItem from="1616324262397" duration="4917000" />
       <workItem from="1617815816205" duration="11917000" />
-      <workItem from="1618005133170" duration="34125000" />
+      <workItem from="1618005133170" duration="55429000" />
     </task>
     <task id="LOCAL-00002" summary="insertion client">
       <created>1586439506153</created>
@@ -577,7 +573,14 @@
       <option name="project" value="LOCAL" />
       <updated>1618038222920</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="update android rest api">
+      <created>1618252503707</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1618252503707</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers>
       <JIRA url="http://217.160.67.238:8089">
         <option name="apiType" value="REST_2_0" />
@@ -620,103 +623,103 @@
       <screen x="0" y="0" width="1500" height="960" />
     </state>
     <state x="433" y="178" key="Github.UntrackedFilesDialog/0.0.1500.960@0.0.1500.960" timestamp="1612084530120" />
-    <state width="1458" height="324" key="GridCell.Tab.0.bottom" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.0.bottom" timestamp="1618337015020">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.0.bottom/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639201" />
-    <state width="1877" height="324" key="GridCell.Tab.0.bottom/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177161089" />
+    <state width="1877" height="324" key="GridCell.Tab.0.bottom/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337015020" />
     <state width="1458" height="324" key="GridCell.Tab.0.bottom/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.0.center" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.0.center" timestamp="1618337015019">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.0.center/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639201" />
-    <state width="1877" height="324" key="GridCell.Tab.0.center/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177161089" />
+    <state width="1877" height="324" key="GridCell.Tab.0.center/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337015019" />
     <state width="1458" height="324" key="GridCell.Tab.0.center/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.0.left" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.0.left" timestamp="1618337015019">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.0.left/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639201" />
-    <state width="1877" height="324" key="GridCell.Tab.0.left/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177161089" />
+    <state width="1877" height="324" key="GridCell.Tab.0.left/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337015019" />
     <state width="1458" height="324" key="GridCell.Tab.0.left/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.0.right" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.0.right" timestamp="1618337015020">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.0.right/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639201" />
-    <state width="1877" height="324" key="GridCell.Tab.0.right/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177161089" />
+    <state width="1877" height="324" key="GridCell.Tab.0.right/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337015020" />
     <state width="1458" height="324" key="GridCell.Tab.0.right/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.1.bottom" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.1.bottom" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
-    <state width="1458" height="324" key="GridCell.Tab.1.bottom/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639007" />
-    <state width="1877" height="324" key="GridCell.Tab.1.bottom/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160889" />
+    <state width="1457" height="324" key="GridCell.Tab.1.bottom/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618319212958" />
+    <state width="1877" height="324" key="GridCell.Tab.1.bottom/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.1.bottom/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.1.center" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.1.center" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
-    <state width="1458" height="324" key="GridCell.Tab.1.center/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639007" />
-    <state width="1877" height="324" key="GridCell.Tab.1.center/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160889" />
+    <state width="1457" height="324" key="GridCell.Tab.1.center/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618319212956" />
+    <state width="1877" height="324" key="GridCell.Tab.1.center/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.1.center/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.1.left" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.1.left" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
-    <state width="1458" height="324" key="GridCell.Tab.1.left/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639007" />
-    <state width="1877" height="324" key="GridCell.Tab.1.left/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160889" />
+    <state width="1457" height="324" key="GridCell.Tab.1.left/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618319212954" />
+    <state width="1877" height="324" key="GridCell.Tab.1.left/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.1.left/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.1.right" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.1.right" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
-    <state width="1458" height="324" key="GridCell.Tab.1.right/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639007" />
-    <state width="1877" height="324" key="GridCell.Tab.1.right/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160889" />
+    <state width="1457" height="324" key="GridCell.Tab.1.right/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618319212957" />
+    <state width="1877" height="324" key="GridCell.Tab.1.right/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.1.right/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.2.bottom" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.2.bottom" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.2.bottom/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639008" />
-    <state width="1877" height="324" key="GridCell.Tab.2.bottom/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160904" />
+    <state width="1877" height="324" key="GridCell.Tab.2.bottom/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.2.bottom/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.2.center" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.2.center" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.2.center/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639007" />
-    <state width="1877" height="324" key="GridCell.Tab.2.center/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160889" />
+    <state width="1877" height="324" key="GridCell.Tab.2.center/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.2.center/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.2.left" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.2.left" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.2.left/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639007" />
-    <state width="1877" height="324" key="GridCell.Tab.2.left/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160889" />
+    <state width="1877" height="324" key="GridCell.Tab.2.left/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.2.left/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
-    <state width="1458" height="324" key="GridCell.Tab.2.right" timestamp="1618228796811">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state width="1877" height="324" key="GridCell.Tab.2.right" timestamp="1618337014719">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state width="1458" height="324" key="GridCell.Tab.2.right/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618217639008" />
-    <state width="1877" height="324" key="GridCell.Tab.2.right/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618177160904" />
+    <state width="1877" height="324" key="GridCell.Tab.2.right/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618337014719" />
     <state width="1458" height="324" key="GridCell.Tab.2.right/0.0.1500.960@0.0.1500.960" timestamp="1618228796811" />
     <state width="537" height="468" key="SwitcherDM" timestamp="1614921713671">
       <screen x="0" y="0" width="1500" height="960" />
     </state>
     <state width="537" height="468" key="SwitcherDM/0.0.1500.960@0.0.1500.960" timestamp="1614921713671" />
-    <state x="930" y="-849" key="Vcs.Push.Dialog.v2" timestamp="1618038244360">
+    <state x="930" y="-849" key="Vcs.Push.Dialog.v2" timestamp="1618252505928">
       <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state x="343" y="213" key="Vcs.Push.Dialog.v2/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1612046586020" />
-    <state x="930" y="-849" key="Vcs.Push.Dialog.v2/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618038244360" />
+    <state x="930" y="-849" key="Vcs.Push.Dialog.v2/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618252505928" />
     <state x="343" y="213" key="Vcs.Push.Dialog.v2/0.0.1500.960@0.0.1500.960" timestamp="1614845106780" />
-    <state x="962" y="-1080" width="982" height="1040" key="find.popup" timestamp="1618251720672">
+    <state x="962" y="-1080" width="982" height="1040" key="find.popup" timestamp="1618347229364">
       <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state x="368" y="0" width="767" height="960" key="find.popup/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618251546556" />
-    <state x="962" y="-1080" width="982" height="1040" key="find.popup/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618251720672" />
+    <state x="962" y="-1080" width="982" height="1040" key="find.popup/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618347229364" />
     <state x="368" y="0" width="767" height="960" key="find.popup/0.0.1500.960@0.0.1500.960" timestamp="1618228805396" />
-    <state x="1107" y="-299" key="run.anything.popup" timestamp="1614769401118">
+    <state x="1107" y="-299" key="run.anything.popup" timestamp="1618260087533">
       <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
-    <state x="1107" y="-299" key="run.anything.popup/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1614769401118" />
-    <state x="650" y="423" width="840" height="857" key="search.everywhere.popup" timestamp="1618251493343">
-      <screen x="0" y="0" width="1500" height="960" />
+    <state x="1107" y="-299" key="run.anything.popup/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618260087533" />
+    <state x="1305" y="-637" width="1076" height="929" key="search.everywhere.popup" timestamp="1618338650338">
+      <screen x="491" y="-1080" width="1920" height="1040" />
     </state>
     <state x="650" y="423" width="840" height="857" key="search.everywhere.popup/0.0.1500.960/491.-1080.1920.1040@0.0.1500.960" timestamp="1618251493343" />
-    <state x="1305" y="-637" width="1076" height="929" key="search.everywhere.popup/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618135111741" />
+    <state x="1305" y="-637" width="1076" height="929" key="search.everywhere.popup/0.0.1500.960/491.-1080.1920.1040@491.-1080.1920.1040" timestamp="1618338650338" />
     <state x="638" y="411" width="840" height="857" key="search.everywhere.popup/0.0.1500.960@0.0.1500.960" timestamp="1618228951849" />
   </component>
   <component name="XDebuggerManager">
@@ -729,12 +732,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FCaisseDAO.java</url>
-          <line>125</line>
+          <line>131</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/server/itsolution/dao/FDocEnteteDAO.java</url>
-          <line>1350</line>
+          <line>1410</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -754,10 +757,5 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="SpringBootApplicationConfigurationType">
-        <watch expression="fReglEch" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>

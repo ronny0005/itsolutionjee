@@ -30,6 +30,15 @@ public class FArtStockMapper extends ObjectMapper {
             "                WHERE AR_Ref=?\n" +
             "                AND DE_No = ?";
 
+    public static final String updateArtStockQteRes =
+			" DECLARE @qte AS FLOAT = ?\n" +
+			" DECLARE @deNo AS INT = ?\n" +
+			" DECLARE @arRef AS NVARCHAR(50) = ?\n" +
+			" UPDATE \tF_ARTSTOCK \n" +
+					"\t\t\t\t\t\tSET AS_QteRes=AS_QteRes+ @qte \n" +
+					"\t\t\t\t\t\t\t,cbModification=GETDATE() \n" +
+					"\t\t\t\t\tWHERE \tDE_No = @deNo \n" +
+					"\t\t\t\t\tAND \tAR_Ref = @arRef ";
     public static final String updateArtStock =
             "BEGIN \n" +
                     "                      SET NOCOUNT ON;\n" +

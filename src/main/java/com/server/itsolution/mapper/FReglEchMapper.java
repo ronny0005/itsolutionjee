@@ -9,6 +9,7 @@ public class FReglEchMapper extends ObjectMapper {
 
     public static final String addReglEch
             = "BEGIN\n" +
+            "                    SET DATEFORMAT dmy;" +
             "                    SET NOCOUNT ON;\n" +
             "                    DECLARE @RG_No INT = ?\n" +
             "                            ,@DR_No INT = ?\n" +

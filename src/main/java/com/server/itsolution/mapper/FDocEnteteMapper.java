@@ -284,7 +284,7 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                WHERE DO_PIECE=@doPiece AND DO_Domaine=@doDomaine AND DO_Type=@doType";
 
     public static final String getFactureCORecouvrement =
-			"DECLARE @collab AS INT\n" +
+					"				 DECLARE @collab AS INT\n" +
 					"                DECLARE @ctNum AS NVARCHAR(150) \n" +
 					"                SET @collab = ?;\n" +
 					"                SET @ctNum = ?;\n" +
@@ -296,9 +296,9 @@ public class FDocEnteteMapper extends ObjectMapper {
 					"                    GROUP BY DR_No\n" +
 					"                )\n" +
 					"                ,_DocLigne_ AS (\n" +
-					"                    SELECT DO_Piece,DO_Type,DO_Domaine,SUM(DL_MontantTTC) DL_MontantTTC \n" +
+					"                    SELECT cbDO_Piece,DO_Type,DO_Domaine,SUM(DL_MontantTTC) DL_MontantTTC \n" +
 					"                    FROM F_DOCLIGNE L \n" +
-					"                    GROUP BY DO_Piece,DO_Type,DO_Domaine,DO_Date\n" +
+					"                    GROUP BY cbDO_Piece,DO_Type,DO_Domaine,DO_Date\n" +
 					"                )\n" +
 					"                SELECT *\n" +
 					"                    FROM(\n" +
@@ -306,17 +306,17 @@ public class FDocEnteteMapper extends ObjectMapper {
 					"                                ISNULL(MAX(latitude),0) as latitude,ISNULL(MAX(longitude),0) as longitude,ISNULL(sum(avance),0) AS avance  \n" +
 					"                         FROM  F_DOCENTETE E \n" +
 					"                         LEFT JOIN _DocLigne_ L \n" +
-					"                            ON  E.DO_Piece=L.DO_Piece  \n" +
+					"                            ON  E.cbDO_Piece=L.cbDO_Piece  \n" +
 					"                            AND E.DO_Domaine= L.DO_Domaine \n" +
 					"                            AND E.DO_Type=L.DO_Type\n" +
 					"                         LEFT JOIN F_DOCREGL R \n" +
-					"                            ON  R.DO_Piece=E.DO_Piece \n" +
+					"                            ON  R.cbDO_Piece=E.cbDO_Piece \n" +
 					"                            AND R.DO_Type=E.DO_Type \n" +
 					"                            AND R.DO_Domaine=E.DO_Domaine\n" +
 					"                         INNER JOIN F_DEPOT D \n" +
 					"                            ON D.DE_No=E.DE_No \n" +
 					"                         INNER JOIN F_COMPTET C \n" +
-					"                            ON C.CT_Num=E.DO_Tiers\n" +
+					"                            ON C.cbCT_Num=E.cbDO_Tiers\n" +
 					"                         LEFT JOIN _ReglEch_ A \n" +
 					"                            ON A.DR_No=R.DR_No  \n" +
 					"                         WHERE (@collab = 0 AND (E.DO_Domaine=0 \n" +
@@ -710,9 +710,10 @@ public class FDocEnteteMapper extends ObjectMapper {
 
     public static final String insertFDocEntete =
             "BEGIN \n" +
-                    "DECLARE @DO_Domaine AS NVARCHAR(50) = ?;\n" +
+                    "SET DATEFORMAT dmy;\n" +
+					"DECLARE @DO_Domaine AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @DO_Type AS NVARCHAR(50) = ?;\n" +
-					"DECLARE @DO_Date AS NVARCHAR(50) = ?;\n" +
+					"DECLARE @DO_Date AS DATE = ?;\n" +
 					"DECLARE @DO_Ref AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @DO_Tiers AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @CO_No AS NVARCHAR(50) = ?;\n" +
@@ -734,7 +735,7 @@ public class FDocEnteteMapper extends ObjectMapper {
 					"DECLARE @DO_Coord03 AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @DO_Coord04 AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @DO_Souche AS NVARCHAR(50) = ?;\n" +
-					"DECLARE @DO_DateLivr AS NVARCHAR(50) = ?;\n" +
+					"DECLARE @DO_DateLivr AS DATE = ?;\n" +
 					"DECLARE @DO_Tarif AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @DO_Colisage AS NVARCHAR(50) = ?;\n" +
 					"DECLARE @DO_TypeColis AS NVARCHAR(50) = ?;\n" +

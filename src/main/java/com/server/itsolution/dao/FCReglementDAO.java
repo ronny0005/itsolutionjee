@@ -4,6 +4,7 @@ import com.server.itsolution.entities.*;
 import com.server.itsolution.mapper.FCReglementMapper;
 import com.server.itsolution.mapper.FDocEnteteMapper;
 import com.server.itsolution.mapper.FDocLigneMapper;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -17,9 +18,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 
 @Repository
 @Transactional
@@ -502,7 +504,7 @@ public class FCReglementDAO extends JdbcDaoSupport {
         this.getJdbcTemplate().update(sql, params);
     }
 
-    public List<Object> getReglementByClient(String dateDeb, String dateFin, int rgImpute, String ctNum, int collab, int nReglement, int caNo, int coNoCaissier, int rgType) {
+    public List<Object> getReglementByClient(String dateDeb, String dateFin, int rgImpute, String ctNum, int collab, int nReglement, int caNo, int coNoCaissier, int rgType,int protNo) {
         String sql = FCReglementMapper.getReglementByClient;
         ArrayList<Object> parames = new ArrayList<Object>();
         parames.add(dateDeb);
@@ -514,131 +516,179 @@ public class FCReglementDAO extends JdbcDaoSupport {
         parames.add(caNo);
         parames.add(coNoCaissier);
         parames.add(rgType);
+        parames.add(protNo);
         return this.getJdbcTemplate().query(sql, parames.toArray(), mapper);
     }
 
+    public int getDelai() {
+        String sql = FDocEnteteMapper.PR_DelaiPreAlert;
+        List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
+        return  (int) ((HashMap)list.get(0)).get("PR_DelaiPreAlert");
+    }
 
-    public BigDecimal addReglement(int protNo, String joNum, int rgNoLier, String ctNum, int caNo, int bonCaisse, String libelle, String caissier
+    public Object addReglement(int protNo, String joNum, int rgNoLier, String ctNum, int caNo, int bonCaisse, String libelle, String caissier
             , String date, String modeReglementRec, double montant, int impute, int rgType, boolean afficheData, String typeRegl) {
-        int boncaisse = 0;
-        int banque = 0;
-        String co_no = "0";
-        int rgTypeN = 0;
-        FComptet fComptet = null;
-        String cgNum = null;
-        String ctIntitule = "";
+        FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
+        FProtectioncial fProtectioncial = fProtectioncialDAO.connexionProctectionByProtNo(protNo);
+        int isSecurite = fProtectioncialDAO.isSecuriteAdminCaisse(protNo,fProtectioncial.getProtectAdmin(), caNo);
+        int cloture = journeeCloture(date,caNo);
+        JSONObject json = new JSONObject();
+        int valAction = 2;
+        if(typeRegl.equals("Fournisseur"))
+            valAction = 4;
+        if(typeRegl.equals("Collaborateur"))
+            valAction = 5;
+        int banque=0;
+        int admin = 0;
+        Date dateLimiteMoinsDate = new Date();
+        Date dateLimitePlusDate = new Date();
+        if(isSecurite==1 && cloture==0){
+            if(fProtectioncial.getPROT_Right()!=1) {
+                int delai = this.getDelai();
+                if (delai != 0) {
+                    Calendar cMoins = Calendar.getInstance();
+                    cMoins.setTime(dateLimiteMoinsDate);
+                    cMoins.add(Calendar.DATE, -delai);
+                    dateLimiteMoinsDate = cMoins.getTime();
 
-        if (boncaisse == 1) {
-            co_no = ctNum;
-            ctNum = "";
-            banque = 3;
+                    Calendar cPlus = Calendar.getInstance();
+                    cPlus.setTime(dateLimitePlusDate);
+                    cPlus.add(Calendar.DATE, delai);
+                    dateLimitePlusDate = cPlus.getTime();
+
+                    // Date dateFacture = new Date(doDate);
+                    // if (dateFacture.compareTo(dateLimiteMoinsDate) >= 0 && dateFacture.compareTo(dateLimitePlusDate) <= 0)
+                    //     isFacture = false;
+                }
+            }
         }
 
-        if (typeRegl.equals("Collaborateur")) {
-            caissier = ctNum;
-            ctNum = "";
-            banque = 3;
-            rgTypeN = 1;
-        } else {
-            FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
-            fComptet = fComptetDAO.getF_Comptet(ctNum, rgType);
-            if (fComptet.getCT_Num() != null) {
-                cgNum = fComptet.getCG_NumPrinc();
-                ctIntitule = fComptet.getCT_Intitule();
-                rgTypeN = fComptet.getCT_Type();
-            } else {
+        if(admin == 0) {
+            valAction = 4;
+
+            int boncaisse = 0;
+            String co_no = "0";
+            int rgTypeN = 0;
+            FComptet fComptet = null;
+            String cgNum = null;
+            String ctIntitule = "";
+
+            if (boncaisse == 1) {
+                co_no = ctNum;
+                ctNum = "";
                 banque = 3;
-                rgTypeN = 2;
             }
-        }
 
-        String email = "";
-        String telephone = "";
-        String collabIntitule = "";
-        String caissierIntitule = "";
-        if (boncaisse == 1)
-            caissier = co_no;
-        int rgTypeReg = 0;
-        if (modeReglementRec.equals("05")) {
-            banque = 2;
-            libelle = "Verst distant " + libelle;
-        }
+            if (typeRegl.equals("Collaborateur")) {
+                caissier = ctNum;
+                ctNum = "";
+                banque = 3;
+                rgTypeN = 1;
+            } else {
+                FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
+                fComptet = fComptetDAO.getF_Comptet(ctNum, rgType);
+                if (fComptet.getCT_Num() != null) {
+                    cgNum = fComptet.getCG_NumPrinc();
+                    ctIntitule = fComptet.getCT_Intitule();
+                    rgTypeN = fComptet.getCT_Type();
+                } else {
+                    banque = 3;
+                    rgTypeN = 2;
+                }
+            }
 
-        if (modeReglementRec.equals("10")) {
-            rgTypeReg = 5;
-        }
-        FCaisseDAO fCaisseDAO = new FCaisseDAO(this.getDataSource());
-        FCaisse fCaisse = fCaisseDAO.getF_Caisse(caNo);
-        String caIntitule = "";
-        if (fCaisse.getCbMarq() != null) {
-            caIntitule = fCaisse.getCA_Intitule();
-        }
-
-        FCollaborateurDAO fCollaborateurDAO = new FCollaborateurDAO(this.getDataSource());
-        FCollaborateur fCollaborateur = fCollaborateurDAO.getCollaborateurJSON(Integer.valueOf(caissier));
-        String collaborateurCaissier = "";
-        if (fCollaborateur.getCbMarq() != null) {
-            collaborateurCaissier = fCollaborateur.getCO_Nom();
-            email = fCollaborateur.getCO_EMail();
-            collabIntitule = fCollaborateur.getCO_Nom();
-            telephone = fCollaborateur.getCO_Telephone();
-        }
-
-        FCReglement fcReglement = new FCReglement();
-        fcReglement.initVariables();
-        fcReglement.setRG_Date(date);
-        fcReglement.setRG_DateEchCont(date);
-        fcReglement.setJO_Num(joNum);
-        fcReglement.setCG_Num(cgNum);
-        fcReglement.setCA_No(caNo);
-        fcReglement.setCO_NoCaissier(Integer.valueOf(caissier));
-        fcReglement.setRG_Libelle(libelle); //libelle.substring(0,34)
-        fcReglement.setRG_Montant((double) montant);
-        fcReglement.setRG_Impute(impute);
-        fcReglement.setRG_Type(rgTypeN);
-        fcReglement.setN_Reglement(Integer.valueOf(modeReglementRec));
-        fcReglement.setRG_Ticket(0);
-        fcReglement.setRG_Banque(banque);
-        fcReglement.setCT_NumPayeur(ctNum);
-        fcReglement.setCT_NumPayeurOrig(ctNum);
-        fcReglement.setCbCreateur(String.valueOf(protNo));
-        this.insertF_Reglement(fcReglement);
-
-        if ((!telephone.equals("") || telephone != null) && modeReglementRec.equals("05")) {
-            FContactDDAO fContactDDAO = new FContactDDAO(this.getDataSource());
-            FContactD fContactD = fContactDDAO.getContactD(1);
-            String message = "";
-            fContactDDAO.sendMessage(telephone, message);
-        }
-
-        if (rgNoLier == 0) {
-            String message = "VERSEMENT DISTANT D' UN MONTANT DE " + montant + " AFFECTE AU COLLABORATEUR "
-                    + collaborateurCaissier + " POUR LE CLIENT " + ctIntitule + " A DATE DU " + date;
-            FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
+            String email = "";
+            String telephone = "";
+            String collabIntitule = "";
+            String caissierIntitule = "";
+            if (boncaisse == 1)
+                caissier = co_no;
+            int rgTypeReg = 0;
             if (modeReglementRec.equals("05")) {
-                fProtectioncialDAO.getCollaborateurEnvoiMail(message, "Versement distant");
-                fProtectioncialDAO.getCollaborateurEnvoiSMS(message, "Versement distant");
+                banque = 2;
+                libelle = "Verst distant " + libelle;
             }
-        }
 
-        if (rgNoLier != 0) {
-            fcReglement = this.getReglementByCbmarq(fcReglement.getCbMarq());
-            BigDecimal rgNo = fcReglement.getRG_No();
-            this.insertZ_RGLT_BONDECAISSE(rgNo, BigDecimal.valueOf(rgNoLier));
-
-            caNo = 0;
-            int coNoCaissier = 0;
-            FCReglement fcReglementLier = getFCReglement(BigDecimal.valueOf(rgNoLier));
-            if (fcReglementLier.getCbMarq() != null) {
-                caNo = fcReglementLier.getCA_No();
-                coNoCaissier = fcReglementLier.getCO_NoCaissier();
-                this.getMajCaisseRGNo(caNo, coNoCaissier, rgNo);
+            if (modeReglementRec.equals("10")) {
+                rgTypeReg = 5;
             }
-            this.updateImpute(rgNoLier);
-        }
-        this.incrementeCOLREGLEMENT();
+            FCaisseDAO fCaisseDAO = new FCaisseDAO(this.getDataSource());
+            FCaisse fCaisse = fCaisseDAO.getF_Caisse(caNo);
+            String caIntitule = "";
+            if (fCaisse.getCbMarq() != null) {
+                caIntitule = fCaisse.getCA_Intitule();
+            }
 
-        return fcReglement.getCbMarq();
+            FCollaborateurDAO fCollaborateurDAO = new FCollaborateurDAO(this.getDataSource());
+            FCollaborateur fCollaborateur = fCollaborateurDAO.getCollaborateurJSON(Integer.valueOf(caissier));
+            String collaborateurCaissier = "";
+            if (fCollaborateur.getCbMarq() != null) {
+                collaborateurCaissier = fCollaborateur.getCO_Nom();
+                email = fCollaborateur.getCO_EMail();
+                collabIntitule = fCollaborateur.getCO_Nom();
+                telephone = fCollaborateur.getCO_Telephone();
+            }
+
+            FCReglement fcReglement = new FCReglement();
+            fcReglement.initVariables();
+            fcReglement.setRG_Date(date);
+            fcReglement.setRG_DateEchCont(date);
+            fcReglement.setJO_Num(joNum);
+            fcReglement.setCG_Num(cgNum);
+            fcReglement.setCA_No(caNo);
+            fcReglement.setCO_NoCaissier(Integer.valueOf(caissier));
+            fcReglement.setRG_Libelle(libelle); //libelle.substring(0,34)
+            fcReglement.setRG_Montant((double) montant);
+            fcReglement.setRG_Impute(impute);
+            fcReglement.setRG_Type(rgTypeN);
+            fcReglement.setN_Reglement(Integer.valueOf(modeReglementRec));
+            fcReglement.setRG_Ticket(0);
+            fcReglement.setRG_Banque(banque);
+            fcReglement.setCT_NumPayeur(ctNum);
+            fcReglement.setCT_NumPayeurOrig(ctNum);
+            fcReglement.setCbCreateur(String.valueOf(protNo));
+            this.insertF_Reglement(fcReglement);
+
+            if ((!telephone.equals("") || telephone != null) && modeReglementRec.equals("05")) {
+                FContactDDAO fContactDDAO = new FContactDDAO(this.getDataSource());
+                FContactD fContactD = fContactDDAO.getContactD(1);
+                String message = "";
+                fContactDDAO.sendMessage(telephone, message);
+            }
+
+            if (rgNoLier == 0) {
+                String message = "VERSEMENT DISTANT D' UN MONTANT DE " + montant + " AFFECTE AU COLLABORATEUR "
+                        + collaborateurCaissier + " POUR LE CLIENT " + ctIntitule + " A DATE DU " + date;
+                if (modeReglementRec.equals("05")) {
+                    fProtectioncialDAO.getCollaborateurEnvoiMail(message, "Versement distant");
+                    fProtectioncialDAO.getCollaborateurEnvoiSMS(message, "Versement distant");
+                }
+            }
+
+            if (rgNoLier != 0) {
+                fcReglement = this.getReglementByCbmarq(fcReglement.getCbMarq());
+                BigDecimal rgNo = fcReglement.getRG_No();
+                this.insertZ_RGLT_BONDECAISSE(rgNo, BigDecimal.valueOf(rgNoLier));
+
+                caNo = 0;
+                int coNoCaissier = 0;
+                FCReglement fcReglementLier = getFCReglement(BigDecimal.valueOf(rgNoLier));
+                if (fcReglementLier.getCbMarq() != null) {
+                    caNo = fcReglementLier.getCA_No();
+                    coNoCaissier = fcReglementLier.getCO_NoCaissier();
+                    this.getMajCaisseRGNo(caNo, coNoCaissier, rgNo);
+                }
+                this.updateImpute(rgNoLier);
+            }
+            this.incrementeCOLREGLEMENT();
+            json.put("cbMarq",fcReglement.getCbMarq());
+            return json;
+        }
+        else{
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            json.put("message","la date doit être comprise entre "+  sdf.format(dateLimiteMoinsDate) +" et "+sdf.format(dateLimitePlusDate)+".");
+            return json;
+        }
     }
 
     public void getMajCaisseRGNo(int caNo, int coNo, BigDecimal rgNo) {

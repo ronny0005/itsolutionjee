@@ -15,6 +15,7 @@ import javax.sql.RowSet;
 import java.math.BigDecimal;
 import java.text.Bidi;
 import java.text.Normalizer;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Repository
@@ -526,16 +527,43 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         return 0;
     }
 
-    public void regle(BigDecimal cbMarq,String typeFacture,int protNo,int valideRegle,int valideRegltImprime,double montantAvance,int modeReglement,String dateReglt,String libReglt,String dateEch){
+    public void regle(BigDecimal cbMarq,String typeFacture,int protNo,int valideRegle,int valideRegltImprime,double montantAvance,int modeReglement,String dateReglt,String libReglt,String dateEch) {
+
+        FDocEntete fDocEntete = getFDocEntete(cbMarq);
+
+        //boolean isVisu = false;
+        FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
+        FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
+        FCReglementDAO fcReglementDAO = new FCReglementDAO(this.getDataSource());
+        FProtectioncial fProtectioncial = fProtectioncialDAO.connexionProctectionByProtNo(protNo);
+        int isSecurite = fProtectioncialDAO.isSecuriteAdmin(fDocEntete.getDE_No(), fProtectioncial.getProtectAdmin(), fDocEntete.getDE_No());
+        //isVisu = fDocEntete.isVisu(fProtectioncial.getPROT_Administrator(), fProtectioncial.protectedType(typeFacture), fProtectioncial.getPROT_APRES_IMPRESSION(), isSecurite);
+        FComptet fComptet = fComptetDAO.getF_Comptet(fDocEntete.getDO_Tiers(), fDocEntete.getDO_Domaine());
+        String dateRglt = "";
+        if (valideRegle == 1) {
+            if (valideRegltImprime == 0) {
+                dateRglt = dateReglt;
+
+            } else {
+                dateRglt = dateEch;
+            }
+            if (montantAvance != 0) {
+                fcReglementDAO.addCReglementFacture(cbMarq, montantAvance, fComptet.getCT_Type(), modeReglement, fDocEntete.getCA_No(), dateRglt, libReglt, dateEch, protNo);
+                //fComptet = fComptetDAO.getF_Comptet(fDocEntete.getDO_Tiers(), fDocEntete.getCtType());
+            }
+            if (valideRegltImprime == 1)
+                doImprim(cbMarq);
+        }
+    /*
         FDocEntete fDocEntete = getFDocEntete(cbMarq);
         fDocEntete.setTypeFac(typeFacture);
         FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
         FComptet fComptet = fComptetDAO.getF_Comptet(fDocEntete.getDO_Tiers(),fDocEntete.getCtType());
         double montant =0;
         if (valideRegle == 1) {
-            if (valideRegltImprime!=1)
+            if (valideRegltImprime!=1) {
                 montant = this.montantRegle(fDocEntete);
-
+            }
             FCReglementDAO fCReglementDao = new FCReglementDAO(this.getDataSource());
 
             if (montantAvance != 0) {
@@ -551,6 +579,8 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
 
         if (valideRegltImprime == 1)
             this.doImprim(cbMarq);
+
+     */
     }
 
     public Object AjoutMvtStock(String typeFacture,double latitude,double longitude,String doRef,String caNum,String doTiers
@@ -1173,17 +1203,18 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(protNo);
         Boolean isFacture = true;
+        Date dateLimiteMoinsDate = new Date();
+        Date dateLimitePlusDate = new Date();
+        net.minidev.json.JSONObject json = new net.minidev.json.JSONObject();
 
         if(fProtectioncial.getPROT_Right()!=1) {
             int delai = this.getDelai();
             if (delai != 0) {
-                Date dateLimiteMoinsDate = new Date();
                 Calendar cMoins = Calendar.getInstance();
                 cMoins.setTime(dateLimiteMoinsDate);
                 cMoins.add(Calendar.DATE, -delai);
                 dateLimiteMoinsDate = cMoins.getTime();
 
-                Date dateLimitePlusDate = new Date();
                 Calendar cPlus = Calendar.getInstance();
                 cPlus.setTime(dateLimitePlusDate);
                 cPlus.add(Calendar.DATE, delai);
@@ -1301,10 +1332,39 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
                 fDocReglDAO.ajoutDocRegl(fDocRegl);
             }
             return (List<Object>) getFDocEnteteJSon(cbMarqInsert);
+        }else {
+            if (cloture > 0) {
+                json.put("message", "Cette journée est déjà cloturée !");
+                return json;
+
+            } else {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                json.put("message", "la date doit être comprise entre " + sdf.format(dateLimiteMoinsDate) + " et " + sdf.format(dateLimitePlusDate) + ".");
+                return json;
+            }
         }
-        return null;
     }
 
+
+    public void majLigneByCbMarq(String champ,String value,int cbMarq,int protNo){
+        String sql = "DECLARE @cbMarq INT = "+cbMarq+";\n" +
+                "                    DECLARE @protNo INT = "+protNo+";\n" +
+                "                    DECLARE @value NVARCHAR(50) = '"+value+"';\n" +
+                "\n" +
+                "                    UPDATE F_DOCENTETE \n" +
+                "\t\t\t\t\t\tSET "+champ+" = @value\n" +
+                "\t\t\t\t\t\t\t,cbCreateur = @protNo\n" +
+                "\t\t\t\t\tWHERE cbMarq = @cbMarq;\n" +
+                "\t\t\t\t\tUPDATE F_DOCLIGNE \n" +
+                "\t\t\t\t\t\tSET F_DOCLIGNE."+champ+" = @value \n" +
+                "\t\t\t\t\t\t\t,cbCreateur = @protNo\n" +
+                "\t\t\t\t\tFROM \tF_DOCENTETE\n" +
+                "\t\t\t\t\tWHERE\tF_DOCENTETE.DO_Domaine = F_DOCLIGNE.DO_Domaine  \n" +
+                "\t\t\t\t\tAND \tF_DOCENTETE.DO_Type = F_DOCLIGNE.DO_Type  \n" +
+                "\t\t\t\t\tAND \tF_DOCENTETE.cbDO_Piece = F_DOCLIGNE.cbDO_Piece \n" +
+                "\t\t\t\t\tAND \tF_DOCENTETE.cbMarq=@cbMarq";
+        this.getJdbcTemplate().execute(sql);
+    }
     public void removeFacRglt(BigDecimal cbMarqEntete,BigDecimal rgNo){
         FCReglementDAO fcReglementDAO = new FCReglementDAO(this.getDataSource());
         FDocReglDAO fDocReglDAO = new FDocReglDAO(this.getDataSource());

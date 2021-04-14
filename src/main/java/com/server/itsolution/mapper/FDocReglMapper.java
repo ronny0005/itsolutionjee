@@ -7,6 +7,7 @@ public class FDocReglMapper extends ObjectMapper {
             "               DR_Regle, N_Reglement, cbProt, cbMarq, cbCreateur, cbModification,cbReplication,cbFlag From F_DOCREGL";
     public static final String InsertFDocRegl
             =
+            " SET DATEFORMAT dmy;" +
             " DECLARE @generated_keys table([cbMarq] int);" +
             " INSERT INTO [dbo].[F_DOCREGL] \n" +
             "                ([DR_No],[DO_Domaine],[DO_Type],[DO_Piece],[DR_TypeRegl],[DR_Date],[DR_Libelle],[DR_Pourcent] \n" +
@@ -14,7 +15,7 @@ public class FDocReglMapper extends ObjectMapper {
             "                ,[N_Reglement],[cbProt],[cbCreateur],[cbModification],[cbReplication],[cbFlag]) \n" +
             "                VALUES \n" +
             "                (/*DR_No*/ISNULL((SELECT MAX(DR_No) FROM F_DOCREGL),0)+1,/*DO_Domaine*/?\n" +
-            "                ,/*DO_Type*/?,/*DO_Piece*/?,/*DR_TypeRegl*/2,/*DR_Date*/?  \n" +
+            "                ,/*DO_Type*/?,/*DO_Piece*/?,/*DR_TypeRegl*/2,/*DR_Date*/CAST(? AS DATE)  \n" +
             "                ,/*DR_Libelle*/'',/*DR_Pourcent*/0,/*DR_Montant*/0,/*DR_MontantDev*/0 \n" +
             "                ,/*DR_Equil*/1,/*EC_No, */0,/*cbEC_No, */0,/*DR_Regle*/?\n" +
             "                ,/*N_Reglement*/?,/*cbProt*/0,/*cbCreateur*/?,/*cbModification*/GETDATE() \n" +

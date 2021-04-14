@@ -95,10 +95,14 @@ public class FCReglementMapper extends ObjectMapper {
 			"                WHERE C.cbMarq=?)A";
 
 	public static final String getReglementByClient =
-					"DECLARE @dateDeb AS VARCHAR(20) \n" +
-							"                    ,@dateFin AS VARCHAR(20)\n" +
+					"BEGIN \n" +
+							"                    SET DATEFORMAT dmy;" +
+							"					 SET NOCOUNT ON;\n" +
+							"                        \n" +
+							"                    DECLARE @dateDeb AS DATE \n" +
+							"                    ,@dateFin AS DATE\n" +
 							"                    ,@rgImpute AS INT\n" +
-							"                    ,@ctNum AS NVARCHAR(50)\n" +
+							"                    ,@ctNum AS VARCHAR(50)\n" +
 							"                    ,@collab AS INT\n" +
 							"                    ,@nReglement AS INT \n" +
 							"                    ,@caNo AS INT\n" +
@@ -113,15 +117,48 @@ public class FCReglementMapper extends ObjectMapper {
 							"                    SET @caNo = ?;\n" +
 							"                    SET @coNoCaissier = ?; \n" +
 							"                    SET @rgType = ?;\n" +
+							"                    DECLARE @admin INT\n" +
+							"                    DECLARE @ProtNo INT\n" +
+							"                    SET @ProtNo = ?\n" +
 							"                    \n" +
-							"                    SELECT  PROT_User\n" +
-							"                            ,DO_Modif = CASE WHEN ABS(DATEDIFF(d,GETDATE(),C.RG_Date))>= (select PR_DelaiPreAlert from P_PREFERENCES) THEN 1 ELSE 0 END \n" +
-							"                            ,C.JO_Num,C.CO_NoCaissier,C.CT_NumPayeur" +
-							"							 ,C.CG_Num,RG_Piece,ISNULL(RC_Montant,0) AS RC_Montant\n" +
-							"                            ,C.RG_No,CAST(RG_Date as date) RG_Date,RG_Libelle" +
-							"							 ,RG_Montant,C.CA_No,C.CO_NoCaissier\n" +
-							"                            ,CO_Nom = ISNULL(CO_Nom,''),CA_Intitule = ISNULL(CA_Intitule,'')" +
-							"							 ,RG_Impute,RG_TypeReg,N_Reglement\n" +
+							"                    CREATE TABLE #TMPCAISSE (CA_No INT)\n" +
+							"                                        \n" +
+							"                    IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@ProtNo) = 1 \n" +
+							"                                        BEGIN \n" +
+							"                                        INSERT INTO #TMPCAISSE\n" +
+							"                                        SELECT\tISNULL(CA.CA_No,0) CA_No \n" +
+							"                                        FROM F_CAISSE CA\n" +
+							"                                        INNER JOIN Z_DEPOTCAISSE C \n" +
+							"                                            ON CA.CA_No=C.CA_No\n" +
+							"                                        INNER JOIN F_DEPOT D \n" +
+							"                                            ON C.DE_No=D.DE_No\n" +
+							"                                        INNER JOIN F_COMPTET CT \n" +
+							"                                            ON CT.cbCT_Num = CA.cbCT_Num\n" +
+							"                                        WHERE (@caNo = 0 OR CA.CA_No = @caNo) \n" +
+							"                                        GROUP BY CA.CA_No\n" +
+							"                                        END \n" +
+							"                                        ELSE \n" +
+							"                                        BEGIN \n" +
+							"                                        INSERT INTO #TMPCAISSE\n" +
+							"                                        SELECT\tISNULL(CA.CA_No,0) CA_No\n" +
+							"                                        FROM F_CAISSE CA\n" +
+							"                                        LEFT JOIN Z_DEPOTCAISSE C \n" +
+							"                                            ON CA.CA_No=C.CA_No\n" +
+							"                                        LEFT JOIN (\tSELECT * \n" +
+							"                                                    FROM Z_DEPOTUSER\n" +
+							"                                                    WHERE IsPrincipal=1) D \n" +
+							"                                            ON C.DE_No=D.DE_No\n" +
+							"                                        LEFT JOIN F_COMPTET CT ON CT.CT_Num = CA.CT_Num\n" +
+							"                                        WHERE Prot_No=@ProtNo\n" +
+							"                                        AND (@caNo = 0 OR CA.CA_No = @caNo) \n" +
+							"                                        GROUP BY CA.CA_No\n" +
+							"                                        END;\n" +
+							"\n" +
+							"                    SELECT PROT_User\n" +
+							"                            ,CASE WHEN ABS(DATEDIFF(d,GETDATE(),C.RG_Date))>= (select PR_DelaiPreAlert from P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif\n" +
+							"                            ,C.JO_Num,C.CO_NoCaissier,C.CT_NumPayeur,C.CG_Num,RG_Piece,ISNULL(RC_Montant,0) AS RC_Montant\n" +
+							"                            ,C.RG_No,CAST(RG_Date as date) RG_Date,RG_Libelle,RG_Montant,C.CA_No,C.CO_NoCaissier\n" +
+							"                            ,ISNULL(CO_Nom,'')CO_Nom,ISNULL(CA_Intitule,'')CA_Intitule,RG_Impute,RG_TypeReg,N_Reglement\n" +
 							"                    FROM F_CREGLEMENT C\n" +
 							"                    LEFT JOIN F_CAISSE CA \n" +
 							"                        ON CA.CA_No=C.CA_No \n" +
@@ -150,17 +187,17 @@ public class FCReglementMapper extends ObjectMapper {
 							"                                            ON A.RG_No = B.RG_No\n" +
 							"                                        GROUP BY A.RG_No\n" +
 							"                                ) A \n" +
-							"\t\t\t\t\t\t\t\tGROUP BY RG_No) R " +
-							"					ON R.RG_No=c.RG_No\n" +
+							"\t\t\t\t\t\t\t\tGROUP BY RG_No) R ON R.RG_No=c.RG_No\n" +
 							"\t\t\t        WHERE @rgType = RG_Type \n" +
 							"\t\t\t        AND RG_Date BETWEEN @dateDeb AND @dateFin \n" +
 							"\t\t\t        AND (-1=@rgImpute OR RG_Impute=@rgImpute)\n" +
 							"                    AND ((''=@ctNum AND ct_numpayeur IS NOT NULL) OR ct_numpayeur = @ctNum OR ('1'=@collab AND CAST(C.CO_NoCaissier AS NVARCHAR(10)) = @ctNum))\n" +
 							"                    AND (((0=@nReglement OR N_Reglement=@nReglement) \n" +
 							"\t\t\t                AND ((@collab = 1 AND RG_Banque=3) OR (@collab = 0))\n" +
-							"                                AND ('0'=@caNo OR CA.CA_No=@caNo)) \n" +
+							"                                AND \tCA.CA_No IN (SELECT CA_No FROM #TMPCAISSE))\n" +
 							"\t\t\t                OR ('0'<>@coNoCaissier AND C.CO_NoCaissier=@coNoCaissier AND N_Reglement='05') )\n" +
-							"                    ORDER BY C.RG_No";
+							"                    ORDER BY C.RG_No\n" +
+							"                END";
 
 	public static final String getReglementByClientFacture =
 			"DECLARE @CT_Num as VARCHAR(50) = ?\n" +
@@ -254,8 +291,9 @@ public class FCReglementMapper extends ObjectMapper {
 						"                    ON A.RG_No = B.RG_No\n" +
 						"                WHERE A.RG_No =@rgNo;";
 	public static final String addCReglementFacture =
-			"                DECLARE @CT_NumPayeur AS VARCHAR(50) = ?\n" +
-					"                DECLARE @RG_Date AS VARCHAR(50) = ?\n" +
+					"                SET DATEFORMAT dmy;\n" +
+					"				 DECLARE @CT_NumPayeur AS VARCHAR(50) = ?\n" +
+					"                DECLARE @RG_Date AS DATE = ?\n" +
 					"                DECLARE @RG_Reference AS VARCHAR(50) = ?\n" +
 					"                DECLARE @RG_Libelle AS VARCHAR(50) = ?\n" +
 					"                DECLARE @RG_Montant AS FLOAT = ?\n" +
@@ -281,7 +319,7 @@ public class FCReglementMapper extends ObjectMapper {
 					"                DECLARE @RG_Ticket AS INT = ?\n" +
 					"                DECLARE @RG_Souche AS INT = ?\n" +
 					"                DECLARE @CT_NumPayeurOrig AS VARCHAR(20) = ?\n" +
-					"                DECLARE @RG_DateEchCont AS  VARCHAR(20) = ?\n" +
+					"                DECLARE @RG_DateEchCont AS  DATE = ?\n" +
 					"                DECLARE @CG_NumEcart AS VARCHAR(20) = ?\n" +
 					"                DECLARE @JO_NumEcart AS VARCHAR(20) = ?\n" +
 					"                DECLARE @RG_MontantEcart AS FLOAT = ?\n" +

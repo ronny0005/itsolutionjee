@@ -28,34 +28,64 @@ public class FArticleDAO extends JdbcDaoSupport {
     public FArticleMapper mapper = new FArticleMapper();
     public FArticle fArticle = new FArticle();
 
-    public List<Object> getAll(String intitule,int top,int sommeil,int arPublie) {
+    public List<Object> getAll(String intitule,int top,int sommeil,int arPublie,String rechEtat) {
         String valeurSaisie =intitule.replace(" ","%");
         String value = "";
+        String rechEt = "";
+        if(!rechEtat.equals("0"))
+            rechEt = "UNION SELECT AR_Type = 0,AR_Sommeil = 0,AR_Ref = '0',AR_Design = 'Tout',id = '0',text = 'Tout',value = 'Tout',AR_PrixAch = 0,AR_PrixVen = 0";
         if(top!=0)
             value = "TOP "+top;
         String sql = "DECLARE @sommeil AS INT = "+sommeil+
                 "		, @arPublie AS INT = "+arPublie+
+                "		, @arText AS NVARCHAR(150) = '"+valeurSaisie+"'"+
                 "; SELECT  "+value+" AR_Type"+
-                "     ,AR_Sommeil"+
-                "     ,AR_Ref"+
-                "     ,AR_Design"+
-                "     ,AR_Ref as id"+
-                "     ,CONCAT(CONCAT(AR_Ref,' - '),AR_Design) as text"+
-                "     ,CONCAT(CONCAT(AR_Ref,' - '),AR_Design) as value"+
-                "   ,AR_PrixAch"+
-                "   ,AR_PrixVen"+
-                " FROM F_ARTICLE"+
-                " WHERE (-1=@arPublie OR AR_Publie=@arPublie)"+
-                " AND (-1=@sommeil OR AR_Sommeil=@sommeil)"+
-                " AND CONCAT(CONCAT(AR_Ref,' - '),AR_Design) LIKE '%"+valeurSaisie+"%'";
+                "        ,AR_Sommeil\n" +
+                "                          ,AR_Ref\n" +
+                "                          ,AR_Design\n" +
+                "                          ,AR_Ref as id\n" +
+                "                          ,CONCAT(CONCAT(AR_Ref,' - '),AR_Design) as text\n" +
+                "                          ,CONCAT(CONCAT(AR_Ref,' - '),AR_Design) as value\n" +
+                "                        ,AR_PrixAch\n" +
+                "                        ,AR_PrixVen\n" +
+                "                  FROM F_ARTICLE\n" +
+                "                  WHERE (-1=@arPublie OR AR_Publie=@arPublie)\n" +
+                "                  AND (-1=@arSommeil OR AR_Sommeil=@arSommeil)\n" +
+                "                  AND CONCAT(CONCAT(AR_Ref,' - '),AR_Design) LIKE CONCAT(CONCAT('%',@arText),'%') \n" +
+                "                  "+rechEt+"\n" +
+                "                  ORDER BY AR_Design";
         List<Object> list = this.getJdbcTemplate().query(sql, mapper);
         return list;
     }
 
-    public List<Object> getAllArticleDispoByArRef(int deNo,String codeFamille,String valeur){
-        String sql = FArticleMapper.getAllArticleDispoByArRef;
-        params = new Object[] {deNo,codeFamille,valeur};
-        return this.getJdbcTemplate().query(sql, params, mapper);
+    public List<Object> getAllArticleDispoByArRef(int deNo,String codeFamille,String valeur,String rechEtat){
+        String rechEt = "" ;
+        if(!rechEtat.equals("0"))
+            rechEt = "UNION SELECT AR_Type = 0,AR_Sommeil = 0,id = '0',AR_Ref = '0',AR_Design = 'Tout'Transfert,text = 'Tout',value = 'Tout',AR_PrixAch = 0,AR_PrixVen = 0,AS_QteSto = 0";
+        String sql = "DECLARE @deNo AS INT = "+deNo+"\n" +
+                "                    DECLARE @codeFamille AS NVARCHAR(50) = '"+codeFamille+"' \n" +
+                "                    DECLARE @value AS NVARCHAR(150) = '"+valeur+"' \n" +
+                "                    SELECT TOP 10 AR_Type\n" +
+                "                            ,AR_Sommeil\n" +
+                "                            ,A.AR_Ref as id\n" +
+                "                            ,A.AR_Ref\n" +
+                "                            ,AR_Design\n" +
+                "                            ,CONCAT(CONCAT(A.AR_Ref,' - '),AR_Design) as text\n" +
+                "                            ,CONCAT(CONCAT(A.AR_Ref,' - '),AR_Design) as value\n" +
+                "                            ,AR_PrixAch\n" +
+                "                            ,AR_PrixVen \n" +
+                "                            ,AS_QteSto\n" +
+                "                    FROM    F_ARTICLE A \n" +
+                "                    INNER JOIN F_ARTSTOCK S \n" +
+                "                        ON  A.cbAR_Ref=S.cbAR_Ref  \n" +
+                "                    WHERE (@deNo=0 OR DE_No=@deNo) \n" +
+                "                    AND   S.AS_QteSto>0\n" +
+                "                    AND   ('0'=@codeFamille OR FA_CodeFamille=@codeFamille)\n" +
+                "                    AND   AR_Sommeil=0\n" +
+                "                    AND   CONCAT(CONCAT(CONCAT(CONCAT(A.AR_Ref,' - '),AR_Design), ' - '),AR_CodeBarre) LIKE CONCAT(CONCAT('%',@value),'%')\n" +
+                "                    "+rechEt+"\n" +
+                "                    ORDER BY AR_Design";
+        return this.getJdbcTemplate().query(sql, mapper);
     }
 
 
@@ -190,9 +220,9 @@ public class FArticleDAO extends JdbcDaoSupport {
         this.getJdbcTemplate().update(sql, parames.toArray());
     }
 
-    public List<Object> getArticleByRefDesignation(int deNo,String term,String typeFacture){
+    public List<Object> getArticleByRefDesignation(int deNo,String term,String typeFacture,String rechEtat){
         if (typeFacture.equals("Ticket") || typeFacture.equals("AchatRetour") || typeFacture.equals("Vente") || typeFacture.equals("BonLivraison") || typeFacture.equals("Sortie") || typeFacture.equals("Transfert") || typeFacture.equals("Transfert_confirmation") || typeFacture.equals("Transfert_detail"))
-            return this.getAllArticleDispoByArRef(deNo,"0",term);
+            return this.getAllArticleDispoByArRef(deNo,"0",term,rechEtat);
         else
             return this.allSearch(-1,-1,term);
     }
@@ -413,12 +443,12 @@ public class FArticleDAO extends JdbcDaoSupport {
         return listTaxeArticle;
     }
 
-    public List<Object> listeArticleSource(int deNo,String type){
+    public List<Object> listeArticleSource(int deNo,String type,String rechEtat){
         if(deNo!=0) {
             if (type.equals("Ticket") || type.equals("Vente") || type.equals("BonLivraison") || type.equals("Sortie") || type.equals("Transfert") || type.equals("Transfert_detail"))
-                return this.getAllArticleDispoByArRef(deNo,"0","");
+                return this.getAllArticleDispoByArRef(deNo,"0","",rechEtat);
             else
-                return this.getAll("",0,-1,-1);
+                return this.getAll("",0,-1,-1,rechEtat);
         }
         return null;
     }

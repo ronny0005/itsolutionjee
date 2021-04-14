@@ -19,9 +19,9 @@ public class FArticleRessource {
     @Autowired
     FArticleDAO fArticleDAO;
 
-    @GetMapping(value = "/all&intitule={intitule}&top={top}&sommeil={sommeil}&arPublie={arPublie}")
-    public List<Object> getAll(@PathVariable String intitule, @PathVariable int top, @PathVariable int sommeil, @PathVariable int arPublie) {
-        List<Object> list = fArticleDAO.getAll(intitule, top, sommeil, arPublie);
+    @GetMapping(value = "/all&intitule={intitule}&top={top}&sommeil={sommeil}&arPublie={arPublie}&rechEtat={rechEtat}")
+    public List<Object> getAll(@PathVariable String intitule, @PathVariable int top, @PathVariable int sommeil, @PathVariable int arPublie,@PathVariable String rechEtat) {
+        List<Object> list = fArticleDAO.getAll(intitule, top, sommeil, arPublie,rechEtat);
         return list;
     }
 
@@ -96,9 +96,9 @@ public class FArticleRessource {
         return fArticleDAO.getStockDepot(arRef, deNo);
     }
 
-    @GetMapping(value = "/getArticleByRefDesignation&deNo={deNo}&term={term}&typeFacture={typeFacture}")
-    public List<Object> getArticleByRefDesignation(@PathVariable int deNo, @PathVariable String term, @PathVariable String typeFacture) {
-        return fArticleDAO.getArticleByRefDesignation(deNo, term, typeFacture);
+    @GetMapping(value = "/getArticleByRefDesignation&deNo={deNo}&term={term}&typeFacture={typeFacture}&rechEtat={rechEtat}")
+    public List<Object> getArticleByRefDesignation(@PathVariable int deNo, @PathVariable String term, @PathVariable String typeFacture,@PathVariable String rechEtat) {
+        return fArticleDAO.getArticleByRefDesignation(deNo, term, typeFacture,rechEtat);
     }
 
     @GetMapping(value = "/getArtFournisseur&arRef={arRef}")
@@ -143,9 +143,9 @@ public class FArticleRessource {
     }
 
 
-    @GetMapping(value = "/getAllArticleDispoByArRef&deNo={deNo}&codeFamille={codeFamille}&valeur={valeur}")
-    public List<Object> getAllArticleDispoByArRef(@PathVariable int deNo, @PathVariable String codeFamille,@PathVariable String valeur) {
-        List<Object> list = fArticleDAO.getAllArticleDispoByArRef(deNo,codeFamille,valeur);
+    @GetMapping(value = "/getAllArticleDispoByArRef&deNo={deNo}&codeFamille={codeFamille}&valeur={valeur}&rechEtat={rechEtat}")
+    public List<Object> getAllArticleDispoByArRef(@PathVariable int deNo, @PathVariable String codeFamille,@PathVariable String valeur,@PathVariable String rechEtat) {
+        List<Object> list = fArticleDAO.getAllArticleDispoByArRef(deNo,codeFamille,valeur,rechEtat);
         return list;
     }
 
@@ -172,9 +172,9 @@ public class FArticleRessource {
         return list;
     }
 
-    @GetMapping(value = "/listeArticleSource&deNo={deNo}&type={type}")
-    public List<Object> listeArticleSource(@PathVariable int deNo,@PathVariable String type){
-        return fArticleDAO.listeArticleSource(deNo,type);
+    @GetMapping(value = "/listeArticleSource&deNo={deNo}&type={type}&rechEtat={rechEtat}")
+    public List<Object> listeArticleSource(@PathVariable int deNo,@PathVariable String type,@PathVariable String rechEtat){
+        return fArticleDAO.listeArticleSource(deNo,type,rechEtat);
     }
 
 

@@ -149,9 +149,9 @@ public class FCReglementRessource {
         return fcReglementDAO.listeReglementCaisse(dateDeb,dateFin,caNo,type,protNo);
     }
 
-    @GetMapping(value = "/getReglementByClient&dateDeb={dateDeb}&dateFin={dateFin}&rgImpute={rgImpute}&ctNum={ctNum}&collab={collab}&nReglement={nReglement}&caNo={caNo}&coNoCaissier={coNoCaissier}&rgType={rgType}")
-    public List<Object> getReglementByClient(@PathVariable String dateDeb,@PathVariable String dateFin,@PathVariable int rgImpute,@PathVariable String ctNum,@PathVariable int collab,@PathVariable int nReglement,@PathVariable int caNo,@PathVariable int coNoCaissier,@PathVariable int rgType){
-        return fcReglementDAO.getReglementByClient(dateDeb,dateFin,rgImpute,ctNum,collab,nReglement,caNo,coNoCaissier,rgType);
+    @GetMapping(value = "/getReglementByClient&dateDeb={dateDeb}&dateFin={dateFin}&rgImpute={rgImpute}&ctNum={ctNum}&collab={collab}&nReglement={nReglement}&caNo={caNo}&coNoCaissier={coNoCaissier}&rgType={rgType}&protNo={protNo}")
+    public List<Object> getReglementByClient(@PathVariable String dateDeb,@PathVariable String dateFin,@PathVariable int rgImpute,@PathVariable String ctNum,@PathVariable int collab,@PathVariable int nReglement,@PathVariable int caNo,@PathVariable int coNoCaissier,@PathVariable int rgType,@PathVariable int protNo){
+        return fcReglementDAO.getReglementByClient(dateDeb,dateFin,rgImpute,ctNum,collab,nReglement,caNo,coNoCaissier,rgType,protNo);
     }
 
 	@GetMapping(value = "/regle&cbMarq={cbMarq}&typeFacture={typeFacture}&protNo={protNo}&valideRegle={valideRegle}&valideRegltImprime={valideRegltImprime}&mttAvance={mttAvance}&montantTotal={montantTotal}&modeReglement={modeReglement}&dateRglt={dateRglt}&libRglt={libRglt}")

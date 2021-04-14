@@ -46,9 +46,9 @@ public class FJournauxRessource {
         return     fJournauxDAO.getECPiece(joNum,jmDate);
     }
 
-    @GetMapping(value = "/getJournauxType&joType={joType}")
-    public List<Object> getJournauxType(@PathVariable int joType) {
-        return fJournauxDAO.getJournauxType(joType,-1);
+    @GetMapping(value = "/getJournauxType&joType={joType}&joSommeil={joSommeil}")
+    public List<Object> getJournauxType(@PathVariable int joType,@PathVariable int joSommeil) {
+        return fJournauxDAO.getJournauxType(joType,joSommeil);
     }
 
     @GetMapping(value = "/getJournauxSaisieSelect/ouvert={ouvert}&mois={mois}&joNum={journal}")

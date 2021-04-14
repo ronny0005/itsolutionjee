@@ -143,6 +143,21 @@ public class FArtStockDAO extends JdbcDaoSupport {
 
     }
 
+    public void updateArtStockQteRes(String arRef, int deNo, double qte,String protNo) {
+
+        FArtStock fArtStock = this.isStock(arRef,deNo);
+        //LogFileDAO logFileDAO = new LogFileDAO(this.getDataSource());
+        //logFileDAO.writeStock(action,arRef,deNo,fArtStock,protNo);
+
+        String sql = FArtStockMapper.updateArtStockQteRes;
+        params = new Object[]{qte, deNo,arRef};
+        this.getJdbcTemplate().update(sql, params);
+
+        FArtStock fArtStockAfter = this.isStock(arRef,deNo);
+        //logFileDAO.writeStock(action,arRef,deNo,fArtStockAfter,protNo);
+
+    }
+
     public void setASQteMaxiArtStock(String arRef,int deNo){
         String sql = FArtStockMapper.setASQteMaxiArtStock;
         params = new Object[]{arRef, deNo};

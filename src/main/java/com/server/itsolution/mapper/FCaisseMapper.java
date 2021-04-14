@@ -119,6 +119,14 @@ public class FCaisseMapper extends ObjectMapper {
 			"                    AND \t(0 = @caNo OR CA_No = @caNo)\n" +
 			"                    GROUP BY CO.CO_No,CO_Nom";
 
+	public static final String getCaisseByCA_No =
+			"SELECT  	CT_Intitule\n" +
+			"			,C.* \n" +
+			"FROM    	F_CAISSE C \n" +
+			"LEFT JOIN 	F_COMPTET T \n" +
+			"	ON  C.CT_Num=T.CT_Num \n" +
+			"WHERE   	CA_No =?";
+
 	public static final String getCaisseDepot
 			="DECLARE @protNo INT = '$prot_no'\n" +
 			"                    IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@protNo) = 1 \n" +

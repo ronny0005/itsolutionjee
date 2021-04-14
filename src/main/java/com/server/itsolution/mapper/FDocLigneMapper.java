@@ -19,32 +19,34 @@ public class FDocLigneMapper extends ObjectMapper {
     public static final String getFDocLigne = BASE_SQL + " WHERE cbMarq = ?";
 
     public static final String getLigneFacture =
-            "DECLARE @do_domaine as INT = ?\n" +
-                    "DECLARE @do_type as INT = ?\n" +
-                    "DECLARE @do_piece as VARCHAR(10) = ?\n" +
-                    "\n" +
-                    "SELECT DL_PUDevise,CA_Num,DL_TTC, DL_PUTTC,DL_MvtStock,CT_Num,cbMarq,DL_TypeTaux1,DL_TypeTaux2,DL_TypeTaux3,cbCreateur,DL_NoColis\n" +
-                    "        ,CASE WHEN DL_TypeTaux1=0 THEN DL_MontantHT*(DL_Taxe1/100) ELSE CASE WHEN DL_TypeTaux1=1 THEN DL_Taxe1*DL_Qte ELSE DL_Taxe1 END END MT_Taxe1\n" +
-                    "        ,CASE WHEN DL_TypeTaux2=0 THEN DL_MontantHT*(DL_Taxe2/100) ELSE CASE WHEN DL_TypeTaux2=1 THEN DL_Taxe2*DL_Qte ELSE DL_Taxe2 END END MT_Taxe2\n" +
-                    "        ,CASE WHEN DL_TypeTaux3=0 THEN DL_MontantHT*(DL_Taxe3/100) ELSE CASE WHEN DL_TypeTaux3=1 THEN DL_Taxe3*DL_Qte ELSE DL_Taxe3 END END MT_Taxe3\n" +
-                    "\t    ,DL_MontantHT,DO_Piece,\n" +
-                    "        AR_Ref,DE_No,DL_CMUP AS AR_PrixAch,DL_Design,DL_Qte,DL_PrixUnitaire,DL_CMUP,DL_Taxe1,DL_Taxe2,DL_Taxe3,DL_MontantTTC,DL_Ligne,DL_Remise01REM_Valeur,DL_Remise01REM_Type,\n" +
-                    "        CASE WHEN DL_Remise01REM_Type=0 THEN ''  ELSE CASE WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' ELSE cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'U' END END DL_Remise,\n" +
-                    "        DL_PrixUnitaire -(CASE WHEN DL_Remise01REM_Type= 0 THEN DL_PrixUnitaire\n" +
-                    "\tELSE CASE WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
-                    "\t\tELSE CASE WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END END END) DL_PrixUnitaire_Rem,\n" +
-                    "        DL_PUTTC -(CASE WHEN DL_Remise01REM_Type= 0 THEN DL_PUTTC\n" +
-                    "\tELSE CASE WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
-                    "\t\tELSE CASE WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END END END) DL_PUTTC_Rem,\n" +
-                    "\t\tDL_PrixUnitaire -(CASE WHEN DL_Remise01REM_Type= 0 THEN 0\n" +
-                    "\tELSE CASE WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
-                    "\t\tELSE CASE WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END END END) DL_PrixUnitaire_Rem0,\n" +
-                    "        DL_PUTTC -(CASE WHEN DL_Remise01REM_Type= 0 THEN 0\n" +
-                    "\tELSE CASE WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
-                    "\t\tELSE CASE WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END END END) DL_PUTTC_Rem0\n" +
-                    "        FROM F_DOCLIGNE  \n" +
-                    "        WHERE DO_Piece =@do_piece AND DO_Domaine=@do_domaine AND DO_Type = @do_type\n" +
-                    "        ORDER BY cbMarq";
+            "DECLARE @doDomaine AS INT = ?\n" +
+                    "                      DECLARE @doType AS INT = ?\n" +
+                    "                      DECLARE @doPiece AS NVARCHAR(50) = ?\n" +
+                    "                                \n" +
+                    "                    SELECT    DL_PUDevise,CA_Num,DL_TTC, DL_PUTTC,DL_MvtStock,CT_Num,cbMarq,DL_TypeTaux1,DL_TypeTaux2,DL_TypeTaux3,cbCreateur,DL_NoColis\n" +
+                    "                            ,CASE WHEN DL_TypeTaux1=0 THEN DL_MontantHT*(DL_Taxe1/100) ELSE CASE WHEN DL_TypeTaux1=1 THEN DL_Taxe1*DL_Qte ELSE DL_Taxe1 END END MT_Taxe1\n" +
+                    "                            ,CASE WHEN DL_TypeTaux2=0 THEN DL_MontantHT*(DL_Taxe2/100) ELSE CASE WHEN DL_TypeTaux2=1 THEN DL_Taxe2*DL_Qte ELSE DL_Taxe2 END END MT_Taxe2\n" +
+                    "                            ,CASE WHEN DL_TypeTaux3=0 THEN DL_MontantHT*(DL_Taxe3/100) ELSE CASE WHEN DL_TypeTaux3=1 THEN DL_Taxe3*DL_Qte ELSE DL_Taxe3 END END MT_Taxe3\n" +
+                    "                            ,DL_MontantHT,DO_Piece,\n" +
+                    "                            AR_Ref,DE_No,DL_CMUP AS AR_PrixAch,DL_Design,DL_Qte,DL_PrixUnitaire,DL_CMUP,DL_Taxe1,DL_Taxe2,DL_Taxe3,DL_MontantTTC,DL_Ligne,DL_Remise01REM_Valeur,DL_Remise01REM_Type,\n" +
+                    "                            DL_Remise = CASE WHEN DL_Remise01REM_Type=0 THEN ''  \n" +
+                    "                                 WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' \n" +
+                    "                                    ELSE cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'U' END ,\n" +
+                    "                            DL_PrixUnitaire_Rem = DL_PrixUnitaire -(CASE WHEN DL_Remise01REM_Type= 0 THEN DL_PrixUnitaire\n" +
+                    "                                                    WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
+                    "                                                     WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END) ,\n" +
+                    "                            DL_PUTTC_Rem = DL_PUTTC -(CASE WHEN DL_Remise01REM_Type= 0 THEN DL_PUTTC\n" +
+                    "                                                                     WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
+                    "                                                                        WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END) ,\n" +
+                    "                            DL_PrixUnitaire_Rem0 = DL_PrixUnitaire -(CASE WHEN DL_Remise01REM_Type= 0 THEN 0\n" +
+                    "                                                                            WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
+                    "                                                                                WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END),\n" +
+                    "                             DL_PUTTC_Rem0 = DL_PUTTC -(CASE WHEN DL_Remise01REM_Type= 0 THEN 0\n" +
+                    "                                                                    WHEN DL_Remise01REM_Type=1 THEN  DL_PrixUnitaire * DL_Remise01REM_Valeur / 100\n" +
+                    "                                                                    WHEN DL_Remise01REM_Type=2 THEN DL_Remise01REM_Valeur ELSE 0 END)\n" +
+                    "                    FROM    F_DOCLIGNE  \n" +
+                    "                    WHERE DO_Piece =@doPiece AND DO_Domaine=@doDomaine AND DO_Type = @doType\n" +
+                    "                    ORDER BY cbMarq";
 
     public static final String getLigneFactureDernierElement = "SELECT cbMarq,DL_PUTTC,DL_NoColis,DO_Piece,AR_Ref,DL_Design,DL_Qte,DL_PrixUnitaire,DL_CMUP,DL_Taxe1,DL_Taxe2,\n" +
             "        DL_Taxe3,DL_MontantTTC,DL_MontantHT,DL_Ligne,\n" +
@@ -54,15 +56,16 @@ public class FDocLigneMapper extends ObjectMapper {
             "        FROM F_DOCLIGNE  WHERE cbMarq =?";
 
     public static final String  insertDocLigne =
+            "              SET DATEFORMAT dmy;" +
             "              DECLARE @DO_Domaine VARCHAR(20) = ?\n" +
             "              DECLARE @DO_Type int = ?\n" +
             "              DECLARE @CT_Num VARCHAR(50) = ?\n" +
             "              DECLARE @DO_Piece VARCHAR(50) = ?\n" +
             "              DECLARE @DL_PieceBC  VARCHAR(50) = ?\n" +
             "              DECLARE @DL_PieceBL VARCHAR(50) = ?\n" +
-            "              DECLARE @DO_Date VARCHAR(50) = ?\n" +
-            "              DECLARE @DL_DateBC VARCHAR(50) = ?\n" +
-            "              DECLARE @DL_DateBL  VARCHAR(50) = ?\n" +
+            "              DECLARE @DO_Date DATE = ?\n" +
+            "              DECLARE @DL_DateBC DATE = ?\n" +
+            "              DECLARE @DL_DateBL  DATE = ?\n" +
             "              DECLARE @DO_Ref VARCHAR(50) = ?\n" +
             "              DECLARE @DL_TNomencl VARCHAR(50) = ?\n" +
             "              DECLARE @DL_TRemPied VARCHAR(50) = ?\n" +
@@ -107,7 +110,7 @@ public class FDocLigneMapper extends ObjectMapper {
             "\t\t\t  DECLARE @DL_TypePL INT = ?\n" +
             "\t\t\t  DECLARE @DL_PUDevise FLOAT = ?\n" +
             "\t\t\t  DECLARE @DL_PUTTC FLOAT = ?\n" +
-            "\t\t\t  DECLARE @DO_DateLivr VARCHAR(50) = ?\n" +
+            "\t\t\t  DECLARE @DO_DateLivr DATE = ?\n" +
             "\t\t\t  DECLARE @CA_Num VARCHAR(50) = ?\n" +
             "\t\t\t  DECLARE @DL_Frais FLOAT = ?\n" +
             "\t\t\t  DECLARE @DL_Valorise FLOAT = ?\n" +
@@ -119,12 +122,12 @@ public class FDocLigneMapper extends ObjectMapper {
             "\t\t\t  DECLARE @DL_FactPoids FLOAT = ?\n" +
             "\t\t\t  DECLARE @DL_Escompte FLOAT = ?\n" +
             "\t\t\t  DECLARE @DL_PiecePL VARCHAR(50) = ?\n" +
-            "\t\t\t  DECLARE @DL_DatePL VARCHAR(50) = ?\n" +
+            "\t\t\t  DECLARE @DL_DatePL DATE = ?\n" +
             "\t\t\t  DECLARE @DL_QtePL FLOAT = ?\n" +
             "\t\t\t  DECLARE @DL_NoColis VARCHAR(50) = ?\n" +
             "\t\t\t  DECLARE @DL_NoLink INT = ?\n" +
             "\t\t\t  DECLARE @DL_QteRessource FLOAT = ?\n" +
-            "\t\t\t  DECLARE @DL_DateAvancement VARCHAR(50) = ?\n" +
+            "\t\t\t  DECLARE @DL_DateAvancement DATE = ?\n" +
             "\t\t\t  DECLARE @cbCreateur VARCHAR(50) = ?\n" +
             "\t\t\t  DECLARE @MACHINEPC VARCHAR(50) = ?\n" +
             "		 DECLARE @generated_keys table([cbMarq] int);" +

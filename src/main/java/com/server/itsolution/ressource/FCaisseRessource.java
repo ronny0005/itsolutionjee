@@ -32,6 +32,12 @@ public class FCaisseRessource {
         List<Object> list = fCaisseDAO.getCaisseDepot(protNo);
         return list;
     }
+
+    @GetMapping(value = "/getCaisseByCA_No&caNo={caNo}")
+    public List<Object> getCaisseByCA_No(int caNo) {
+        return fCaisseDAO.getCaisseByCA_No(caNo);
+    }
+
     @GetMapping(value = "/getCaisseDepotCount/{protNo}")
     public Object getCaisseDepotCount(@PathVariable int protNo) {
         return fCaisseDAO.getCaisseDepotCount(protNo);

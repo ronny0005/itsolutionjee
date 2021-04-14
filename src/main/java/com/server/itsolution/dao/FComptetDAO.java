@@ -72,6 +72,7 @@ public class FComptetDAO extends JdbcDaoSupport {
             fComptet.setCT_Taux02((int)(sqlRowSet.getFloat("CT_Taux02")));
             fComptet.setCT_NumPayeur(sqlRowSet.getString("CT_NumPayeur"));
             fComptet.setN_CatCompta(sqlRowSet.getInt("N_CatCompta"));
+            fComptet.setCT_ControlEnc(sqlRowSet.getString("CT_ControlEnc"));
             fComptet.setCO_No(sqlRowSet.getInt("CO_No"));
             fComptet.setCbMarq(sqlRowSet.getInt("cbMarq"));
         }
@@ -107,7 +108,7 @@ public class FComptetDAO extends JdbcDaoSupport {
     public net.minidev.json.JSONObject controleEncours(FComptet fcomptet, String typeFacG, double prixG, String acte, double dlMontantTTC){
         net.minidev.json.JSONObject json = new net.minidev.json.JSONObject();
 
-        if(typeFacG.equals("Vente") || typeFacG.equals("BonLivraison") || typeFacG=="VenteRetour"){
+        if(typeFacG.equals("Vente") || typeFacG.equals("BonLivraison") || typeFacG.equals("VenteRetour")){
             double montant = prixG;
             if(acte.equals("modif")){
                 montant = montant-dlMontantTTC;
