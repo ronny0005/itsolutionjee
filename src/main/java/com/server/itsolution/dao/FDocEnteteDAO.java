@@ -71,6 +71,21 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         return 0;
     }
 
+    public void isRegleFullDOPiece (BigDecimal cbMarq){
+        String sql = FDocEnteteMapper.isRegleFullDOPiece;
+        FDocReglDAO fDocReglDAO = new FDocReglDAO(this.getDataSource());
+
+        FDocEntete fDocEntete = getFDocEntete(cbMarq);
+        params = new Object[]{cbMarq};
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql,params);
+        while(sqlRowSet.next()) {
+            if(sqlRowSet.getInt("VAL")==1){
+                FDocRegl fDocRegl = getDocRegl(fDocEntete);
+                fDocReglDAO.updateDrRegle(fDocRegl.getDR_No());
+            }
+        }
+    }
+
     public int getItem(ArrayList<Object> table,String val){
         int pos=-1;
         for(int i = 0;i<table.size();i++){
@@ -588,7 +603,6 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         FDocEntete fDocEntete = new FDocEntete();
         fDocEntete.setTypeFac(typeFacture);
         String entete = getEnteteDocument(typeFacture,0);
-        entete = this.getEnteteDispo(entete);
         BigDecimal cbMarq = BigDecimal.ZERO;
         if(!entete.equals("")) {
             fDocEntete.setDefaultValueStock();
@@ -602,7 +616,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             fDocEntete.setDO_Piece(entete);
             fDocEntete.setCbCreateur(String.valueOf(protNo));
             cbMarq = this.insertDocEntete(fDocEntete);
-            this.updateEnteteTable(this.getEnteteDispo(fDocEntete.getDO_Piece()),fDocEntete);
+            this.updateEnteteTable(getEnteteDocument(typeFacture,0),fDocEntete);
         }
         return getFDocEnteteJSon(cbMarq);
     }
@@ -1251,10 +1265,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             String date_ech = (doDateEch == null || doDateEch.equals("")) ? doDate : doDateEch;
             String machine = (machineName != null) ? machineName : "";
             List<Object> list = null;
-            if (do_piece.equals(""))
-                do_piece = this.getEnteteDocument(typeFacture, doSouche);
-            do_piece = this.getEnteteDispo(do_piece);
-
+            do_piece = this.getEnteteDocument(typeFacture, doSouche);
 
             if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1) {
                 FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
@@ -1318,7 +1329,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
                 fDocEntete.setValueMvt();
             }
             BigDecimal cbMarqInsert = insertDocEntete(fDocEntete);
-            this.updateEnteteTable(this.getEnteteDispo(fDocEntete.getDO_Piece()), fDocEntete);
+            this.updateEnteteTable(this.getEnteteDocument(typeFacture, doSouche), fDocEntete);
             if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1 || fDocEntete.getDO_Domaine() == 3) {
                 FDocReglDAO fDocReglDAO = new FDocReglDAO(getDataSource());
                 FDocRegl fDocRegl = new FDocRegl();
@@ -1509,16 +1520,15 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         fDocEntete.setDO_Souche(DO_Souche);
         String DO_Piece="";
         String sql = FDocEnteteMapper.getEnteteTable;
-        params = new Object[] {fDocEntete.getDO_Domaine(),fDocEntete.getDO_Souche(),fDocEntete.getDoccurent_type()};
+        params = new Object[] {fDocEntete.getDO_Domaine(),fDocEntete.getDoccurent_type(),fDocEntete.getDO_Type(),fDocEntete.getDO_Souche()};
         List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
-        getEnteteDispo((String) ((HashMap)list.get(0)).get("DC_Piece"));
         if(list.size()>0)
-            DO_Piece = (String) ((HashMap)list.get(0)).get("DC_Piece");
+            DO_Piece = (String) ((HashMap)list.get(0)).get("DO_Piece");
         return DO_Piece;
     }
 
     public String getEnteteDocument(String typeFac,int DO_Souche){
-        return getEnteteDispo(getEnteteTable(typeFac,DO_Souche));
+        return getEnteteTable(typeFac,DO_Souche);
     }
 
     public String getEnteteByDOPiece(String DO_Piece) {
@@ -1559,20 +1569,6 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         String number = "000000000"+String.valueOf(Integer.valueOf(num.toString())+1);
         number = number.substring(number.length()-9);
         return alpha+ (number).substring(alpha.length());
-    }
-
-    public String getEnteteDispo(String DO_Piece){
-        String dopiece = DO_Piece;
-        String rowsTour = getEnteteByDOPiece(dopiece);
-        while(rowsTour!=null){
-            dopiece = incrementeDOPiece(dopiece);
-            rowsTour = getEnteteByDOPiece(dopiece);
-        }
-        if(fDocEntete.getDO_Type()==30){
-            rowsTour = getEnteteTicketByDOPiece();
-            dopiece = rowsTour+1;
-        }
-        return dopiece;
     }
 
     public void majEnteteComptable(int doType,int doDomaine,String doPiece,int doTypeCible){

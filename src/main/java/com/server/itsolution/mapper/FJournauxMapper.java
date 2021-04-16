@@ -17,6 +17,12 @@ public class FJournauxMapper extends ObjectMapper {
             " FROM F_JOURNAUX "+
             " WHERE (@joSommeil=0 AND 1=1) OR (@joSommeil=1 AND JO_Sommeil=0) OR (@joSommeil=2 AND JO_Sommeil=1) ";
 
+    public static final String getJournauxReglement
+            = " DECLARE @joSommeil AS INT = ? " +
+            " SELECT JO_Num,JO_Intitule,CG_Num,cbModification "+
+            " FROM F_JOURNAUX "+
+            " WHERE JO_Type IN (2,3) AND ((@joSommeil=0 AND 1=1) OR (@joSommeil=1 AND JO_Sommeil=0) OR (@joSommeil=2 AND JO_Sommeil=1)) ";
+
     public static final String getJournauxCount
             = " DECLARE @joSommeil AS INT = ? " +
             " SELECT Nb = count(*) " +

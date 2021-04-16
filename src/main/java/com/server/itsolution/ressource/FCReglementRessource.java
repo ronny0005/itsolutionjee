@@ -130,7 +130,7 @@ public class FCReglementRessource {
     }
 
     @GetMapping(value = "/addReglement&protNo={protNo}&joNum={joNum}&rgNoLier={rgNoLier}&ctNum={ctNum}&caNo={caNo}&bonCaisse={bonCaisse}&libelle={libelle}&caissier={caissier}&date={date}&modeReglementRec={modeReglementRec}&montant={montant}&impute={impute}&rgType={rgType}&afficheData={afficheData}&typeRegl={typeRegl}")
-    public BigDecimal addReglement(@PathVariable int protNo,@PathVariable String joNum,@PathVariable int rgNoLier,@PathVariable String ctNum
+    public Object addReglement(@PathVariable int protNo,@PathVariable String joNum,@PathVariable int rgNoLier,@PathVariable String ctNum
                             ,@PathVariable int caNo,@PathVariable int bonCaisse ,@PathVariable String libelle ,@PathVariable String caissier
             ,@PathVariable String date,@PathVariable String modeReglementRec,@PathVariable double montant,@PathVariable int impute
             ,@PathVariable int rgType,@PathVariable boolean afficheData,@PathVariable String typeRegl)

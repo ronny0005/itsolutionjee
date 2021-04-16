@@ -34,7 +34,7 @@ public class FCaisseRessource {
     }
 
     @GetMapping(value = "/getCaisseByCA_No&caNo={caNo}")
-    public List<Object> getCaisseByCA_No(int caNo) {
+    public List<Object> getCaisseByCA_No(@PathVariable int caNo) {
         return fCaisseDAO.getCaisseByCA_No(caNo);
     }
 

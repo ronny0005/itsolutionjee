@@ -120,8 +120,11 @@ public class FCaisseMapper extends ObjectMapper {
 			"                    GROUP BY CO.CO_No,CO_Nom";
 
 	public static final String getCaisseByCA_No =
-			"SELECT  	CT_Intitule\n" +
-			"			,C.* \n" +
+			"SELECT  	T.CT_Intitule\n" +
+			"			,C.CA_Intitule\n" +
+			" 			,C.CT_Num\n" +
+			"			,C.JO_Num\n" +
+			"			,C.CA_Souche\n" +
 			"FROM    	F_CAISSE C \n" +
 			"LEFT JOIN 	F_COMPTET T \n" +
 			"	ON  C.CT_Num=T.CT_Num \n" +

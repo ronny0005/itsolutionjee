@@ -64,6 +64,11 @@ public class FJournauxDAO extends JdbcDaoSupport {
         params = new Object[]{joSommeil};
         return this.getJdbcTemplate().query(sql, params, mapper);
     }
+    public List<Object> getJournauxReglement(int joSommeil) {
+        String sql = FJournauxMapper.getJournauxReglement;
+        params = new Object[]{joSommeil};
+        return this.getJdbcTemplate().query(sql, params, mapper);
+    }
 
     public List<Object> getECPiece(String joNum,String jmDate) {
         String sql = FJournauxMapper.getECPiece;

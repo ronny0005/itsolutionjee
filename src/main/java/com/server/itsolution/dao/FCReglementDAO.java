@@ -91,8 +91,10 @@ public class FCReglementDAO extends JdbcDaoSupport {
 
     public int journeeCloture(String date, int caNo) {
         String sql = FCReglementMapper.journeeCloture;
-        params = new Object[]{date, caNo};
-        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql);
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(date);
+        params.add(caNo);
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql,params.toArray());
         while (sqlRowSet.next()) {
             return sqlRowSet.getInt("Nb");
         }

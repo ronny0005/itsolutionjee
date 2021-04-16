@@ -149,6 +149,10 @@ public class FDocEnteteRessource {
     public void majLigneByCbMarq(@PathVariable String champ,@PathVariable String value,@PathVariable int cbMarq,@PathVariable int protNo) {
         fDocEnteteDAO.majLigneByCbMarq(champ,value,cbMarq,protNo);
     }
+    @GetMapping(value = "/isRegleFullDOPiece&cbMarq={cbMarq}")
+    public void isRegleFullDOPiece(@PathVariable BigDecimal cbMarq) {
+        fDocEnteteDAO.isRegleFullDOPiece(cbMarq);
+    }
 
     @GetMapping(value = "/getLigneTransfertDetail&doPiece={doPiece}")
     public Object getLigneTransfertDetail(@PathVariable String doPiece) {

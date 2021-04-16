@@ -18,8 +18,9 @@ public class FCReglementMapper extends ObjectMapper {
 			"    ,cbFlag From F_CReglement";
 
 	public static final String journeeCloture=
-			"DECLARE @date VARCHAR(20) = ? " +
-					"       ,@caNo INT" +
+			"SET DATEFORMAT dmy; \n" +
+			"DECLARE @date DATE = ?; \n" +
+			"DECLARE @caNo INT = ?;\n" +
 			"SELECT   Nb = count(*) \n" +
 			" FROM    F_CREGLEMENT \n" +
 			" WHERE   RG_Cloture=1 \n" +
@@ -28,8 +29,8 @@ public class FCReglementMapper extends ObjectMapper {
 
 	public static final String getListeReglementMajComptable =
 			"\n" +
-					"                    DECLARE @dateDebut VARCHAR(50) = ?\n" +
-					"                            ,@dateFin VARCHAR(50) = ?\n" +
+					"                    DECLARE @dateDebut DATE = ?\n" +
+					"                            ,@dateFin DATE = ?\n" +
 					"                            ,@etatPiece INT = ? \n" +
 					"                            ,@typeTransfert INT = ?;\n" +
 					"                    DECLARE @rgCompta INT = (SELECT CASE WHEN @etatPiece = 1 THEN 1 ELSE 0 END)\n" +
@@ -504,43 +505,22 @@ public class FCReglementMapper extends ObjectMapper {
 				
 		public static final String getFactureRGNo
 				= 
-				" DECLARE @RG_No AS INT = ?; "+ 
-				" WITH _Avance_ AS ( "+ 
-				" 	SELECT RG_No,DO_Piece,DO_Domaine,DO_Type, SUM(RC_MONTANT) avance  "+ 
-				" 	FROM F_REGLECH R  "+ 
-				" 	GROUP BY RG_No,DO_Piece,DO_Domaine,DO_Type "+ 
-				" ) "+ 
-				" ,_Entete_ AS ( "+ 
-				" 	SELECT cbMarq,DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,DO_Tiers  "+ 
-				" 	FROM F_DOCENTETE   "+ 
-				" 	GROUP BY cbMarq,DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,DO_Tiers "+ 
-				" ) "+ 
-				" , _Ligne_ AS ( "+ 
-				" 	SELECT DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,CT_Num,SUM(DL_MontantTTC) DL_MontantTTC  "+ 
-				" 	FROM F_DOCLIGNE L  "+ 
-				" 	GROUP BY DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,CT_Num "+ 
-				" ) "+ 
-				" SELECT E.cbMarq,DE_Intitule,L.DO_Piece,L.DO_Ref,CAST(CAST(L.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,CO.CT_Num,CT_Intitule, ROUND(SUM(L.DL_MontantTTC),0) AS ttc,  "+ 
-                " ISNULL(sum(avance),0) AS avance   "+ 
-                " FROM F_CREGLEMENT C "+ 
-                " INNER JOIN _Avance_ R  "+ 
-				" 	ON C.RG_No=R.RG_No  "+ 
-                " LEFT JOIN _Entete_ E  "+ 
-				" 	ON R.DO_Piece=E.DO_Piece  AND R.DO_Domaine= E.DO_Domaine AND R.DO_Type=E.DO_Type "+ 
-                " LEFT JOIN _Ligne_ L  "+ 
-				" 	ON R.DO_Piece=L.DO_Piece  AND R.DO_Domaine= L.DO_Domaine AND R.DO_Type=L.DO_Type "+ 
-                " LEFT JOIN F_COMPTET CO  "+ 
-				" 	ON CO.CT_Num=L.CT_Num "+ 
-                " LEFT JOIN F_DEPOT D  "+ 
-				" 	ON D.DE_No=(CASE WHEN L.DE_No=0 THEN E.DE_No ELSE L.DE_No END) "+ 
-                " WHERE C.RG_No=@RG_No "+ 
-                " GROUP BY E.cbMarq,DE_Intitule,L.DO_Piece,L.DO_Ref,L.DO_Date,CO.CT_Num,CT_Intitule "+ 
-                " UNION "+ 
-                " SELECT 0 cbMarq,'' AS DE_Intitule,'' AS DO_Piece,RG_Libelle AS DO_Ref,CAST(CAST(RG_Date AS DATE) AS VARCHAR(10)) AS DO_Date,CT_NumPayeur CT_Num,'' CT_Intitule, RG_Montant AS ttc,0 AS avance  "+ 
-                " FROM [dbo].[Z_RGLT_BONDECAISSE] A "+ 
-                " INNER JOIN F_CREGLEMENT B  "+ 
-				" 	ON A.RG_No=B.RG_No "+ 
-                " WHERE RG_No_RGLT=@RG_No";
+				" DECLARE @rgNo AS INT = ?; "+
+				" SELECT E.cbMarq,DE_Intitule,L.DO_Piece,L.DO_Ref,CAST(CAST(L.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,CO.CT_Num,CT_Intitule, ROUND(SUM(L.DL_MontantTTC),0) AS ttc, \n" +
+				"                ISNULL(sum(avance),0) AS avance  \n" +
+				"                FROM F_CREGLEMENT C\n" +
+				"                INNER JOIN (SELECT RG_No,DO_Piece,DO_Domaine,DO_Type, SUM(RC_MONTANT) avance FROM F_REGLECH R GROUP BY RG_No,DO_Piece,DO_Domaine,DO_Type) R ON C.RG_No=R.RG_No \n" +
+				"                LEFT JOIN (SELECT cbMarq,DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,DO_Tiers FROM F_DOCENTETE  GROUP BY cbMarq,DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,DO_Tiers) E on R.DO_Piece=E.DO_Piece  AND R.DO_Domaine= E.DO_Domaine AND R.DO_Type=E.DO_Type\n" +
+				"                LEFT JOIN (SELECT DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,CT_Num,SUM(DL_MontantTTC) DL_MontantTTC FROM F_DOCLIGNE L GROUP BY DO_Piece,DO_Type,DO_Domaine,DE_No,DO_Ref,DO_Date,CT_Num) L on R.DO_Piece=L.DO_Piece  AND R.DO_Domaine= L.DO_Domaine AND R.DO_Type=L.DO_Type\n" +
+				"                LEFT JOIN F_COMPTET CO on CO.CT_Num=L.CT_Num\n" +
+				"                LEFT JOIN F_DEPOT D on D.DE_No=(CASE WHEN L.DE_No=0 THEN E.DE_No ELSE L.DE_No END)\n" +
+				"                WHERE C.RG_No=@rgNo\n" +
+				"                GROUP BY E.cbMarq,DE_Intitule,L.DO_Piece,L.DO_Ref,L.DO_Date,CO.CT_Num,CT_Intitule\n" +
+				"                UNION\n" +
+				"                SELECT 0 cbMarq,'' AS DE_Intitule,'' AS DO_Piece,RG_Libelle AS DO_Ref,CAST(CAST(RG_Date AS DATE) AS VARCHAR(10)) AS DO_Date,CT_NumPayeur CT_Num,'' CT_Intitule, RG_Montant AS ttc,0 AS avance \n" +
+				"                FROM [dbo].[Z_RGLT_BONDECAISSE] A\n" +
+				"                INNER JOIN F_CREGLEMENT B ON A.RG_No=B.RG_No\n" +
+				"                WHERE RG_No_RGLT=@rgNo";
 		
 		public static final String setMajAnalytique
 				= "	DECLARE @dateDeb DATE = ? "+

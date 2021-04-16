@@ -283,6 +283,33 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                FROM F_DOCENTETE\n" +
 			"                WHERE DO_PIECE=@doPiece AND DO_Domaine=@doDomaine AND DO_Type=@doType";
 
+    public static final String isRegleFullDOPiece =
+			"	DECLARE @cbMarq AS INT = ?;" +
+			"	WITH _Entete_ AS(\n" +
+			"                    SELECT  fde.DO_Type,fde.DO_Domaine,fde.cbDO_Piece,DL_MontantTTC = SUM(DL_MontantTTC) \n" +
+			"                    FROM    F_DOCENTETE fde\n" +
+			"                    INNER JOIN F_DOCLIGNE fdl\n" +
+			"                        ON  fde.DO_Domaine = fdl.DO_Domaine\n" +
+			"                        AND fde.DO_Type = fdl.DO_Type\n" +
+			"                        AND fde.cbDO_Piece = fdl.cbDO_Piece\n" +
+			"                    WHERE   fde.cbMarq = @cbMarq \n" +
+			"                    GROUP BY fde.DO_Type,fde.DO_Domaine,fde.cbDO_Piece  \n" +
+			"                )\n" +
+			"                ,_ReglEch_ AS (\n" +
+			"                    SELECT  DO_Type,DO_Domaine,cbDO_Piece, SUM(RC_Montant)RC_Montant\n" +
+			"                    FROM    F_REGLECH \n" +
+			"                    GROUP BY DO_Type,DO_Domaine,cbDO_Piece\n" +
+			"                )\n" +
+			"\n" +
+			"                SELECT VAL = CASE WHEN RC_Montant >= DL_MontantTTC THEN 1 ELSE 0 END\n" +
+			"                FROM(\n" +
+			"                SELECT  A.*,RC_Montant = ISNULL(RC_Montant,0)  \n" +
+			"                FROM    _Entete_ A\n" +
+			"                LEFT JOIN _ReglEch_ D \n" +
+			"                    ON  D.cbDO_Piece=A.cbDO_Piece \n" +
+			"                    AND D.DO_Domaine = A.DO_Domaine \n" +
+			"                    AND A.DO_Type = D.DO_Type\n" +
+			"                ) A";
     public static final String getFactureCORecouvrement =
 					"				 DECLARE @collab AS INT\n" +
 					"                DECLARE @ctNum AS NVARCHAR(150) \n" +
@@ -614,15 +641,52 @@ public class FDocEnteteMapper extends ObjectMapper {
             +"FROM P_PREFERENCES";
 
     public static final String getEnteteTable //
-            =   "DECLARE @doDomaine NVARCHAR(50) = ?\n" +
-			"                    DECLARE @dcSouche INT = ?\n" +
-			"                    DECLARE @dcIdCol INT = ?\n" +
-			"                              \n" +
-			"                    SELECT  ISNULL((SELECT DC_Piece\n" +
-			"                    FROM    F_DOCCURRENTPIECE D\n" +
-			"                    WHERE   DC_Domaine=@doDomaine \n" +
-			"                    AND     DC_Souche=@dcSouche \n" +
-			"                    AND     DC_IdCol= @dcIdCol),0) as DC_Piece";
+            =   "DECLARE @doDomaine INT = ?\n" +
+			"        DECLARE @doccurent_type INT = ?\n" +
+			"        DECLARE @doType INT = ?\n" +
+			"        DECLARE @doSouche INT = ?\n" +
+			"\t\tDECLARE @doPiece VARCHAR(20)\n" +
+			"\t\tDECLARE @letterEntete VARCHAR(20)\n" +
+			"\t\tDECLARE @numberEntete VARCHAR(20)\n" +
+			"\t\tDECLARE @nb INT = 0;\n" +
+			"\n" +
+			"\t\tSELECT @doPiece = ISNULL((SELECT DC_Piece\n" +
+			"        from F_DOCCURRENTPIECE D\n" +
+			"        WHERE DC_Domaine=@doDomaine AND DC_Souche=@doSouche AND DC_IdCol=@doccurent_type),0)\n" +
+			"        SELECT\t@nb= COUNT(1)\n" +
+			"\t\t\t\t,@doPiece = CASE WHEN @doType = 30 THEN MAX(DO_Piece) \n" +
+			"\t\t\t\t\t\t\t\tWHEN @doType <> 30 AND @doPiece ='' THEN MAX(DO_Piece)  \n" +
+			"\t\t\t\t\t\t\t\tWHEN @doType <> 30 AND TRY_CAST(@doPiece AS int) IS NOT NULL THEN MAX(DO_Piece) ELSE @doPiece END\n" +
+			"        FROM    F_DOCENTETE \n" +
+			"        WHERE\t(CASE WHEN @doType <>30 AND DO_Piece = @doPiece AND @doPiece <> '' THEN 1\n" +
+			"\t\t\t\t\t\tWHEN @doType <>30 AND @doPiece = '' THEN 1\n" +
+			"\t\t\t\t\t\tWHEN @doType <>30 AND TRY_CAST(@doPiece AS int) IS NOT NULL THEN 1\n" +
+			"\t\t\t\t\tWHEN @doType = 30 THEN 1 END) = 1\n" +
+			"\t\tAND (CASE WHEN @doDomaine = 2 AND DO_Domaine IN (2,4) THEN 1 \n" +
+			"                        WHEN @doDomaine <> 2 AND DO_Domaine=@doDomaine THEN 1 END) = 1\n" +
+			"        AND     (CASE WHEN @doType=6 AND DO_Type IN(6,7) THEN 1\n" +
+			"                        WHEN @doType=16 AND DO_Type IN(16,17) THEN 1\n" +
+			"                        WHEN DO_Type NOT IN (16,6) AND @doType=DO_Type THEN 1 END) = 1\n" +
+			"\t\t; \n" +
+			"\n" +
+			"\t\tIF @nb = 0 \n" +
+			"\t\t\tSELECT DO_Piece = ISNULL(@doPiece,1)\n" +
+			"\t\tELSE \n" +
+			"\t\tBEGIN \n" +
+			"\t\t\tSELECT\t@numberEntete = SUBSTRING(@doPiece, PATINDEX('%[0-9]%', @doPiece), LEN(@doPiece))\n" +
+			"\t\t\t\t\t,@letterEntete = SUBSTRING(@doPiece, 0, (LEN(@doPiece) - LEN(@numberEntete))+1)\n" +
+			"\t\t\tSELECT\t@letterEntete = MAX(DO_Piece)\n" +
+			"\t\t\tFROM    F_DOCENTETE \n" +
+			"\t\t\tWHERE\tDO_Piece LIKE CONCAT(@letterEntete,'%')\n" +
+			"\t\t\tAND (CASE WHEN @doDomaine = 2 AND DO_Domaine IN (2,4) THEN 1 \n" +
+			"\t\t\t\t\t\t\tWHEN @doDomaine <> 2 AND DO_Domaine=@doDomaine THEN 1 END) = 1\n" +
+			"\t\t\tAND     (CASE WHEN @doType=6 AND DO_Type IN(6,7) THEN 1\n" +
+			"\t\t\t\t\t\t\tWHEN @doType=16 AND DO_Type IN(16,17) THEN 1\n" +
+			"\t\t\t\t\t\t\tWHEN DO_Type NOT IN (16,6) AND @doType=DO_Type THEN 1 END) = 1;\n" +
+			"\t\t\tSELECT\t@numberEntete = SUBSTRING(@doPiece, PATINDEX('%[0-9]%', @doPiece), LEN(@doPiece))+1\n" +
+			"\t\t\t\t\t,@letterEntete = SUBSTRING(@doPiece, 0, (LEN(@doPiece) - LEN(@numberEntete))+1)\n" +
+			"\t\t\tSELECT DO_Piece = CONCAT(@letterEntete,@numberEntete)\n" +
+			"\t\tEND";
 
     public static final String getEnteteByDOPiece
     =" DECLARE @do_type INT = ? " +

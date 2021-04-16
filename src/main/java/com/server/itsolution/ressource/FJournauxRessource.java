@@ -31,6 +31,11 @@ public class FJournauxRessource {
         return fJournauxDAO.getJournaux(joSommeil);
     }
 
+    @GetMapping(value = "/getJournauxReglement&joSommeil={joSommeil}")
+    public List<Object> getJournauxReglement(@PathVariable int joSommeil) {
+        return fJournauxDAO.getJournauxReglement(joSommeil);
+    }
+
     @GetMapping(value = "/getJournauxCount&joSommeil={joSommeil}")
     public List<Object> getJournauxCount(@PathVariable int joSommeil) {
         return fJournauxDAO.getJournauxCount(joSommeil);
