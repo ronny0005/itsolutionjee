@@ -1,3 +1,27 @@
+GET http://localhost:8085/rest/fjournaux/getJournauxType&joType=1&joSommeil=-1
+
+<> 2021-04-17T081406.200.json
+
+###
+
+GET http://localhost:8085/rest/fjournaux/getJournauxType&joType=1&joSommeil=0
+
+<> 2021-04-17T081401.200.json
+
+###
+
+GET http://localhost:8085/rest/fjournaux/getJournauxType&joType=0&joSommeil=0
+
+<> 2021-04-17T081355.200.json
+
+###
+
+GET http://localhost:8085/rest/fjournaux/getJournauxType&joType=2&joSommeil=0
+
+<> 2021-04-17T081346.200.json
+
+###
+
 POST http://localhost:8085/rest/fprotectioncial/login?user=PILOTE&pwd=
 Content-Type: application/json
 

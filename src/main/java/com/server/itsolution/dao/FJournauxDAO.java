@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -89,8 +90,10 @@ public class FJournauxDAO extends JdbcDaoSupport {
 
     public List<Object> getJournauxType(int joType,int joSommeil){
         String sql = FJournauxMapper.getJournauxType;
-        params = new Object[]{joType,joSommeil};
-        return this.getJdbcTemplate().query(sql, params,mapper);
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(joType);
+        params.add(joSommeil);
+        return this.getJdbcTemplate().query(sql, params.toArray(),mapper);
     }
 
     public List<Object> getJournauxSaisieSelect(int ouvert,int mois,String journal) {

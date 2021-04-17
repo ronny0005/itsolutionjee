@@ -72,6 +72,136 @@ public class FCReglementMapper extends ObjectMapper {
 	public static final String getMajCaisseRGNo
 		= "UPDATE F_CREGLEMENT SET CA_No=?, CO_NoCaissier=? WHERE RG_No=?";
 
+	public static final String listeReglementCaisse =
+			"BEGIN \n" +
+					"SET DATEFORMAT dmy;\n" +
+					"                        DECLARE @ProtNo AS INT\n" +
+					"                        DECLARE @CA_No AS INT\n" +
+					"                        DECLARE @DateDeb AS DATE\n" +
+					"                        DECLARE @DateFin AS DATE\n" +
+					"                        DECLARE @Type AS INT\n" +
+					"                        \n" +
+					"                        SET @ProtNo = ?\n" +
+					"                        SET @CA_No = ?\n" +
+					"                        SET @DateDeb = ?\n" +
+					"                        SET @DateFin = ?\n" +
+					"                        SET @Type = ?;\n" +
+					"                        \n" +
+					"                        CREATE TABLE #TMPCAISSE (CA_No INT)\n" +
+					"                        SET NOCOUNT ON;\n" +
+					"                        \n" +
+					"                        IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@ProtNo) = 1 \n" +
+					"                        BEGIN \n" +
+					"                            INSERT INTO #TMPCAISSE\n" +
+					"                            SELECT\tISNULL(CA.CA_No,0) CA_No \n" +
+					"                            FROM F_CAISSE CA\n" +
+					"                            INNER JOIN Z_DEPOTCAISSE C \n" +
+					"                                ON CA.CA_No=C.CA_No\n" +
+					"                            INNER JOIN F_DEPOT D \n" +
+					"                                ON C.DE_No=D.DE_No\n" +
+					"                            INNER JOIN F_COMPTET CT \n" +
+					"                                ON CT.cbCT_Num = CA.cbCT_Num\n" +
+					"                            WHERE (@CA_No=0 OR @CA_No=CA.CA_No)\n" +
+					"                            GROUP BY CA.CA_No\n" +
+					"                        END \n" +
+					"                        ELSE \n" +
+					"                        BEGIN \n" +
+					"                            INSERT INTO #TMPCAISSE\n" +
+					"                            SELECT\tISNULL(CA.CA_No,0) CA_No\n" +
+					"                            FROM F_CAISSE CA\n" +
+					"                            LEFT JOIN Z_DEPOTCAISSE C \n" +
+					"                                ON CA.CA_No=C.CA_No\n" +
+					"                            LEFT JOIN (\tSELECT * \n" +
+					"                                        FROM Z_DEPOTUSER\n" +
+					"                                        WHERE IsPrincipal=1) D \n" +
+					"                                ON C.DE_No=D.DE_No\n" +
+					"                            LEFT JOIN F_COMPTET CT \n" +
+					"                                ON CT.cbCT_Num = CA.cbCT_Num\n" +
+					"                            WHERE Prot_No=@ProtNo\n" +
+					"                            AND\t(@CA_No=0 OR @CA_No=CA.CA_No)\n" +
+					"                            GROUP BY CA.CA_No\n" +
+					"                        END;\n" +
+					"\n" +
+					"SELECT RG_No,RG_Piece,CA_No,16 RG_TypeReg,CG_Num\n" +
+					"                    ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
+					"                    ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
+					"                    ,CA_No_Dest\n" +
+					"                    ,RG_No_Source,RG_No_Dest\n" +
+					"                    ,JO_Num into #tmpTrsft\n" +
+					"FROM (          SELECT  count(*) nb,0 RG_No,RG_Piece\n" +
+					"                        ,SUM(CASE WHEN RG_TypeReg=4 THEN CA_No ELSE 0 END)CA_No,16 RG_TypeReg,CG_Num\n" +
+					"                        ,SUM(CASE WHEN RG_TypeReg=4 THEN RG_No ELSE 0 END)RG_No_Source\n" +
+					"                        ,SUM(CASE WHEN RG_TypeReg=5 THEN RG_No ELSE 0 END)RG_No_Dest\n" +
+					"                        ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
+					"                        ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
+					"                        ,SUM(CASE WHEN RG_TypeReg=5 THEN CA_No ELSE 0 END)CA_No_Dest\n" +
+					"                        ,'' JO_Num \n" +
+					"                FROM    F_CREGLEMENT \n" +
+					"                WHERE   ((@Type) IN(-1,16) AND RG_TypeReg IN (5,4))\n" +
+					"                AND     RG_Banque = 0\n" +
+					"                GROUP BY RG_Piece,CG_Num\n" +
+					"                    ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
+					"                    ,RG_Impute,RG_Libelle,CO_NoCaissier)A\n" +
+					"                    \tWHERE nb=2\n" +
+					"                    \t\n" +
+					"                    SELECT C.RG_No,RG_Piece,C.CA_No,CA_No_Dest,CO_Nom\n" +
+					"                          ,CA_Intitule,CO.CO_No,RG_TypeReg\n" +
+					"                          ,C.CG_Num,CONCAT(CONCAT(C.CG_Num,' - '),CG_Intitule) CG_Intitule\n" +
+					"                          ,RG_Banque,RG_Type,RG_Montant,CAST(RG_Date AS DATE) RG_Date\n" +
+					"                          ,RG_Impute,RG_Libelle,Lien_Fichier\n" +
+					"                          ,ISNULL(ZCPTEA.CA_Num,'') CA_Num\n" +
+					"                          ,ZCPTEA.CA_IntituleText\n" +
+					"                          ,RG_No_Source,RG_No_Dest \n" +
+					"                          ,C.JO_Num \n" +
+					"                FROM (  \n" +
+					"                    SELECT RG_No,RG_Piece,CA_No,RG_TypeReg,CG_Num\n" +
+					"                    ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
+					"                    ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
+					"                    ,CA_No_Dest\n" +
+					"                    ,RG_No_Source,RG_No_Dest \n" +
+					"                    ,JO_Num \n" +
+					"                    FROM #tmpTrsft\n" +
+					"\n" +
+					"                    UNION\n" +
+					"                        SELECT  RG_No,RG_Piece,CA_No,6 RG_TypeReg,CG_Num\n" +
+					"                                ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
+					"                                ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
+					"                                ,0 CA_No_Dest,RG_No RG_No_Source,0 RG_No_Dest \n" +
+					"                                ,JO_Num \n" +
+					"                        FROM    F_CREGLEMENT \n" +
+					"                        WHERE   (('-1' IN (@Type) AND RG_TypeReg IN ('5') AND RG_Banque=1) \n" +
+					"                        OR (@Type=6 AND RG_TypeReg IN (5) AND RG_Banque=1))\n" +
+					"                        UNION\n" +
+					"                        SELECT  RG_No,RG_Piece,CA_No,RG_TypeReg,CG_Num\n" +
+					"                                ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
+					"                                ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
+					"                                ,0 CA_No_Dest,RG_No RG_No_Source,0 RG_No_Dest \n" +
+					"                                ,JO_Num \n" +
+					"                        FROM    F_CREGLEMENT \n" +
+					"                        WHERE   \n" +
+					"                        (RG_No NOT IN (SELECT RG_No_Source FROM #tmpTrsft) AND RG_No NOT IN (SELECT RG_No_Dest FROM #tmpTrsft))\n" +
+					"                        AND ('-1' IN (@Type) AND (((RG_TypeReg IN ('2','4','3','5') AND RG_Banque=0) OR (RG_TypeReg=4 AND RG_Banque=1)) ) \n" +
+					"                        OR (@Type NOT IN (6,4) AND RG_TypeReg =@Type) \n" +
+					"                        OR (@Type=6 AND RG_TypeReg =4 AND RG_Banque=1)\n" +
+					"                        OR (@Type=5 AND RG_TypeReg =5 AND RG_Banque=0)\n" +
+					"                        OR (@Type=4 AND RG_TypeReg =4 AND RG_Banque=0))) C\n" +
+					"                LEFT JOIN F_CAISSE CA \n" +
+					"                    ON C.CA_No=CA.CA_No\n" +
+					"                LEFT JOIN F_COMPTEG CptG \n" +
+					"                    ON CptG.CG_Num=C.CG_Num\n" +
+					"                LEFT JOIN ( SELECT RG_No,A.CA_Num,CONCAT(CONCAT(A.CA_Num,' - '),CA_Intitule) CA_IntituleText\n" +
+					"                            FROM Z_RGLT_COMPTEA A\n" +
+					"                            INNER JOIN F_COMPTEA B ON A.CA_Num=B.CA_Num) ZCPTEA \n" +
+					"                    ON ZCPTEA.RG_No=C.RG_No\n" +
+					"                LEFT JOIN Z_REGLEMENTPIECE RG\n" +
+					"                    ON RG.RG_No=C.RG_No\n" +
+					"                LEFT JOIN F_COLLABORATEUR CO \n" +
+					"                    ON C.CO_NoCaissier=CO.CO_No\n" +
+					"                WHERE RG_Date BETWEEN @DateDeb AND @DateFin \n" +
+					"                AND (C.CA_No IN (SELECT CA_No FROM #TMPCAISSE))\n" +
+					"                AND C.RG_No NOT IN (SELECT RG_NoCache FROM [dbo].[Z_RGLT_VRSTBANCAIRE])\n" +
+					"                ORDER BY C.RG_No\n" +
+					"END;";
 
 	public static final String updateRgImputeSupprReglt
 			="DECLARE @rgNo AS INT = ? " +

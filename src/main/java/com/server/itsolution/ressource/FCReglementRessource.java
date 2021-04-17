@@ -114,6 +114,10 @@ public class FCReglementRessource {
         fcReglementDAO.updateImpute(rgNo);
     }
 
+    @GetMapping(value = "/journeeCloture&date={date}&caNo={caNo}")
+    public int journeeCloture(@PathVariable String date,@PathVariable int caNo) {
+        return fcReglementDAO.journeeCloture(date,caNo);
+    }
     @GetMapping(value = "/insertCaNum&rgNo={rgNo}&caNum={caNum}")
     public void insertCaNum(@PathVariable BigDecimal rgNo,@PathVariable String caNum) {
         fcReglementDAO.insertCaNum(rgNo,caNum);

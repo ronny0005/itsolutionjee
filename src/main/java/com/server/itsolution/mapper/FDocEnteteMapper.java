@@ -184,27 +184,32 @@ public class FDocEnteteMapper extends ObjectMapper {
 
     public static final String 	getLigneTransfert =
 			"DECLARE @cbMarq AS INT = ?; \n" +
-					"                SELECT ISNULL(idSec,0)idSec,A.*\n" +
-					"                FROM (\tSELECT\tDL_Ligne AS Ligne , M.cbMarq,E.DO_Piece,AR_Ref,DL_Design\n" +
-					"                                ,DL_Qte,DL_PrixUnitaire,DL_CMUP ,DL_Taxe1,DL_Taxe2,DL_Taxe3,DL_MontantTTC,DL_MontantHT,DL_Ligne \n" +
-					"                                ,DL_Remise = CASE WHEN DL_Remise01REM_Type=0 THEN '' \n" +
-					"                                        WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' \n" +
-					"                                            ELSE cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'U' END  \n" +
-					"                        FROM\tF_DOCENTETE E \n" +
-					"                        INNER JOIN F_DOCLIGNE M \n" +
-					"                            ON E.DO_Domaine = M.DO_Domaine \n" +
-					"                            AND E.DO_Type = M.DO_Type \n" +
-					"                            AND E.DO_Piece = M.DO_Piece \n" +
-					"                        WHERE\tM.DL_MvtStock=3 AND E.cbMarq = @cbMarq) AS A \n" +
-					"                LEFT JOIN (SELECT\tDL_Ligne Ligne,cbMarq as idSec,AR_Ref\n" +
-					"                            FROM\t(\tSELECT DL_Ligne,M.cbMarq,M.AR_Ref\n" +
-					"                                        FROM\tF_DOCENTETE E \n" +
-					"                                        INNER JOIN F_DOCLIGNE M \n" +
-					"                                            ON  E.DO_Domaine = M.DO_Domaine \n" +
-					"                                            AND E.DO_Type = M.DO_Type \n" +
-					"                                            AND E.DO_Piece = M.DO_Piece \n" +
-					"                                        WHERE\tM.DL_MvtStock=1 AND E.cbMarq = @cbMarq)B \n" +
-					"                            ) B ON (B.Ligne-A.Ligne )=10000 AND A.AR_Ref = B.AR_Ref";
+			"SELECT ISNULL(idSec,0)idSec,A.*,userReception,cbCreateurReception\n" +
+			"                FROM (\tSELECT\tDL_Ligne AS Ligne , M.cbMarq,E.DO_Piece,AR_Ref,DL_Design,DL_PieceBL\n" +
+			"                                ,cbCreateurEmission = M.cbCreateur,userEmission = pro.PROT_User\n" +
+			"                                ,DL_Qte,DL_PrixUnitaire,DL_CMUP ,DL_Taxe1,DL_Taxe2,DL_Taxe3,DL_MontantTTC,DL_MontantHT,DL_Ligne \n" +
+			"                                ,CASE WHEN DL_Remise01REM_Type=0 THEN '' WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' ELSE cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'U' END DL_Remise \n" +
+			"                        FROM\tF_DOCENTETE E \n" +
+			"                        INNER JOIN F_DOCLIGNE M \n" +
+			"                            ON  E.DO_Domaine = M.DO_Domaine \n" +
+			"                            AND E.DO_Type = M.DO_Type \n" +
+			"                            AND E.DO_Piece = M.DO_Piece \n" +
+			"                        LEFT JOIN F_PROTECTIONCIAL pro\n" +
+			"                            ON  CAST(pro.PROT_No AS NVARCHAR(30)) = CAST(M.CbCreateur AS NVARCHAR(30))\n" +
+			"                        WHERE\tM.DL_MvtStock=3 AND E.cbMarq=@cbMarq) AS A \n" +
+			"                LEFT JOIN (SELECT\tDL_Ligne Ligne,idSec = cbMarq,AR_Ref,userReception,cbCreateurReception\n" +
+			"                            FROM\t(\tSELECT DL_Ligne,M.cbMarq,M.AR_Ref\n" +
+			"                                                ,cbCreateurReception = M.cbCreateur,userReception = pro.PROT_User\n" +
+			"                                        FROM\tF_DOCENTETE E \n" +
+			"                                        INNER JOIN F_DOCLIGNE M \n" +
+			"                                            ON  E.DO_Domaine = M.DO_Domaine \n" +
+			"                                            AND E.DO_Type = M.DO_Type \n" +
+			"                                            AND E.DO_Piece = M.DO_Piece \n" +
+			"                                        LEFT JOIN F_PROTECTIONCIAL pro\n" +
+			"                                            ON  CAST(pro.PROT_No AS NVARCHAR(30)) = CAST(M.CbCreateur AS NVARCHAR(30))\n" +
+			"                                        WHERE\tM.DL_MvtStock=1 \n" +
+			"                                        AND     E.cbMarq=@cbMarq)B \n" +
+			"                            ) B ON (B.Ligne-A.Ligne )=10000 AND A.AR_Ref = B.AR_Ref";
     public static final String statutVente ="  DECLARE @type NVARCHAR(30) = ?\n" +
 			"SELECT * \n" +
 			"FROM(\n" +
@@ -364,15 +369,19 @@ public class FDocEnteteMapper extends ObjectMapper {
             "                WHERE cbMarq = ?";
 
     public static final String getLigneFactureTransfert =
-            "SELECT 0 AS idSec,M.cbMarq,M.DO_Piece,AR_Ref,DL_Design,DL_Qte,DL_PrixUnitaire,DL_CMUP,DL_Taxe1,DL_Taxe2\n" +
-                    "                        ,DL_Taxe3,DL_MontantTTC,DL_MontantHT,DL_Ligne\n" +
-                    "       ,CASE WHEN DL_Remise01REM_Type=0 THEN '' \n" +
-                    "            WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' \n" +
-                    "         ELSE cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'U' END DL_Remise  \n" +
-                    "                FROM F_DOCENTETE E\n" +
-                    "                INNER JOIN F_DOCLIGNE M ON E.DO_Domaine = M.DO_Domaine AND E.DO_Type = M.DO_Type AND E.DO_Piece = M.DO_Piece  \n" +
-                    "                WHERE E.cbMarq = ? \n" +
-                    "                ORDER BY M.cbMarq";
+            "SELECT    idSec = 0,M.cbMarq,M.DO_Piece,AR_Ref,DL_Design\n" +
+					"                            ,DL_Qte,DL_PrixUnitaire,DL_CMUP,DL_Taxe1,DL_Taxe2\n" +
+					"                            ,DL_Taxe3,DL_MontantTTC,DL_MontantHT,DL_Ligne\n" +
+					"                            ,DL_Remise = CASE WHEN DL_Remise01REM_Type=0 THEN '' \n" +
+					"                                WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' \n" +
+					"                             ELSE cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'U' END   \n" +
+					"                    FROM F_DOCENTETE E\n" +
+					"                    INNER JOIN F_DOCLIGNE M \n" +
+					"                        ON E.DO_Domaine = M.DO_Domaine \n" +
+					"                        AND E.DO_Type = M.DO_Type \n" +
+					"                        AND E.cbDO_Piece = M.cbDO_Piece  \n" +
+					"                    WHERE E.cbMarq = ?\n" +
+					"                    ORDER BY M.cbMarq";
 
     public static final String listeEntree = "" +
             "DECLARE @doTiers as VARCHAR(30) = ?\n" +

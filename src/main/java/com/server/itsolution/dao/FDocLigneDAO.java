@@ -297,11 +297,12 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                             || (!typeFacture.equals("Achat")
                             && ((vteNegatif == 1 && (typeFacture.equals("BonCommande") || typeFacture.equals("PreparationLivraison") || typeFacture.equals("BonLivraison")))
                             || (/*$VteNegatif==0 &&*/ (fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) >= (dlQte)))) || typeFacture.equals("Devis")
-                            || typeFacture.equals("PreparationCommande") || typeFacture.equals("Avoir") || typeFacture.equals("BonCommande") || typeFacture.equals("VenteRetour")) {
+                            || typeFacture.equals("PreparationCommande") || typeFacture.equals("Avoir") || typeFacture.equals("BonCommande") || typeFacture.equals("VenteRetour")
+                            || typeFacture.equals("Entree")) {
 
                     } else {
                         json = new JSONObject();
-                        json.put("message", "La quantité de $ARRefG ne doit pas dépasser " + Math.round(fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) + " !");
+                        json.put("message", "La quantité de "+arRef+" ne doit pas dépasser " + Math.round(fArtStock.getAS_QteSto() + fDocLigne.getDL_Qte()) + " !");
                         return json;
                     }
 
@@ -864,6 +865,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                 DL_CMUP = AR_PrixAch;
                 mvtStock = 1;
             }
+            AR_PrixAch = (double)Math.round((double)AR_PrixAch*100)/100;
+            DL_CMUP = (double)Math.round((double)DL_CMUP*100)/100;
 
             FDocLigne fDocLigne = new FDocLigne();
             initVariables(fDocLigne);
@@ -887,7 +890,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             fDocLigne.setDL_Taxe2(taxe2);
             fDocLigne.setDL_Taxe3(taxe3);
             fDocLigne.setCO_No(coNo);
-            fDocLigne.setDL_PrixRU(Math.round(AR_PrixAch*100)/100);
+            fDocLigne.setDL_PrixRU(AR_PrixAch);
             fDocLigne.setEU_Enumere(U_Intitule);
             fDocLigne.setDE_No(deNo);
             fDocLigne.setDL_PUTTC(puttc);
@@ -907,7 +910,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             fDocLigne.setDL_PieceBL(entetePrev);
             fDocLigne.setDL_DateBC(do_dateBC);
             fDocLigne.setDL_DateBL(do_dateBL);
-            fDocLigne.setDL_CMUP(Math.round(DL_CMUP));
+            fDocLigne.setDL_CMUP(DL_CMUP);
             fDocLigne.setDL_DatePL(do_datePL);
             fDocLigne.setMACHINEPC(machineName);
             fDocLigne.setCbCreateur(String.valueOf(protNo));

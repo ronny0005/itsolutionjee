@@ -236,115 +236,118 @@ public class FCReglementDAO extends JdbcDaoSupport {
         FCollaborateur fCollaborateur = fCollaborateurDAO.getCollaborateurJSON(coNoCaissier);
         FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDAO.connexionProctectionByProtNo(protNo);
-        FCReglement fcReglement = new FCReglement();
-        String collaborateurCaissier = "";
-        if (fCollaborateur.getCbMarq() != null)
-            collaborateurCaissier = fCollaborateur.getCO_Nom();
+        int isSecurite = fProtectioncialDAO.isSecuriteAdminCaisse(protNo,fProtectioncial.getProtectAdmin(), caNo);
+        if(isSecurite == 1) {
+            FCReglement fcReglement = new FCReglement();
+            String collaborateurCaissier = "";
+            if (fCollaborateur.getCbMarq() != null)
+                collaborateurCaissier = fCollaborateur.getCO_Nom();
 
-        int banque = 0;
-        String cgNum = cgNumBanque;
-        if (rgTypeReg == 2)
-            cgNum = null;
-        if (rgTypeReg == 6) {
-            // Pour les vrst bancaire mettre a jour le compteur du RGPIECE
-            banque = 1;
-        }
-
-        BigDecimal rgNo = BigDecimal.ZERO;
-
-        if (rgTypeReg != 16) {
-            int rg_typeregVal = rgTypeReg;
-            if (rgTypeReg == 6)
-                rg_typeregVal = 4;
-
+            int banque = 0;
+            String cgNum = cgNumBanque;
+            if (rgTypeReg == 2)
+                cgNum = null;
             if (rgTypeReg == 6) {
-                fcReglement.setReglement(null, rgDate, rgMontant, joNum, cgNum, caNo, libelle, 0, 2, 1, rg_typeregVal, 1, 1, String.valueOf(protNo));
-                this.insertF_Reglement(fcReglement);
-                rgNo = fcReglement.getRG_No();
-                fcReglement = new FCReglement();
-                fcReglement.setReglement(null, rgDate, rgMontant, fcaisse.getJO_Num(), cgNum, caNo, libelle + "_" + fcaisse.getJO_Num(), 0, 2, 8, rg_typeregVal, 1, 1, String.valueOf(protNo));
-                this.insertF_Reglement(fcReglement);
-                rgNoDest = fcReglement.getRG_No();
-                this.insertF_ReglementVrstBancaire(rgNo, rgNoDest);
+                // Pour les vrst bancaire mettre a jour le compteur du RGPIECE
+                banque = 1;
+            }
+
+            BigDecimal rgNo = BigDecimal.ZERO;
+
+            if (rgTypeReg != 16) {
+                int rg_typeregVal = rgTypeReg;
+                if (rgTypeReg == 6)
+                    rg_typeregVal = 4;
+
+                if (rgTypeReg == 6) {
+                    fcReglement.setReglement(null, rgDate, rgMontant, joNum, cgNum, caNo, libelle, 0, 2, 1, rg_typeregVal, 1, 1, String.valueOf(protNo));
+                    this.insertF_Reglement(fcReglement);
+                    rgNo = fcReglement.getRG_No();
+                    fcReglement = new FCReglement();
+                    fcReglement.setReglement(null, rgDate, rgMontant, fcaisse.getJO_Num(), cgNum, caNo, libelle + "_" + fcaisse.getJO_Num(), 0, 2, 8, rg_typeregVal, 1, 1, String.valueOf(protNo));
+                    this.insertF_Reglement(fcReglement);
+                    rgNoDest = fcReglement.getRG_No();
+                    this.insertF_ReglementVrstBancaire(rgNo, rgNoDest);
+                } else {
+                    fcReglement.setReglement(null, rgDate, rgMontant, joNum, cgNum, caNo, libelle, 0, 2, 1, rg_typeregVal, 1, banque, String.valueOf(protNo));
+                    this.insertF_Reglement(fcReglement);
+                    rgNo = fcReglement.getRG_No();
+                }
             } else {
-                fcReglement.setReglement(null, rgDate, rgMontant, joNum, cgNum, caNo, libelle, 0, 2, 1, rg_typeregVal, 1, banque, String.valueOf(protNo));
+                fcReglement.setReglement(null, rgDate, rgMontant, joNum, cgNum, caNo, libelle, 0, 2, 1, 4, 1, banque, String.valueOf(protNo));
+                this.insertF_Reglement(fcReglement);
+                FCaisse fcaisseDest = fCaisseDAO.getF_Caisse(caNoDest);
+                fcReglement.setReglement(null, rgDate, rgMontant, fcaisseDest.getJO_Num(), cgNum, fcaisseDest.getCA_No(), libelle, 0, 2, 1, 5, 1, banque, String.valueOf(protNo));
                 this.insertF_Reglement(fcReglement);
                 rgNo = fcReglement.getRG_No();
             }
-        } else {
-            fcReglement.setReglement(null, rgDate, rgMontant, joNum, cgNum, caNo, libelle, 0, 2, 1, 4, 1, banque, String.valueOf(protNo));
-            this.insertF_Reglement(fcReglement);
-            FCaisse fcaisseDest = fCaisseDAO.getF_Caisse(caNoDest);
-            fcReglement.setReglement(null, rgDate, rgMontant, fcaisseDest.getJO_Num(), cgNum, fcaisseDest.getCA_No(), libelle, 0, 2, 1, 5, 1, banque, String.valueOf(protNo));
-            this.insertF_Reglement(fcReglement);
-            rgNo = fcReglement.getRG_No();
-        }
 
-        if (isModif == 0) {
-            if (!caNum.equals("") && cgAnalytique == 1)
-                this.insertCaNum(rgNo, caNum);
-            if (rgTypeReg == 4) {
-                String msg = "SORTIE D'UN MONTANT DE " + FormatText.getMontant(rgMontant) + " POUR " + libelle + " DANS LA CAISSE " + caIntitule + " SAISI PAR " + protNo + " LE " + rgDate;
-            }
-        }
-
-        String message = "";
-        if (isModif == 0)
-            if (rgTypeReg == 4) {
-                message = "SORTIE D' UN MONTANT DE " + rgMontant + " POUR " + libelle +
-                        " DANS LA CAISSE " + caIntitule + " SAISI PAR " + fProtectioncial.getPROT_User() +
-                        " LE " + rgDate;
-                fProtectioncialDAO.getCollaborateurEnvoiMail(message, "Mouvement de sortie");
-                fProtectioncialDAO.getCollaborateurEnvoiSMS(message, "Mouvement de sortie");
+            if (isModif == 0) {
+                if (!caNum.equals("") && cgAnalytique == 1)
+                    this.insertCaNum(rgNo, caNum);
+                if (rgTypeReg == 4) {
+                    String msg = "SORTIE D'UN MONTANT DE " + FormatText.getMontant(rgMontant) + " POUR " + libelle + " DANS LA CAISSE " + caIntitule + " SAISI PAR " + protNo + " LE " + rgDate;
+                }
             }
 
-        if (isModif == 0)
-            if (rgTypeReg == 6) {
-                message = "VERSEMENT BANCAIRE D'UN MONTANT DE $montant DANS LA CAISSE " +
-                        caIntitule + " SAISI PAR " + fProtectioncial.getPROT_User() + " LE " + rgDate;
+            String message = "";
+            if (isModif == 0)
+                if (rgTypeReg == 4) {
+                    message = "SORTIE D' UN MONTANT DE " + rgMontant + " POUR " + libelle +
+                            " DANS LA CAISSE " + caIntitule + " SAISI PAR " + fProtectioncial.getPROT_User() +
+                            " LE " + rgDate;
+                    fProtectioncialDAO.getCollaborateurEnvoiMail(message, "Mouvement de sortie");
+                    fProtectioncialDAO.getCollaborateurEnvoiSMS(message, "Mouvement de sortie");
+                }
 
-                message = "SORTIE D' UN MONTANT DE " + rgMontant + " POUR " + libelle +
-                        " DANS LA CAISSE " + caIntitule + " SAISI PAR " + fProtectioncial.getPROT_User() +
-                        " LE " + rgDate;
-                fProtectioncialDAO.getCollaborateurEnvoiMail(message, "Mouvement de sortie");
-                fProtectioncialDAO.getCollaborateurEnvoiSMS(message, "Mouvement de sortie");
-            }
+            if (isModif == 0)
+                if (rgTypeReg == 6) {
+                    message = "VERSEMENT BANCAIRE D'UN MONTANT DE $montant DANS LA CAISSE " +
+                            caIntitule + " SAISI PAR " + fProtectioncial.getPROT_User() + " LE " + rgDate;
 
-        if (isModif == 0)
-            if (rgTypeReg != 2)
-                this.incrementeCOLREGLEMENT();
+                    message = "SORTIE D' UN MONTANT DE " + rgMontant + " POUR " + libelle +
+                            " DANS LA CAISSE " + caIntitule + " SAISI PAR " + fProtectioncial.getPROT_User() +
+                            " LE " + rgDate;
+                    fProtectioncialDAO.getCollaborateurEnvoiMail(message, "Mouvement de sortie");
+                    fProtectioncialDAO.getCollaborateurEnvoiSMS(message, "Mouvement de sortie");
+                }
+
+            if (isModif == 0)
+                if (rgTypeReg != 2)
+                    this.incrementeCOLREGLEMENT();
 
 
-        if (isModif == 1) {
-            fcReglement = getFCReglement(rgNo);
-            fcReglement.setRG_Date(rgDate);
-
-            fcaisse = fCaisseDAO.getF_Caisse(caNo);
-            fcReglement.setJO_Num(fcaisse.getJO_Num());
-            fcReglement.setCA_No(caNo);
-            fcReglement.setRG_Libelle(libelle);
-            fcReglement.setCG_Num(cgNumBanque);
-            fcReglement.setRG_Montant(rgMontant);
-
-            if (rgTyperegModif == 6) {
-                fcReglement.setRG_TypeReg(5);
-                fcReglement.setJO_Num(journalRec);
-            }
-
-            if (rgTyperegModif == 16) {
-                fcReglement.setRG_TypeReg(4);
-                majReglement(fcReglement);
-                fcReglement = getFCReglement(rgNoDest);
+            if (isModif == 1) {
+                fcReglement = getFCReglement(rgNo);
                 fcReglement.setRG_Date(rgDate);
-                fcReglement.setCA_No(caNoDest);
-                fcaisse = fCaisseDAO.getF_Caisse(caNoDest);
+
+                fcaisse = fCaisseDAO.getF_Caisse(caNo);
                 fcReglement.setJO_Num(fcaisse.getJO_Num());
+                fcReglement.setCA_No(caNo);
                 fcReglement.setRG_Libelle(libelle);
                 fcReglement.setCG_Num(cgNumBanque);
-                fcReglement.setRG_TypeReg(5);
                 fcReglement.setRG_Montant(rgMontant);
+
+                if (rgTyperegModif == 6) {
+                    fcReglement.setRG_TypeReg(5);
+                    fcReglement.setJO_Num(journalRec);
+                }
+
+                if (rgTyperegModif == 16) {
+                    fcReglement.setRG_TypeReg(4);
+                    majReglement(fcReglement);
+                    fcReglement = getFCReglement(rgNoDest);
+                    fcReglement.setRG_Date(rgDate);
+                    fcReglement.setCA_No(caNoDest);
+                    fcaisse = fCaisseDAO.getF_Caisse(caNoDest);
+                    fcReglement.setJO_Num(fcaisse.getJO_Num());
+                    fcReglement.setRG_Libelle(libelle);
+                    fcReglement.setCG_Num(cgNumBanque);
+                    fcReglement.setRG_TypeReg(5);
+                    fcReglement.setRG_Montant(rgMontant);
+                }
+                majReglement(fcReglement);
             }
-            majReglement(fcReglement);
         }
     }
 
@@ -700,143 +703,14 @@ public class FCReglementDAO extends JdbcDaoSupport {
     }
 
     public List<Object> listeReglementCaisse(String dateDeb, String dateFin, int caNo, int type, int protNo) {
-        String listeCaisse = "";
-
-
-        String sql = "BEGIN \n" +
-                "                        DECLARE @ProtNo AS INT\n" +
-                "                        DECLARE @CA_No AS INT\n" +
-                "                        DECLARE @DateDeb AS VARCHAR(10)\n" +
-                "                        DECLARE @DateFin AS VARCHAR(10)\n" +
-                "                        DECLARE @Type AS INT\n" +
-                "                        \n" +
-                "                        SET @ProtNo = " + protNo +
-                "                        SET @CA_No = " + caNo +
-                "                        SET @DateDeb = '" + dateDeb + "'" +
-                "                        SET @DateFin = '" + dateFin + "'" +
-                "                        SET @Type = " + type +
-                "                        ;" +
-                "                        IF OBJECT_ID('tempdb..#TMPCAISSE') IS NOT NULL \n" +
-                "                          DROP TABLE #TMPCAISSE;" +
-                "                        IF OBJECT_ID('tempdb..#tmpTrsft') IS NOT NULL \n" +
-                "                          DROP TABLE #tmpTrsft;" +
-                "                        CREATE TABLE #TMPCAISSE (CA_No INT)\n" +
-                "                        SET NOCOUNT ON;\n" +
-                "                        \n" +
-                "                        IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@ProtNo) = 1 \n" +
-                "                        BEGIN \n" +
-                "                            INSERT INTO #TMPCAISSE\n" +
-                "                            SELECT\tISNULL(CA.CA_No,0) CA_No \n" +
-                "                            FROM F_CAISSE CA\n" +
-                "                            INNER JOIN Z_DEPOTCAISSE C \n" +
-                "                                ON CA.CA_No=C.CA_No\n" +
-                "                            INNER JOIN F_DEPOT D \n" +
-                "                                ON C.DE_No=D.DE_No\n" +
-                "                            INNER JOIN F_COMPTET CT \n" +
-                "                                ON CT.CT_Num = CA.CT_Num\n" +
-                "                            WHERE (@CA_No IN (0,-1) OR @CA_No=CA.CA_No)\n" +
-                "                            GROUP BY CA.CA_No\n" +
-                "                        END \n" +
-                "                        ELSE \n" +
-                "                        BEGIN \n" +
-                "                            INSERT INTO #TMPCAISSE\n" +
-                "                            SELECT\tISNULL(CA.CA_No,0) CA_No\n" +
-                "                            FROM F_CAISSE CA\n" +
-                "                            LEFT JOIN Z_DEPOTCAISSE C \n" +
-                "                                ON CA.CA_No=C.CA_No\n" +
-                "                            LEFT JOIN (\tSELECT * \n" +
-                "                                        FROM Z_DEPOTUSER\n" +
-                "                                        WHERE IsPrincipal=1) D \n" +
-                "                                ON C.DE_No=D.DE_No\n" +
-                "                            LEFT JOIN F_COMPTET CT \n" +
-                "                                ON CT.CT_Num = CA.CT_Num\n" +
-                "                            WHERE Prot_No=@ProtNo\n" +
-                "                            AND\t(@CA_No=0 OR @CA_No=CA.CA_No)\n" +
-                "                            GROUP BY CA.CA_No\n" +
-                "                        END;\n" +
-                "\n" +
-                "SELECT RG_No,RG_Piece,CA_No,16 RG_TypeReg,CG_Num\n" +
-                "                    ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
-                "                    ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
-                "                    ,CA_No_Dest\n" +
-                "                    ,RG_No_Source,RG_No_Dest\n" +
-                "                    ,JO_Num into #tmpTrsft\n" +
-                "FROM (          SELECT  count(*) nb,0 RG_No,RG_Piece\n" +
-                "                        ,SUM(CASE WHEN RG_TypeReg=4 THEN CA_No ELSE 0 END)CA_No,16 RG_TypeReg,CG_Num\n" +
-                "                        ,SUM(CASE WHEN RG_TypeReg=4 THEN RG_No ELSE 0 END)RG_No_Source\n" +
-                "                        ,SUM(CASE WHEN RG_TypeReg=5 THEN RG_No ELSE 0 END)RG_No_Dest\n" +
-                "                        ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
-                "                        ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
-                "                        ,SUM(CASE WHEN RG_TypeReg=5 THEN CA_No ELSE 0 END)CA_No_Dest\n" +
-                "                        ,'' JO_Num \n" +
-                "                FROM    F_CREGLEMENT \n" +
-                "                WHERE   ((@Type) IN(-1,16) AND RG_TypeReg IN (5,4))\n" +
-                "                AND     RG_Banque = 0\n" +
-                "                GROUP BY RG_Piece,CG_Num\n" +
-                "                    ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
-                "                    ,RG_Impute,RG_Libelle,CO_NoCaissier)A\n" +
-                "                    \tWHERE nb=2\n" +
-                "                    \t\n" +
-                "                    SELECT C.RG_No,RG_Piece,C.CA_No,CA_No_Dest,CO_Nom\n" +
-                "                          ,CA_Intitule,CO.CO_No,RG_TypeReg\n" +
-                "                          ,C.CG_Num,CONCAT(CONCAT(C.CG_Num,' - '),CG_Intitule) CG_Intitule\n" +
-                "                          ,RG_Banque,RG_Type,RG_Montant,CAST(RG_Date AS DATE) RG_Date\n" +
-                "                          ,RG_Impute,RG_Libelle,Lien_Fichier\n" +
-                "                          ,ISNULL(ZCPTEA.CA_Num,'') CA_Num\n" +
-                "                          ,ZCPTEA.CA_IntituleText\n" +
-                "                          ,RG_No_Source,RG_No_Dest \n" +
-                "                          ,C.JO_Num \n" +
-                "                FROM (  \n" +
-                "                    SELECT RG_No,RG_Piece,CA_No,RG_TypeReg,CG_Num\n" +
-                "                    ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
-                "                    ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
-                "                    ,CA_No_Dest\n" +
-                "                    ,RG_No_Source,RG_No_Dest \n" +
-                "                    ,JO_Num \n" +
-                "                    FROM #tmpTrsft\n" +
-                "\n" +
-                "                    UNION\n" +
-                "                        SELECT  RG_No,RG_Piece,CA_No,6 RG_TypeReg,CG_Num\n" +
-                "                                ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
-                "                                ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
-                "                                ,0 CA_No_Dest,RG_No RG_No_Source,0 RG_No_Dest \n" +
-                "                                ,JO_Num \n" +
-                "                        FROM    F_CREGLEMENT \n" +
-                "                        WHERE   (('-1' IN (@Type) AND RG_TypeReg IN ('5') AND RG_Banque=1) \n" +
-                "                        OR (@Type=6 AND RG_TypeReg IN (5) AND RG_Banque=1))\n" +
-                "                        UNION\n" +
-                "                        SELECT  RG_No,RG_Piece,CA_No,RG_TypeReg,CG_Num\n" +
-                "                                ,RG_Banque,RG_Type,RG_Montant,RG_Date\n" +
-                "                                ,RG_Impute,RG_Libelle,CO_NoCaissier\n" +
-                "                                ,0 CA_No_Dest,RG_No RG_No_Source,0 RG_No_Dest \n" +
-                "                                ,JO_Num \n" +
-                "                        FROM    F_CREGLEMENT \n" +
-                "                        WHERE   \n" +
-                "                        (RG_No NOT IN (SELECT RG_No_Source FROM #tmpTrsft) AND RG_No NOT IN (SELECT RG_No_Dest FROM #tmpTrsft))\n" +
-                "                        AND ('-1' IN (@Type) AND (((RG_TypeReg IN ('2','4','3','5') AND RG_Banque=0) OR (RG_TypeReg=4 AND RG_Banque=1)) ) \n" +
-                "                        OR (@Type NOT IN (6,4) AND RG_TypeReg =@Type) \n" +
-                "                        OR (@Type=6 AND RG_TypeReg =4 AND RG_Banque=1)\n" +
-                "                        OR (@Type=5 AND RG_TypeReg =5 AND RG_Banque=0)\n" +
-                "                        OR (@Type=4 AND RG_TypeReg =4 AND RG_Banque=0))) C\n" +
-                "                LEFT JOIN F_CAISSE CA \n" +
-                "                    ON C.CA_No=CA.CA_No\n" +
-                "                LEFT JOIN F_COMPTEG CptG \n" +
-                "                    ON CptG.CG_Num=C.CG_Num\n" +
-                "                LEFT JOIN ( SELECT RG_No,A.CA_Num,CONCAT(CONCAT(A.CA_Num,' - '),CA_Intitule) CA_IntituleText\n" +
-                "                            FROM Z_RGLT_COMPTEA A\n" +
-                "                            INNER JOIN F_COMPTEA B ON A.CA_Num=B.CA_Num) ZCPTEA \n" +
-                "                    ON ZCPTEA.RG_No=C.RG_No\n" +
-                "                LEFT JOIN Z_REGLEMENTPIECE RG\n" +
-                "                    ON RG.RG_No=C.RG_No\n" +
-                "                LEFT JOIN F_COLLABORATEUR CO \n" +
-                "                    ON C.CO_NoCaissier=CO.CO_No\n" +
-                "                WHERE RG_Date BETWEEN @DateDeb AND @DateFin \n" +
-                "                AND (C.CA_No IN (SELECT CA_No FROM #TMPCAISSE))\n" +
-                "                AND C.RG_No NOT IN (SELECT RG_NoCache FROM [dbo].[Z_RGLT_VRSTBANCAIRE])\n" +
-                "                ORDER BY C.RG_No\n" +
-                "END;";
-        System.out.println(sql);
-        return this.getJdbcTemplate().query(sql, mapper);
+        String sql = FCReglementMapper.listeReglementCaisse;
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(protNo);
+        params.add(caNo);
+        params.add(dateDeb);
+        params.add(dateFin);
+        params.add(type);
+        return this.getJdbcTemplate().query(sql,params.toArray(),mapper);
     }
 
     public List<Object> getReglementByClientFacture(BigDecimal cbMarq) {

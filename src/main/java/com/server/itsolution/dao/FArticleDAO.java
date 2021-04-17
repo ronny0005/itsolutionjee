@@ -36,7 +36,7 @@ public class FArticleDAO extends JdbcDaoSupport {
             rechEt = "UNION SELECT AR_Type = 0,AR_Sommeil = 0,AR_Ref = '0',AR_Design = 'Tout',id = '0',text = 'Tout',value = 'Tout',AR_PrixAch = 0,AR_PrixVen = 0";
         if(top!=0)
             value = "TOP "+top;
-        String sql = "DECLARE @sommeil AS INT = "+sommeil+
+        String sql = "DECLARE @arSommeil AS INT = "+sommeil+
                 "		, @arPublie AS INT = "+arPublie+
                 "		, @arText AS NVARCHAR(150) = '"+valeurSaisie+"'"+
                 "; SELECT  "+value+" AR_Type"+
