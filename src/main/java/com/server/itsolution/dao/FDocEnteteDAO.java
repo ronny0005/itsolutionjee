@@ -1193,6 +1193,13 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             majEnteteComptable(fDocEntete.getDO_Type(),fDocEntete.getDO_Domaine(),fDocEntete.getDO_Piece(),doTypeCible);
         }
     }
+
+    public Object saisie_comptable(BigDecimal cbMarq){
+        String sql = FDocEnteteMapper.saisie_comptable;
+        params = new Object[] {cbMarq};
+        return this.getJdbcTemplate().query(sql, params,mapper);
+    }
+
     public ArrayList<BigDecimal> getListeFactureMajComptable(String datedeb,String datefin,String doPieceDeb,String doPieceFin,int doSouche,int catCompta,int caisse,int typeTransfert,int etatPiece){
         String sql = FDocEnteteMapper.getListeFactureMajComptable;
         FCReglementDAO fcReglementDAO = new FCReglementDAO(this.getDataSource());
@@ -1531,44 +1538,26 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         return getEnteteTable(typeFac,DO_Souche);
     }
 
-    public String getEnteteByDOPiece(String DO_Piece) {
-        String sql = FDocEnteteMapper.getEnteteByDOPiece;
-        StringBuffer alpha = new StringBuffer(),
-                num = new StringBuffer(), special = new StringBuffer();
-        for (int i=0; i<DO_Piece.length(); i++)
-        {
-            if (Character.isDigit(DO_Piece.charAt(i)))
-                num.append(DO_Piece.charAt(i));
-            else if(Character.isAlphabetic(DO_Piece.charAt(i)))
-                alpha.append(DO_Piece.charAt(i));
-            else
-                special.append(DO_Piece.charAt(i));
-        }
-
-        params = new Object[] {fDocEntete.getDO_Type(),fDocEntete.getDO_Domaine(),alpha ,num};
-        List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
-        if(list.size()>0)
-            return  (String) ((HashMap)list.get(0)).get("DO_Piece");
-        return null;
+    public List<Object> getLigneMajAnalytique(BigDecimal cbMarq){
+        String sql = FDocEnteteMapper.getLigneMajAnalytique;
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(cbMarq);
+        return this.getJdbcTemplate().query(sql, params.toArray(), mapper);
     }
-
-    static String incrementeDOPiece(String str)
-    {
-        StringBuffer alpha = new StringBuffer(),
-                num = new StringBuffer(), special = new StringBuffer();
-
-        for (int i=0; i<str.length(); i++)
-        {
-            if (Character.isDigit(str.charAt(i)))
-                num.append(str.charAt(i));
-            else if(Character.isAlphabetic(str.charAt(i)))
-                alpha.append(str.charAt(i));
-            else
-                special.append(str.charAt(i));
+    public Object getReglementByFacture(BigDecimal cbMarq){
+        String sql = FDocEnteteMapper.getReglementByFacture;
+        FCReglementDAO fcReglementDAO = new FCReglementDAO(this.getDataSource());
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(cbMarq);
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params.toArray());
+        ArrayList<BigDecimal> liste = new ArrayList<BigDecimal>();
+        while(sqlRowSet.next()) {
+            liste.add(sqlRowSet.getBigDecimal("cbMarq"));
         }
-        String number = "000000000"+String.valueOf(Integer.valueOf(num.toString())+1);
-        number = number.substring(number.length()-9);
-        return alpha+ (number).substring(alpha.length());
+        ArrayList<Object> listReglement = new ArrayList<Object>();
+        for(BigDecimal i : liste)
+            listReglement.add(fcReglementDAO.getFCReglement(i));
+        return listReglement;
     }
 
     public void majEnteteComptable(int doType,int doDomaine,String doPiece,int doTypeCible){

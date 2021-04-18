@@ -649,6 +649,104 @@ public class FDocEnteteMapper extends ObjectMapper {
             =   "SELECT PR_DelaiPreAlert "
             +"FROM P_PREFERENCES";
 
+    public static final String getLigneMajAnalytique =
+			"DECLARE @cbMarq AS INT = ?;\n" +
+					"                    WITH _Taxe_ AS (\n" +
+					"                        SELECT\tT.TA_Code\n" +
+					"                                ,T.cbTA_Code\n" +
+					"                                ,T.CG_Num\n" +
+					"                                ,C.CG_Tiers\n" +
+					"                                ,T.TA_Provenance\n" +
+					"                        FROM F_TAXE T\n" +
+					"                        LEFT JOIN F_COMPTEG C \n" +
+					"                            ON T.cbCG_Num = C.cbCG_Num\n" +
+					"                    )\n" +
+					"                    ,_InfoTaxe_ AS (\n" +
+					"                        SELECT  COMPTEG_ARTICLE = ISNULL(ACP_ComptaCPT_CompteG,FCP_ComptaCPT_CompteG) \n" +
+					"                            ,Cg.CG_Tiers CG_TiersArticle,CodeTaxe1 = TU.TA_Code,CG_NumTaxe1 = TU.CG_Num\n" +
+					"                            ,CG_Tiers1 = TU.CG_Tiers,CodeTaxe2 = TD.TA_Code,CG_NumTaxe2 = TD.CG_Num,CG_Tiers2 = TD.CG_Tiers \n" +
+					"                            ,CodeTaxe3 = TT.TA_Code,CG_NumTaxe3 = TT.CG_Num,CG_Tiers3 = TT.CG_Tiers\n" +
+					"                            ,TA_Provenance1 = TU.TA_Provenance\n" +
+					"                            ,TA_Provenance2 = TD.TA_Provenance\n" +
+					"                            ,TA_Provenance3 = TT.TA_Provenance\n" +
+					"                            ,Art.AR_Ref\n" +
+					"                            ,FCP_Champ\n" +
+					"                            ,FCP_Type\n" +
+					"                        FROM    F_ARTICLE Art \n" +
+					"                        LEFT JOIN F_FAMCOMPTA F \n" +
+					"                            ON  Art.cbFA_CodeFamille = F.cbFA_CodeFamille  \n" +
+					"                        LEFT JOIN F_ARTCOMPTA A \n" +
+					"                            ON  A.cbAR_Ref = Art.cbAR_Ref \n" +
+					"                            AND ISNULL(ACP_Champ,FCP_Champ) =FCP_Champ \n" +
+					"                            AND ISNULL(ACP_Type,FCP_Type)=FCP_Type \n" +
+					"                        LEFT JOIN F_COMPTEG Cg \n" +
+					"                            ON  Cg.CG_Num = ISNULL(ACP_ComptaCPT_CompteG,FCP_ComptaCPT_CompteG)\n" +
+					"                        LEFT JOIN _Taxe_ TU \n" +
+					"                            ON TU.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe1,'')  <> ISNULL(ACP_ComptaCPT_Taxe1,'')AND ACP_ComptaCPT_Taxe1 IS NOT NULL THEN\n" +
+					"                                                ACP_ComptaCPT_Taxe1 ELSE FCP_ComptaCPT_Taxe1 END)\n" +
+					"                        LEFT JOIN _Taxe_ TD \n" +
+					"                            ON TD.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe2,'')  <> ISNULL(ACP_ComptaCPT_Taxe2,'')  AND ACP_ComptaCPT_Taxe2 IS NOT NULL THEN \n" +
+					"                                                    ACP_ComptaCPT_Taxe2 ELSE FCP_ComptaCPT_Taxe2 END) \n" +
+					"                        LEFT JOIN _Taxe_ TT \n" +
+					"                            ON TT.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe3,'')  <> ISNULL(ACP_ComptaCPT_Taxe3,'')  AND ACP_ComptaCPT_Taxe3 IS NOT NULL THEN \n" +
+					"                                        ACP_ComptaCPT_Taxe3 ELSE FCP_ComptaCPT_Taxe3 END) \n" +
+					"                    )\n" +
+					"                    ,_Analytique_ AS (\n" +
+					"                        SELECT\tA.CbMarq_Ligne,A_Intitule,A.N_Analytique\n" +
+					"                                ,EA_Ligne,A.CA_Num,CA_Intitule,EA_Montant\n" +
+					"                                ,EA_Quantite,A.cbMarq\n" +
+					"                        FROM\tZ_LIGNE_COMPTEA A\n" +
+					"                        LEFT JOIN F_COMPTEA B \n" +
+					"                            ON\tA.CA_Num = B.CA_Num \n" +
+					"                        LEFT JOIN P_Analytique PA \n" +
+					"                            ON\tPA.cbIndice = A.N_Analytique\n" +
+					"                    )\n" +
+					"                    \n" +
+					"                    SELECT\tnomFichier =''\n" +
+					"                            ,JO_Num =  (SELECT JO_Num  \n" +
+					"                                        FROM P_SOUCHEACHAT \n" +
+					"                                        WHERE S_Intitule<>'' AND S_Valide=1 AND cbIndice-1 = docE.DO_Souche)\n" +
+					"                            ,Annee_Exercice = CAST(YEAR(docE.DO_Date) AS NVARCHAR(10)) + RIGHT('0'+ CAST(MONTH(docE.DO_Date) AS NVARCHAR(10)),2)\n" +
+					"                            ,CA_Num = ana.CA_Num\n" +
+					"                            ,CG_Num = ISNULL(infT.COMPTEG_ARTICLE,'')\n" +
+					"                            ,A_Intitule = ana.A_Intitule\n" +
+					"                            ,A_Qte = ana.EA_Quantite\n" +
+					"                            ,A_Montant = ana.EA_Montant\n" +
+					"                            ,EC_No = ISNULL(docL.cbMarq,'')\n" +
+					"                            ,N_Analytique = ana.N_Analytique                            \n" +
+					"                    FROM\tF_DOCENTETE docE\n" +
+					"                    LEFT JOIN F_DOCLIGNE docL\n" +
+					"                        ON\tdocL.DO_Domaine = docE.DO_Domaine\n" +
+					"                        AND\tdocL.DO_Type = docE.DO_Type\n" +
+					"                        AND\tdocL.DO_Piece = docE.DO_Piece\n" +
+					"                    LEFT JOIN F_DOCREGL docR\n" +
+					"                        ON\tdocR.DO_Domaine = docE.DO_Domaine\n" +
+					"                        AND\tdocR.DO_Type = docE.DO_Type\n" +
+					"                        AND\tdocR.DO_Piece = docE.DO_Piece\n" +
+					"                    LEFT JOIN F_COMPTET cptT\n" +
+					"                        ON\tdocE.DO_Tiers = cptT.CT_Num\n" +
+					"                    LEFT JOIN _InfoTaxe_ infT\n" +
+					"                        ON\tinfT.FCP_Champ=docE.N_CatCompta \n" +
+					"                        AND infT.FCP_Type=docE.DO_Domaine\n" +
+					"                        AND infT.AR_Ref=docL.AR_Ref\n" +
+					"                    LEFT JOIN _Analytique_ ana\n" +
+					"                        ON\tana.CbMarq_Ligne = docL.cbMarq\n" +
+					"                    WHERE\tdocE.cbMarq = @cbMarq";
+    public static final String getReglementByFacture = "" +
+			"DECLARE @cbMarq INT = ?;\n" +
+			"\n" +
+			"SELECT A.RG_No\n" +
+			"FROM F_CREGLEMENT A\n" +
+			"INNER JOIN (SELECT  DO_Domaine,DO_Type,DO_Piece,RG_No\n" +
+			"            FROM    F_REGLECH\n" +
+			"            GROUP BY DO_Domaine,DO_Type,DO_Piece,RG_No)B ON A.RG_No=B.RG_No\n" +
+			"INNER JOIN (SELECT\tDO_Domaine,DO_Type,DO_Piece,cbMarq\n" +
+			"\t\t\tFROM\tF_DOCENTETE) E\n" +
+			"\tON\tB.DO_Domaine = E.DO_Domaine\n" +
+			"\tAND B.DO_Type = E.DO_Type\n" +
+			"\tAND B.DO_Piece = E.DO_Piece\n" +
+			"WHERE\tE.cbMarq = @cbMarq";
+
     public static final String getEnteteTable //
             =   "DECLARE @doDomaine INT = ?\n" +
 			"        DECLARE @doccurent_type INT = ?\n" +
@@ -692,8 +790,8 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"\t\t\tAND     (CASE WHEN @doType=6 AND DO_Type IN(6,7) THEN 1\n" +
 			"\t\t\t\t\t\t\tWHEN @doType=16 AND DO_Type IN(16,17) THEN 1\n" +
 			"\t\t\t\t\t\t\tWHEN DO_Type NOT IN (16,6) AND @doType=DO_Type THEN 1 END) = 1;\n" +
-			"\t\t\tSELECT\t@numberEntete = SUBSTRING(@doPiece, PATINDEX('%[0-9]%', @doPiece), LEN(@doPiece))+1\n" +
-			"\t\t\t\t\t,@letterEntete = SUBSTRING(@doPiece, 0, (LEN(@doPiece) - LEN(@numberEntete))+1)\n" +
+			"\t\t\tSELECT\t@numberEntete = SUBSTRING(@letterEntete, PATINDEX('%[0-9]%', @letterEntete), LEN(@letterEntete))+1\n" +
+			"\t\t\t\t\t,@letterEntete = SUBSTRING(@letterEntete, 0, (LEN(@letterEntete) - LEN(@numberEntete))+1)\n" +
 			"\t\t\tSELECT DO_Piece = CONCAT(@letterEntete,@numberEntete)\n" +
 			"\t\tEND";
 
@@ -919,6 +1017,465 @@ public class FDocEnteteMapper extends ObjectMapper {
 					"                    LEFT JOIN (SELECT * FROM F_EMODELER EM WHERE N_Reglement=1) EM ON EM.MR_No = M.MR_No\n"+
 					"                    WHERE CT_Num=?";
 
+	public static final String saisie_comptable = "DECLARE @cbMarq AS INT;\n" +
+			"DECLARE @pLigneNeg INT;\n" +
+			"SELECT @pLigneNeg = P_LigneNeg FROM P_PARAMETRECIAL;\n" +
+			"\n" +
+			"SET @cbMarq = ?;\n" +
+			"\n" +
+			"\n" +
+			"WITH _MontantRegle_ AS (\n" +
+			"\tSELECT  ROUND(ISNULL(SUM(DL_MontantTTC),0),2) montantRegle,e.cbMarq\n" +
+			"\tFROM    F_DOCENTETE E                    \n" +
+			"\tLEFT JOIN F_DOCLIGNE D \n" +
+			"\t\tON  E.cbDO_Piece = D.cbDO_Piece\t\t\n" +
+			"\t\tAND E.DO_Domaine = D.DO_Domaine \n" +
+			"\t\tAND E.DO_Type = D.DO_Type\n" +
+			"\tWHERE   E.cbMarq = @cbMarq\n" +
+			"\tGROUP BY e.cbMarq\n" +
+			")\n" +
+			",_Avance_ AS (\n" +
+			"SELECT    ROUND(ISNULL(SUM(RC_Montant),0),2) avance_regle,e.cbMarq\n" +
+			"FROM    F_DOCENTETE E                    \n" +
+			"LEFT JOIN F_REGLECH D \n" +
+			"    ON  E.cbDO_Piece = D.cbDO_Piece \n" +
+			"    AND E.DO_Domaine = D.DO_Domaine \n" +
+			"    AND E.DO_Type = D.DO_Type\n" +
+			"WHERE E.cbMarq = @cbMarq\n" +
+			"GROUP BY e.cbMarq\n" +
+			")\n" +
+			",_Taxe_ AS (\n" +
+			"    SELECT\tT.TA_Code\n" +
+			"            ,T.cbTA_Code\n" +
+			"            ,T.CG_Num\n" +
+			"            ,C.CG_Tiers\n" +
+			"\t\t\t,T.TA_Provenance\n" +
+			"    FROM F_TAXE T\n" +
+			"    LEFT JOIN F_COMPTEG C \n" +
+			"        ON T.cbCG_Num = C.cbCG_Num\n" +
+			")\n" +
+			",_InfoTaxe_ AS (\n" +
+			"\tSELECT  COMPTEG_ARTICLE = ISNULL(ACP_ComptaCPT_CompteG,FCP_ComptaCPT_CompteG) \n" +
+			"        ,Cg.CG_Tiers CG_TiersArticle,CodeTaxe1 = TU.TA_Code,CG_NumTaxe1 = TU.CG_Num\n" +
+			"        ,CG_Tiers1 = TU.CG_Tiers,CodeTaxe2 = TD.TA_Code,CG_NumTaxe2 = TD.CG_Num,CG_Tiers2 = TD.CG_Tiers \n" +
+			"        ,CodeTaxe3 = TT.TA_Code,CG_NumTaxe3 = TT.CG_Num,CG_Tiers3 = TT.CG_Tiers\n" +
+			"\t\t,TA_Provenance1 = TU.TA_Provenance\n" +
+			"\t\t,TA_Provenance2 = TD.TA_Provenance\n" +
+			"\t\t,TA_Provenance3 = TT.TA_Provenance\n" +
+			"\t\t,Art.AR_Ref\n" +
+			"\t\t,FCP_Champ\n" +
+			"\t\t,FCP_Type\n" +
+			"\tFROM    F_ARTICLE Art \n" +
+			"\tLEFT JOIN F_FAMCOMPTA F \n" +
+			"\t\tON  Art.cbFA_CodeFamille = F.cbFA_CodeFamille  \n" +
+			"\tLEFT JOIN F_ARTCOMPTA A \n" +
+			"\t\tON  A.cbAR_Ref = Art.cbAR_Ref \n" +
+			"\t\tAND ISNULL(ACP_Champ,FCP_Champ) =FCP_Champ \n" +
+			"\t\tAND ISNULL(ACP_Type,FCP_Type)=FCP_Type \n" +
+			"\tLEFT JOIN F_COMPTEG Cg \n" +
+			"\t\tON  Cg.CG_Num = ISNULL(ACP_ComptaCPT_CompteG,FCP_ComptaCPT_CompteG)\n" +
+			"\tLEFT JOIN _Taxe_ TU \n" +
+			"\t\tON TU.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe1,'')  <> ISNULL(ACP_ComptaCPT_Taxe1,'')AND ACP_ComptaCPT_Taxe1 IS NOT NULL THEN\n" +
+			"\t\t\t\t\t\t\tACP_ComptaCPT_Taxe1 ELSE FCP_ComptaCPT_Taxe1 END)\n" +
+			"\tLEFT JOIN _Taxe_ TD \n" +
+			"\t\tON TD.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe2,'')  <> ISNULL(ACP_ComptaCPT_Taxe2,'')  AND ACP_ComptaCPT_Taxe2 IS NOT NULL THEN \n" +
+			"\t\t\t\t\t\t\t\tACP_ComptaCPT_Taxe2 ELSE FCP_ComptaCPT_Taxe2 END) \n" +
+			"\tLEFT JOIN _Taxe_ TT \n" +
+			"\t\tON TT.cbTA_Code = (CASE WHEN ISNULL(FCP_ComptaCPT_Taxe3,'')  <> ISNULL(ACP_ComptaCPT_Taxe3,'')  AND ACP_ComptaCPT_Taxe3 IS NOT NULL THEN \n" +
+			"\t\t\t\t\tACP_ComptaCPT_Taxe3 ELSE FCP_ComptaCPT_Taxe3 END) \n" +
+			")\n" +
+			",_docEntete_ AS (\n" +
+			"\tSELECT\tnomFichier =''\n" +
+			"\t\t\t,JO_Num = CASE WHEN docE.DO_Domaine = 0 THEN \n" +
+			"\t\t\t\t\t\t\t\t(SELECT JO_Num \n" +
+			"\t\t\t\t\t\t\t\tFROM P_SOUCHEVENTE \n" +
+			"\t\t\t\t\t\t\t\tWHERE S_Intitule<>'' AND S_Valide=1 AND cbIndice-1 = docE.DO_Souche)\n" +
+			"\t\t\t\t\t\t\tELSE \n" +
+			"\t\t\t\t\t\t\t\t(SELECT JO_Num  \n" +
+			"\t\t\t\t\t\t\t\tFROM P_SOUCHEACHAT \n" +
+			"\t\t\t\t\t\t\t\tWHERE S_Intitule<>'' AND S_Valide=1 AND cbIndice-1 = docE.DO_Souche)\n" +
+			"\t\t\t\t\t    END\n" +
+			"\t\t\t,docE.DO_Date\n" +
+			"\t\t\t,Annee_Exercice = CAST(YEAR(docE.DO_Date) AS NVARCHAR(10)) + RIGHT('0'+ CAST(MONTH(docE.DO_Date) AS NVARCHAR(10)),2)\n" +
+			"\t\t\t,EC_Jour = DAY(docE.DO_Date)\n" +
+			"\t\t\t,EC_RefPiece = docE.DO_Piece\n" +
+			"\t\t\t,EC_Reference = docE.DO_Ref\n" +
+			"\t\t\t,CG_Num  = ISNULL(cptT.CG_NumPrinc,'')\n" +
+			"\t\t\t,EC_Sens =\tCASE WHEN docE.DO_Domaine = 0 AND cptT.CT_Num IS NULL THEN \n" +
+			"\t\t\t\t\t\t\t\t\tCASE WHEN docE.DO_Provenance IN (2) AND @pLigneNeg = 1 THEN 0 ELSE 1 END\n" +
+			"\t\t\t\t\t\t\t WHEN docE.DO_Domaine = 1 AND cptT.CT_Num IS NOT NULL THEN \n" +
+			"\t\t\t\t\t\t\t\t\tCASE WHEN DO_Provenance IN (2) AND @pLigneNeg = 1 THEN 0 ELSE 1 END\n" +
+			"\t\t\t\t\t\tELSE \n" +
+			"\t\t\t\t\t\t\tCASE WHEN DO_Provenance IN (2) AND @pLigneNeg = 1 THEN 1 ELSE 0 END\n" +
+			"\t\t\t\t\t\tEND\n" +
+			"\t\t\t,EC_StatusRegle = CASE WHEN abs(mor.montantRegle - ava.avance_regle)<5 THEN 2 ELSE 0 END\n" +
+			"\t\t\t,EC_MontantRegle = CASE WHEN ava.avance_regle<>0 THEN ava.avance_regle ELSE 0 END\n" +
+			"\t\t\t,MontantRegle = CASE WHEN DO_Provenance IN (1,2) AND @pLigneNeg = 0 THEN \n" +
+			"\t\t\t\t\t\t\t\t\t-mor.MontantRegle\n" +
+			"\t\t\t\t\t\t\t\t\tELSE mor.MontantRegle END\n" +
+			"\t\t\t,TA_Provenance = 0\n" +
+			"\t\t\t,CG_NumCont= ISNULL(infT.COMPTEG_ARTICLE,'')\n" +
+			"\t\t\t,CT_Num = docE.DO_Tiers\n" +
+			"\t\t\t,CT_NumCont = ''\n" +
+			"\t\t\t,EC_Intitule = 'fact '+compt.CT_Intitule\n" +
+			"\t\t\t,N_Reglement = 1\n" +
+			"\t\t\t,EC_Echeance = docR.DR_Date\n" +
+			"\t\t\t,TA_Code = ''\n" +
+			"\t\t\t,CbMarq = @cbMarq\n" +
+			"\t\t\t,position = ROW_NUMBER() OVER (PARTITION BY docE.DO_Piece ORDER BY infT.COMPTEG_ARTICLE DESC)\n" +
+			"\t\tFROM F_DOCENTETE docE\n" +
+			"\t\tLEFT JOIN F_COMPTET compt\n" +
+			"\t\t    ON  compt.CT_Num = docE.DO_Tiers\n" +
+			"\t\tLEFT JOIN F_DOCREGL docR\n" +
+			"\t\t\tON\tdocR.DO_Domaine = docE.DO_Domaine\n" +
+			"\t\t\tAND\tdocR.DO_Type = docE.DO_Type\n" +
+			"\t\t\tAND\tdocR.cbDO_Piece = docE.cbDO_Piece\n" +
+			"\t\tLEFT JOIN F_DOCLIGNE docL\n" +
+			"\t\t\tON\tdocL.DO_Domaine = docE.DO_Domaine\n" +
+			"\t\t\tAND\tdocL.DO_Type = docE.DO_Type\n" +
+			"\t\t\tAND\tdocL.cbDO_Piece = docE.cbDO_Piece\n" +
+			"\t\tLEFT JOIN _InfoTaxe_ infT\n" +
+			"\t\t\tON\tinfT.FCP_Champ=docE.N_CatCompta \n" +
+			"\t\t\tAND infT.FCP_Type=docE.DO_Domaine\n" +
+			"\t\t\tAND infT.AR_Ref=docL.AR_Ref\n" +
+			"\t\tLEFT JOIN _Avance_ ava\n" +
+			"\t\t\tON ava.cbMarq = docE.cbMarq\n" +
+			"\t\tLEFT JOIN _MontantRegle_ mor\n" +
+			"\t\t\tON mor.cbMarq = docE.cbMarq\n" +
+			"\t\tLEFT JOIN F_COMPTET cptT\n" +
+			"\t\t\tON\tdocE.cbDO_Tiers = cptT.cbCT_Num\n" +
+			"\t\tWHERE docE.cbMarq = @cbMarq\n" +
+			")\n" +
+			", _Lettrage_ AS (\n" +
+			"\tSELECT  lettrage = ISNULL(lettrage,'A')\n" +
+			"\tFROM (\n" +
+			"\t\tSELECT  lettrage = CHAR(ASCII(MAX(EC_Lettrage))+1)\n" +
+			"\t\tFROM    F_ECRITUREC A\n" +
+			"\t\tWHERE   EC_Lettre=1\n" +
+			"\t\tAND\t\tCT_Num = (SELECT MAX(CT_Num) FROM _docEntete_ )\n" +
+			"\t\tAND\t\tCG_Num = (SELECT MAX(CG_Num) FROM _docEntete_ ) \n" +
+			"\t\tAND     CAST(DATEADD(DAY,A.EC_Jour-1,A.JM_Date) AS DATE) = (SELECT MAX(DO_Date) FROM _docEntete_) \n" +
+			"\t) A\n" +
+			")\n" +
+			",_docLigne_ AS (\n" +
+			"\tSELECT\tnomFichier =''\n" +
+			"\t\t\t,JO_Num = CASE WHEN docE.DO_Domaine = 0 THEN \n" +
+			"\t\t\t\t\t\t\t\t(SELECT JO_Num \n" +
+			"\t\t\t\t\t\t\t\tFROM P_SOUCHEVENTE \n" +
+			"\t\t\t\t\t\t\t\tWHERE S_Intitule<>'' AND S_Valide=1 AND cbIndice-1 = docE.DO_Souche)\n" +
+			"\t\t\t\t\t\t\tELSE \n" +
+			"\t\t\t\t\t\t\t\t(SELECT JO_Num  \n" +
+			"\t\t\t\t\t\t\t\tFROM P_SOUCHEACHAT \n" +
+			"\t\t\t\t\t\t\t\tWHERE S_Intitule<>'' AND S_Valide=1 AND cbIndice-1 = docE.DO_Souche)\n" +
+			"\t\t\t\t\t    END\n" +
+			"\t\t\t,docE.DO_Date\n" +
+			"\t\t\t,Annee_Exercice = CAST(YEAR(docE.DO_Date) AS NVARCHAR(10)) + RIGHT('0'+ CAST(MONTH(docE.DO_Date) AS NVARCHAR(10)),2)\n" +
+			"\t\t\t,EC_Jour = DAY(docE.DO_Date)\n" +
+			"\t\t\t,EC_RefPiece = docE.DO_Piece\n" +
+			"\t\t\t,EC_Reference = docE.DO_Ref\n" +
+			"\t\t\t,CG_Num=ISNULL(infT.COMPTEG_ARTICLE,'')\n" +
+			"\t\t\t,EC_Sens =\tCASE WHEN docE.DO_Domaine = 0 THEN \n" +
+			"\t\t\t\t\t\t\tCASE WHEN docE.DO_Provenance IN (2) AND @pLigneNeg = 1 THEN 0 ELSE 1 END\n" +
+			"\t\t\t\t\t\tELSE \n" +
+			"\t\t\t\t\t\t\tCASE WHEN DO_Provenance IN (2) AND @pLigneNeg = 1 THEN 1 ELSE 0 END\n" +
+			"\t\t\t\t\t\tEND\n" +
+			"\t\t\t,EC_StatusRegle = 0\n" +
+			"\t\t\t,EC_MontantRegle = 0\n" +
+			"\t\t\t,MontantRegle = (CASE WHEN docE.DO_Provenance IN (1,2) AND @pLigneNeg = 0 THEN -1 ELSE 1 END) * docL.DL_MontantHT \n" +
+			"\t\t\t,docL.DL_MontantTTC\n" +
+			"\t\t\t,TA_Provenance = ISNULL(infT.TA_Provenance1+1,0)\n" +
+			"\t\t\t,CG_NumCont  =  ISNULL(cptT.CG_NumPrinc,'')\n" +
+			"\t\t\t,CT_Num = ''\n" +
+			"\t\t\t,CT_NumCont = ISNULL(docE.DO_Tiers,'')\n" +
+			"\t\t\t,EC_Intitule = 'fact '+compt.CT_Intitule\n" +
+			"\t\t\t,N_Reglement = 0\n" +
+			"\t\t\t,EC_Echeance = ''\n" +
+			"\t\t\t,TA_Code = ISNULL(infT.CodeTaxe1,'')\n" +
+			"\t\t\t,cptT.CT_Lettrage\n" +
+			"\t\t\t,docL.AR_Ref\n" +
+			"\t\t\t,docE.N_CatCompta\n" +
+			"\t\t\t,docE.DO_Domaine\n" +
+			"\t\t\t,docE.DO_Type\n" +
+			"\t\t\t,docE.DO_Piece\n" +
+			"\t\t\t,docE.cbDO_Piece\n" +
+			"\t\t\t,CbMarq = @cbMarq\n" +
+			"\t\t\t,docE.DO_Provenance\n" +
+			"\t\t\t,CASE WHEN docL.DL_TypeTaux1=0 THEN docL.DL_MontantHT*(docL.DL_Taxe1/100) ELSE CASE WHEN docL.DL_TypeTaux1=1 THEN docL.DL_Taxe1*docL.DL_Qte ELSE docL.DL_Taxe1 END END MT_Taxe1\n" +
+			"            ,CASE WHEN docL.DL_TypeTaux2=0 THEN docL.DL_MontantHT*(docL.DL_Taxe2/100) ELSE CASE WHEN docL.DL_TypeTaux2=1 THEN docL.DL_Taxe2*docL.DL_Qte ELSE docL.DL_Taxe2 END END MT_Taxe2\n" +
+			"            ,CASE WHEN docL.DL_TypeTaux3=0 THEN docL.DL_MontantHT*(docL.DL_Taxe3/100) ELSE CASE WHEN docL.DL_TypeTaux3=1 THEN docL.DL_Taxe3*docL.DL_Qte ELSE docL.DL_Taxe3 END END MT_Taxe3\n" +
+			"                            \n" +
+			"\t\tFROM F_DOCENTETE docE\n" +
+			"\t\tLEFT JOIN F_COMPTET compt\n" +
+			"\t\t    ON  compt.CT_Num = docE.DO_Tiers\n" +
+			"\t\tLEFT JOIN F_DOCLIGNE docL\n" +
+			"\t\t\tON\tdocL.DO_Domaine = docE.DO_Domaine\n" +
+			"\t\t\tAND\tdocL.DO_Type = docE.DO_Type\n" +
+			"\t\t\tAND\tdocL.cbDO_Piece = docE.cbDO_Piece\n" +
+			"\t\tLEFT JOIN _Avance_ ava\n" +
+			"\t\t\tON ava.cbMarq = docE.cbMarq\n" +
+			"\t\tLEFT JOIN _MontantRegle_ mor\n" +
+			"\t\t\tON mor.cbMarq = docE.cbMarq\n" +
+			"\t\tLEFT JOIN F_COMPTET cptT\n" +
+			"\t\t\tON\tdocE.DO_Tiers = cptT.CT_Num\n" +
+			"\t\tLEFT JOIN _InfoTaxe_ infT\n" +
+			"\t\t\tON\tinfT.FCP_Champ=docE.N_CatCompta \n" +
+			"\t\t\tAND infT.FCP_Type=docE.DO_Domaine\n" +
+			"\t\t\tAND infT.AR_Ref=docL.AR_Ref\n" +
+			"\t\tWHERE docE.cbMarq = @cbMarq\n" +
+			")\n" +
+			",_Ligne_ AS (\n" +
+			"\tSELECT\tnomFichier,JO_Num,DO_Date,Annee_Exercice,EC_Jour,EC_RefPiece\n" +
+			"\t\t\t,EC_Reference,CG_Num,EC_Sens,EC_StatusRegle,EC_MontantRegle\n" +
+			"\t\t\t,MontantRegle = CASE WHEN DR_Montant = 0 THEN MontantRegle - DR_MontantTotal ELSE DR_Montant END\n" +
+			"\t\t\t,DL_MontantTTC = CASE WHEN DR_Montant = 0 THEN DL_MontantTTC - DR_MontantTotal ELSE DR_Montant END\n" +
+			"\t\t\t,TA_Provenance\n" +
+			"\t\t\t,CG_NumCont,CT_Num,CT_NumCont,EC_Intitule,docL.N_Reglement\n" +
+			"\t\t\t,EC_Echeance,TA_Code,CT_Lettrage,N_CatCompta,docL.DO_Domaine\n" +
+			"\t\t\t,docL.DO_Type,docL.DO_Piece,docL.cbDO_Piece,docL.CbMarq\n" +
+			"\t\t\t,docR.DR_Montant\n" +
+			"\t\t\t,docR.DR_MontantTotal,docL.DO_Provenance\n" +
+			"\tFROM\t(SELECT nomFichier,JO_Num,DO_Date,Annee_Exercice,EC_Jour,EC_RefPiece\n" +
+			"\t\t\t,EC_Reference,CG_Num,EC_Sens,EC_StatusRegle,EC_MontantRegle\n" +
+			"\t\t\t,MontantRegle = SUM (MontantRegle),DL_MontantTTC = SUM(DL_MontantTTC),TA_Provenance\n" +
+			"\t\t\t,CG_NumCont,CT_Num,CT_NumCont,EC_Intitule,docL.N_Reglement\n" +
+			"\t\t\t,EC_Echeance,TA_Code,CT_Lettrage,N_CatCompta,docL.DO_Domaine\n" +
+			"\t\t\t,docL.DO_Type,docL.DO_Piece,docL.cbDO_Piece,docL.CbMarq,docL.DO_Provenance\n" +
+			"\t\t\t\n" +
+			"\t\t\tFROM _docLigne_ docL\n" +
+			"\t\t\tGROUP BY nomFichier,JO_Num,DO_Date,Annee_Exercice,EC_Jour,EC_RefPiece\n" +
+			"\t\t\t,EC_Reference,CG_Num,EC_Sens,EC_StatusRegle,EC_MontantRegle\n" +
+			"\t\t\t,TA_Provenance\n" +
+			"\t\t\t,CG_NumCont,CT_Num,CT_NumCont,EC_Intitule,docL.N_Reglement\n" +
+			"\t\t\t,EC_Echeance,TA_Code,CT_Lettrage,N_CatCompta,docL.DO_Domaine,docL.DO_Provenance\n" +
+			"\t\t\t,docL.DO_Type,docL.DO_Piece,docL.cbDO_Piece,docL.CbMarq) docL\n" +
+			"\tLEFT JOIN (SELECT DO_Domaine,DO_Type,cbDO_Piece,DR_Date,DR_Montant,DR_MontantTotal = SUM(DR_Montant) OVER (PARTITION BY DO_Domaine,DO_Type,cbDO_Piece)\n" +
+			"\t\t\t\tFROM F_DOCREGL \n" +
+			"\t\t\t\tGROUP BY DO_Domaine,DO_Type,DR_Date,cbDO_Piece,DR_Montant) docR\n" +
+			"\t\tON\tdocR.DO_Domaine = docL.DO_Domaine\n" +
+			"\t\tAND\tdocR.DO_Type = docL.DO_Type\n" +
+			"\t\tAND\tdocR.cbDO_Piece = docL.cbDO_Piece\n" +
+			")\n" +
+			"\n" +
+			",_PivotInfoTaxe_ AS (\n" +
+			"\tSELECT COMPTEG_ARTICLE, Taxe, CodeTaxe,\n" +
+			"\t\t\t\tCG_TiersArticle, CG_Tiers1\n" +
+			"\t\t\t\t,CG_Tiers2,CG_Tiers3,CG_NumTaxe1,CG_NumTaxe2,CG_NumTaxe3,TA_Provenance1\n" +
+			"\t\t\t\t,TA_Provenance2,TA_Provenance3,AR_Ref,FCP_Champ,FCP_Type\n" +
+			"\tFROM   \n" +
+			"\t   (SELECT\tCOMPTEG_ARTICLE, CG_TiersArticle, CodeTaxe1,CodeTaxe2, CodeTaxe3, CG_Tiers1\n" +
+			"\t\t\t\t,CG_Tiers2,CG_Tiers3,CG_NumTaxe1,CG_NumTaxe2,CG_NumTaxe3,TA_Provenance1\n" +
+			"\t\t\t\t,TA_Provenance2,TA_Provenance3,AR_Ref,FCP_Champ,FCP_Type\n" +
+			"\t   FROM _InfoTaxe_) p  \n" +
+			"\tUNPIVOT  \n" +
+			"\t   (CodeTaxe FOR Taxe IN   \n" +
+			"\t\t  (CodeTaxe1, CodeTaxe2, CodeTaxe3)  \n" +
+			"\t)AS unpvt  \n" +
+			")\n" +
+			"\n" +
+			",_LigneTaxe_ AS (\n" +
+			"\n" +
+			"\t\tSELECT nomFichier\n" +
+			"\t\t\t\t,JO_Num\n" +
+			"\t\t\t\t,DO_Date\n" +
+			"\t\t\t\t,Annee_Exercice\n" +
+			"\t\t\t\t,EC_Jour\n" +
+			"\t\t\t\t,EC_RefPiece\n" +
+			"\t\t\t\t,EC_Reference\n" +
+			"\t\t\t\t,CG_Num\n" +
+			"\t\t\t\t,EC_Sens\n" +
+			"\t\t\t\t,EC_Lettrage \n" +
+			"\t\t\t\t,EC_StatusRegle \n" +
+			"\t\t\t\t,EC_MontantRegle\n" +
+			"\t\t\t\t,MontantRegle \n" +
+			"\t\t\t\t,TA_Provenance\n" +
+			"\t\t\t\t,CG_NumCont\n" +
+			"\t\t\t\t,CT_Num\n" +
+			"\t\t\t\t,CT_NumCont\n" +
+			"\t\t\t\t,EC_Intitule\n" +
+			"\t\t\t\t,N_Reglement\n" +
+			"\t\t\t\t,EC_Echeance\n" +
+			"\t\t\t\t,TA_Code\n" +
+			"\t\t\t\t,EC_MontantCredit = ROUND(SUM(EC_MontantCredit),0)\n" +
+			"\t\t\t\t,EC_MontantDebit = ROUND(SUM(EC_MontantDebit),0)\n" +
+			"\t\t\t\t,CbMarq\n" +
+			"\t\tFROM (\n" +
+			"\t\tSELECT nomFichier =''\n" +
+			"\t\t\t\t,JO_Num\n" +
+			"\t\t\t\t,DO_Date\n" +
+			"\t\t\t\t,Annee_Exercice\n" +
+			"\t\t\t\t,EC_Jour\n" +
+			"\t\t\t\t,EC_RefPiece\n" +
+			"\t\t\t\t,EC_Reference\n" +
+			"\t\t\t\t,CG_Num = ISNULL(CASE WHEN Taxe ='CodeTaxe1' THEN infT.CG_NumTaxe1\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe2' THEN infT.CG_NumTaxe2\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe3' THEN infT.CG_NumTaxe3\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tEND,'')\n" +
+			"\t\t\t\t,EC_Sens\n" +
+			"\t\t\t\t,EC_Lettrage = ''\n" +
+			"\t\t\t\t,EC_StatusRegle = 0\n" +
+			"\t\t\t\t,EC_MontantRegle = 0\n" +
+			"\t\t\t\t,MontantRegle = 0\n" +
+			"\t\t\t\t,TA_Provenance = ISNULL(CASE WHEN Taxe ='CodeTaxe1' THEN infT.TA_Provenance1+1\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe2' THEN infT.TA_Provenance2+1\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe3' THEN infT.TA_Provenance3+1\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tEND,0)\n" +
+			"\t\t\t\t,CG_NumCont \n" +
+			"\t\t\t\t,CT_Num\n" +
+			"\t\t\t\t,CT_NumCont\n" +
+			"\t\t\t\t,EC_Intitule\n" +
+			"\t\t\t\t,N_Reglement = 0\n" +
+			"\t\t\t\t,EC_Echeance = ''\n" +
+			"\t\t\t\t,TA_Code = CodeTaxe\n" +
+			"\t\t\t\t,EC_MontantCredit = (CASE WHEN docL.DO_Provenance IN (1,2) AND @pLigneNeg = 0 THEN -1 ELSE 1 END) * ROUND(CASE WHEN EC_Sens = 0 THEN \n" +
+			"\t\t\t\t\t\t\t\t\t\tISNULL(CASE WHEN Taxe ='CodeTaxe1' THEN MT_Taxe1\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe2' THEN MT_Taxe2\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe3' THEN MT_Taxe3\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tEND,0)\n" +
+			"\t\t\t\t\t\t\t\t\t\t\t ELSE 0 END,2)\n" +
+			"\t\t\t\t,EC_MontantDebit =  (CASE WHEN docL.DO_Provenance IN (1,2) AND @pLigneNeg = 0 THEN -1 ELSE 1 END) * ROUND(CASE WHEN EC_Sens = 1 THEN \n" +
+			"\t\t\t\t\t\t\t\t\t\tISNULL(CASE WHEN Taxe ='CodeTaxe1' THEN MT_Taxe1\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe2' THEN MT_Taxe2\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tWHEN Taxe ='CodeTaxe3' THEN MT_Taxe3\n" +
+			"\t\t\t\t\t\t\t\t\t\t\tEND,0)\n" +
+			"\t\t\t\t\t\t\t\t\t\t\t ELSE 0 END,2)\n" +
+			"\t\t\t\t,CbMarq = ''\n" +
+			"\t\tFROM _docLigne_ docL\n" +
+			"\t\tINNER JOIN _PivotInfoTaxe_ infT\n" +
+			"\t\t\tON\tinfT.FCP_Champ=docL.N_CatCompta \n" +
+			"\t\t\tAND infT.FCP_Type=docL.DO_Domaine\n" +
+			"\t\t\tAND infT.AR_Ref=docL.AR_Ref\n" +
+			"\t\t\t)A\n" +
+			"\t\t\tGROUP BY \n" +
+			"\t\t\t nomFichier\n" +
+			"\t\t\t\t,JO_Num\n" +
+			"\t\t\t\t,DO_Date\n" +
+			"\t\t\t\t,Annee_Exercice\n" +
+			"\t\t\t\t,EC_Jour\n" +
+			"\t\t\t\t,EC_RefPiece\n" +
+			"\t\t\t\t,EC_Reference\n" +
+			"\t\t\t\t,CG_Num\n" +
+			"\t\t\t\t,EC_Sens\n" +
+			"\t\t\t\t,EC_Lettrage \n" +
+			"\t\t\t\t,EC_StatusRegle \n" +
+			"\t\t\t\t,EC_MontantRegle\n" +
+			"\t\t\t\t,MontantRegle \n" +
+			"\t\t\t\t,TA_Provenance\n" +
+			"\t\t\t\t,CG_NumCont\n" +
+			"\t\t\t\t,CT_Num\n" +
+			"\t\t\t\t,CT_NumCont\n" +
+			"\t\t\t\t,EC_Intitule\n" +
+			"\t\t\t\t,N_Reglement\n" +
+			"\t\t\t\t,EC_Echeance\n" +
+			"\t\t\t\t,TA_Code\n" +
+			"\t\t\t\t,CbMarq\n" +
+			")\n" +
+			", _LettrageLigne_ AS (\n" +
+			"\tSELECT  lettrage = ISNULL(lettrage,'A')\n" +
+			"\tFROM (\n" +
+			"\t\tSELECT  lettrage = CHAR(ASCII(MAX(EC_Lettrage))+1)\n" +
+			"\t\tFROM    F_ECRITUREC A\n" +
+			"\t\tWHERE   EC_Lettre=1\n" +
+			"\t\tAND\t\tCT_Num = (SELECT TOP 1 CT_Num FROM _docLigne_ )\n" +
+			"\t\tAND\t\tCG_Num = (SELECT TOP 1 CG_Num FROM _docLigne_ ) \n" +
+			"\t\tAND     CAST(DATEADD(DAY,A.EC_Jour-1,A.JM_Date) AS DATE) = (SELECT TOP 1 DO_Date FROM _docLigne_) \n" +
+			"\t) A\n" +
+			")\n" +
+			",_ResultCpta_ AS (\n" +
+			"\t\n" +
+			"\tSELECT\tnomFichier\n" +
+			"\t\t\t,JO_Num\n" +
+			"\t\t\t,Annee_Exercice\n" +
+			"\t\t\t,EC_Jour\n" +
+			"\t\t\t,EC_RefPiece\n" +
+			"\t\t\t,EC_Reference\n" +
+			"\t\t\t,CG_Num\n" +
+			"\t\t\t,TA_Provenance\n" +
+			"\t\t\t,EC_StatusRegle\n" +
+			"\t\t\t,EC_MontantRegle\n" +
+			"\t\t\t,EC_Sens\n" +
+			"\t\t\t,EC_Lettrage = ISNULL((SELECT lettrage FROM _Lettrage_),'')\n" +
+			"\t\t\t,CG_NumCont\n" +
+			"\t\t\t,CT_Num\n" +
+			"\t\t\t,CT_NumCont\n" +
+			"\t\t\t,EC_Intitule\n" +
+			"\t\t\t,N_Reglement\n" +
+			"\t\t\t,EC_Echeance\n" +
+			"\t\t\t,EC_MontantCredit = CASE WHEN EC_Sens = 0 THEN (MontantRegle) ELSE 0 END\n" +
+			"\t\t\t,EC_MontantDebit = CASE WHEN EC_Sens = 1 THEN (MontantRegle) ELSE 0 END\n" +
+			"\t\t\t,TA_Code =''\n" +
+			"\tFROM\t_docEntete_\n" +
+			"\tWHERE position = 1\n" +
+			"\tUNION ALL\n" +
+			"\tSELECT\tnomFichier\n" +
+			"\t\t\t,JO_Num\n" +
+			"\t\t\t,Annee_Exercice\n" +
+			"\t\t\t,EC_Jour\n" +
+			"\t\t\t,EC_RefPiece\n" +
+			"\t\t\t,EC_Reference\n" +
+			"\t\t\t,CG_Num\n" +
+			"\t\t\t,TA_Provenance\n" +
+			"\t\t\t,EC_StatusRegle\n" +
+			"\t\t\t,EC_MontantRegle\n" +
+			"\t\t\t,EC_Sens\n" +
+			"\t\t\t,EC_Lettrage\n" +
+			"\t\t\t,CG_NumCont\n" +
+			"\t\t\t,CT_Num\n" +
+			"\t\t\t,CT_NumCont\n" +
+			"\t\t\t,EC_Intitule\n" +
+			"\t\t\t,N_Reglement\n" +
+			"\t\t\t,EC_Echeance\n" +
+			"\t\t\t,EC_MontantCredit\n" +
+			"\t\t\t,EC_MontantDebit\n" +
+			"\t\t\t,TA_Code\n" +
+			"\tFROM\t_LigneTaxe_\n" +
+			"\n" +
+			"\tUNION ALL\n" +
+			"\tSELECT\tnomFichier\n" +
+			"\t\t\t,JO_Num\n" +
+			"\t\t\t,Annee_Exercice\n" +
+			"\t\t\t,EC_Jour\n" +
+			"\t\t\t,EC_RefPiece\n" +
+			"\t\t\t,EC_Reference\n" +
+			"\t\t\t,CG_Num\n" +
+			"\t\t\t,TA_Provenance\n" +
+			"\t\t\t,EC_StatusRegle\n" +
+			"\t\t\t,EC_MontantRegle\n" +
+			"\t\t\t,EC_Sens\n" +
+			"\t\t\t,EC_Lettrage = ISNULL((SELECT lettrage FROM _LettrageLigne_),'')\n" +
+			"\t\t\t,CG_NumCont\n" +
+			"\t\t\t,CT_Num\n" +
+			"\t\t\t,CT_NumCont\n" +
+			"\t\t\t,EC_Intitule\n" +
+			"\t\t\t,N_Reglement\n" +
+			"\t\t\t,EC_Echeance\n" +
+			"\t\t\t,EC_MontantCredit = CASE WHEN EC_Sens = 0 THEN (MontantRegle) ELSE 0 END\n" +
+			"\t\t\t,EC_MontantDebit = CASE WHEN EC_Sens = 1 THEN (MontantRegle) ELSE 0 END\n" +
+			"\t\t\t,TA_Code\n" +
+			"\tFROM _Ligne_\n" +
+			")\n" +
+			"SELECT\tnomFichier\n" +
+			"\t\t,JO_Num\n" +
+			"\t\t,Annee_Exercice\n" +
+			"        ,EC_Jour\n" +
+			"\t\t,EC_RefPiece\n" +
+			"\t\t,EC_Reference\n" +
+			"\t\t,CG_Num\n" +
+			"        ,TA_Provenance\n" +
+			"\t\t,EC_StatusRegle\n" +
+			"\t\t,EC_MontantRegle\n" +
+			"\t\t,EC_Sens\n" +
+			"\t\t,EC_Lettrage\n" +
+			"\t\t,CG_NumCont\n" +
+			"        ,CT_Num\n" +
+			"\t\t,CT_NumCont\n" +
+			"\t\t,EC_Intitule\n" +
+			"\t\t,N_Reglement\n" +
+			"\t\t,EC_Echeance\n" +
+			"\t\t,EC_MontantCredit\n" +
+			"        ,EC_MontantDebit\n" +
+			"\t\t,EC_Montant = EC_MontantCredit + EC_MontantDebit\n" +
+			"\t\t,TA_Code\n" +
+			"FROM _ResultCpta_\t";
 
 	public static final String deleteEntete =
 			"\n" +

@@ -121,6 +121,21 @@ public class FDocEnteteRessource {
         return fDocEnteteDAO.getEnteteDocument(typeFac,doSouche);
     }
 
+    @GetMapping(value = "/getReglementByFacture&cbMarq={cbMarq}")
+    public Object getReglementByFacture(@PathVariable BigDecimal cbMarq) {
+        return fDocEnteteDAO.getReglementByFacture(cbMarq);
+    }
+
+    @GetMapping(value = "/getLigneMajAnalytique&cbMarq={cbMarq}")
+    public Object getLigneMajAnalytique(@PathVariable BigDecimal cbMarq){
+        return fDocEnteteDAO.getLigneMajAnalytique(cbMarq);
+    }
+
+    @GetMapping(value = "/saisie_comptable&cbMarq={cbMarq}")
+    public Object saisie_comptable(@PathVariable BigDecimal cbMarq){
+        return fDocEnteteDAO.saisie_comptable(cbMarq);
+    }
+
     @GetMapping(value = "/maj/nom={nom}&valeur={valeur}&cbMarq={cbMarq}&cbCreateur={cbCreateur}")
     public void getEnteteDocument(@PathVariable String nom,@PathVariable String valeur,@PathVariable BigDecimal cbMarq,@PathVariable String cbCreateur) {
         fDocEnteteDAO.maj(nom, FormatText.getString(valeur),cbMarq,cbCreateur);

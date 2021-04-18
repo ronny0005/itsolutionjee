@@ -94,16 +94,16 @@ public class FDocLigneRessource {
 
 
     @GetMapping(value = "/supprLigneFacture&cbMarq={cbMarq}&cbMarqSec={cbMarqSec}&typeFacture={typeFacture}&protNo={protNo}")
-    public void supprLigneFacture(@PathVariable BigDecimal cbMarq,@PathVariable BigDecimal cbMarqSec,@PathVariable String typeFacture,@PathVariable int protNo){
+    public Object supprLigneFacture(@PathVariable BigDecimal cbMarq,@PathVariable BigDecimal cbMarqSec,@PathVariable String typeFacture,@PathVariable int protNo){
         if(typeFacture.equals("Sortie") || typeFacture.equals("Entree"))
-            fDocLigneDAO.supprMvt(cbMarq,String.valueOf(protNo),typeFacture);
+            return fDocLigneDAO.supprMvt(cbMarq,String.valueOf(protNo),typeFacture);
         else
         if(typeFacture.equals("Transfert"))
-            fDocLigneDAO.supprLigneTransfert(cbMarq,cbMarqSec,typeFacture,protNo);
+            return fDocLigneDAO.supprLigneTransfert(cbMarq,cbMarqSec,typeFacture,protNo);
         else if(typeFacture.equals("Transfert_detail"))
-            fDocLigneDAO.supprTransfertDetail(cbMarq,cbMarqSec,String.valueOf(protNo));
+            return fDocLigneDAO.supprTransfertDetail(cbMarq,cbMarqSec,String.valueOf(protNo),typeFacture);
         else
-            fDocLigneDAO.supprLigneFacture(cbMarq,typeFacture,protNo);
+            return fDocLigneDAO.supprLigneFacture(cbMarq,typeFacture,protNo);
     }
 
 }

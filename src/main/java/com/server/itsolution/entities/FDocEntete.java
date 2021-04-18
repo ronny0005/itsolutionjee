@@ -544,6 +544,29 @@ public class FDocEntete {
         if(this.DO_Domaine == 0 && this.DO_Type == 6)
             this.typeFacture = "Vente";
 
+        if(this.DO_Domaine == 0 && this.DO_Type == 1)
+            this.typeFacture = "BonCommande";
+
+        if(this.DO_Domaine == 0 && this.DO_Type == 6 && this.DO_Provenance == 1){
+            this.typeFacture = "VenteRetour";
+        }
+
+        if(this.DO_Domaine == 0 && this.DO_Type == 16 && this.DO_Provenance == 1){
+            this.typeFacture = "AchatRetour";
+        }
+
+        if(this.DO_Domaine == 0 && this.DO_Type == 17 && this.DO_Provenance == 1){
+            this.typeFacture = "AchatRetourC";
+        }
+
+        if(this.DO_Domaine == 0 && this.DO_Type == 6 && this.DO_Provenance == 2){
+            this.typeFacture = "Avoir";
+        }
+
+        if(this.DO_Domaine == 4 && this.DO_Type == 44){
+            this.typeFacture = "Transfert_confirmation";
+        }
+
         if(this.DO_Domaine == 0 && this.DO_Type == 3)
             this.typeFacture = "BonLivraison";
 
@@ -564,6 +587,10 @@ public class FDocEntete {
 
         if(this.DO_Domaine == 2 && this.DO_Type == 21)
             this.typeFacture = "Sortie";
+
+        if(this.DO_Domaine == 2 && this.DO_Type == 23){
+            this.typeFacture = "Transfert";
+        }
 
         if(this.DO_Domaine == 4 && this.DO_Type == 41)
             this.typeFacture = "Transfert_detail";
@@ -591,11 +618,40 @@ public class FDocEntete {
             this.ctType = 0;
         }
 
+        if(this.typeFacture.equals("VenteT")){
+            this.DO_Domaine = 0;
+            this.DO_Type = 6;
+            this.doccurent_type = 6;
+            this.DO_Provenance=0;
+        }
         if(this.typeFacture.equals("VenteRetour" )){
             this.DO_Domaine = 0;
             this.DO_Type = 6;
             this.doccurent_type = 7;
             this.ctType = 0;
+            this.DO_Provenance = 1;
+        }
+
+        if(this.typeFacture.equals("VenteRetourT" )){
+            this.DO_Domaine = 0;
+            this.DO_Type = 6;
+            this.doccurent_type = 7;
+            this.ctType = 0;
+            this.DO_Provenance = 1;
+        }
+
+        if(this.typeFacture.equals("BonCommande")){
+            this.DO_Domaine = 0;
+            this.DO_Type = 1;
+            this.DO_Provenance = 0;
+            this.doccurent_type = 1;
+        }
+
+        if(this.typeFacture.equals("VenteRetourC")){
+            this.DO_Domaine = 0;
+            this.DO_Type = 7;
+            this.DO_Provenance = 1;
+            this.doccurent_type = 7;
         }
 
         if(this.typeFacture.equals("VenteAvoir")){
@@ -625,6 +681,21 @@ public class FDocEntete {
             this.doccurent_type = 6;
             this.ctType = 1;
         }
+
+        if(this.typeFacture.equals("AchatRetourC")){
+            this.DO_Domaine = 1;
+            this.DO_Type = 17;
+            this.DO_Provenance = 1;
+            this.doccurent_type = 7;
+        }
+
+        if(this.typeFacture.equals("AchatRetour")){
+            this.DO_Domaine = 1;
+            this.DO_Type = 16;
+            this.DO_Provenance = 1;
+            this.doccurent_type = 7;
+        }
+
 
         if(this.typeFacture.equals("Devis")){
             this.DO_Domaine = 0;
@@ -661,6 +732,13 @@ public class FDocEntete {
             this.DO_Souche =0;
         }
 
+        if(this.typeFacture.equals("Transfert_confirmation") || this.typeFacture.equals("Transfert_valid_confirmation")){
+            this.DO_Domaine  = 4;
+            this.DO_Type = 44;
+            this.doccurent_type =4;
+            this.DO_Souche =0;
+        }
+
         if(this.typeFacture.equals("Transfert_detail")){
             this.DO_Domaine  = 4;
             this.DO_Type = 41;
@@ -684,6 +762,13 @@ public class FDocEntete {
             this.ctType = 1;
         }
 
+        if(this.typeFacture.equals("AchatT")){
+            this.DO_Domaine = 1;
+            this.DO_Type = 16;
+            this.doccurent_type =6;
+            this.DO_Provenance=0;
+        }
+
         if(this.typeFacture.equals("AchatRetour" )){
             this.DO_Domaine = 1;
             this.DO_Type = 16;
@@ -696,12 +781,14 @@ public class FDocEntete {
             this.doccurent_type =6;
             this.DO_Type = 12;
             this.ctType = 1;
+            this.DO_Provenance=0;
         }
 
         if(this.typeFacture.equals("Ticket")) {
             this.DO_Domaine = 3;
             this.doccurent_type =6;
             this.DO_Type = 30;
+            this.DO_Provenance=0;
         }
     }
 

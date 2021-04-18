@@ -71,7 +71,7 @@ public class FDocLigneMapper extends ObjectMapper {
             "              DECLARE @DL_TRemPied VARCHAR(50) = ?\n" +
             "              DECLARE @DL_TRemExep VARCHAR(50) = ?\n" +
             "\t\t\t  DECLARE @AR_Ref VARCHAR(50) = ?\n" +
-            "              DECLARE @DL_Design VARCHAR(50) = ?\n" +
+            "              DECLARE @DL_Design NVARCHAR(70) = ?\n" +
             "              DECLARE @DL_Qte FLOAT = ?\n" +
             "              DECLARE @DL_QteBC FLOAT = ?\n" +
             "              DECLARE @DL_QteBL VARCHAR(50) = ?\n" +

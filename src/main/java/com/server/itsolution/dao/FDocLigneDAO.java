@@ -79,8 +79,13 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         this.getJdbcTemplate().update(updateQuery);
     }
 
-    public void supprMvt (BigDecimal cbMarq,String protNo,String typeFacture) {
+    public Object supprMvt (BigDecimal cbMarq,String protNo,String typeFacture) {
         FDocLigne fDocLigne = getFDocLigne(cbMarq);
+        JSONObject json = new JSONObject();
+        if(fDocLigne.getCbMarq()==null){
+            json.put("message","La ligne a déjà été supprimée !");
+            return json;
+        }
         FDocEnteteDAO fDocEnteteDAO = new FDocEnteteDAO(this.getDataSource());
         FArtStockDAO fArtStockDAO = new FArtStockDAO(this.getDataSource());
         FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
@@ -100,17 +105,28 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             FArtStock fArtStock = fArtStockDAO.isStock(AR_Ref,DE_No);
             fArtStockDAO.updateFArtstock(AR_Ref,DE_No,(AR_PrixAch * DL_Qte),DL_Qte,"SupprLigne",protNo);
             this.deleteLigne(cbMarq);
+
+            json.put("message","la ligne a bien été supprimée !");
+            return json;
         }
+        json.put("message","Vous n'avez pas le droit de supprimer la ligne !");
+        return json;
     }
 
-    public void supprLigneFacture(BigDecimal cbMarq,String typeFacture,int protNo){
+    public Object supprLigneFacture(BigDecimal cbMarq,String typeFacture,int protNo){
 
+        JSONObject json = new JSONObject();
         FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(protNo);
         FDocEnteteDAO fDocEnteteDAO = new FDocEnteteDAO(this.getDataSource());
         FDocLigneDAO fDocLigneDao = new FDocLigneDAO(this.getDataSource());
         FArticleDAO fArticleDAO = new FArticleDAO(this.getDataSource());
         FDocLigne fDocLigne = getFDocLigne (cbMarq);
+        if(fDocLigne.getCbMarq()==null)
+        {
+            json.put("message","la ligne a déjà été supprimée !");
+            return json;
+        }
         FDocEntete fDocEntete = fDocEnteteDAO.getFDocEntete(fDocLigneDao.getCbMarqEntete(cbMarq));
         int isSecurite = fProtectioncialDAO.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),fDocEntete.getDE_No());
         boolean isVisu = fDocEntete.isVisu(fProtectioncial.getPROT_Administrator(),fProtectioncial.protectedType(typeFacture),fProtectioncial.getPROT_APRES_IMPRESSION(),isSecurite);
@@ -156,15 +172,24 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                 }
             }
 
+            json.put("message","la ligne a bien été supprimée !");
+            return json;
         }
+        json.put("message","Vous n'avez pas le droit de supprimer la ligne !");
+        return json;
     }
 
-    public void supprLigneTransfert(BigDecimal cbMarq,BigDecimal cbMarqSec,String typeFacture,int protNo){
+    public Object supprLigneTransfert(BigDecimal cbMarq,BigDecimal cbMarqSec,String typeFacture,int protNo){
         FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(protNo);
         FDocEnteteDAO fDocEnteteDAO = new FDocEnteteDAO(this.getDataSource());
         FDocLigneDAO fDocLigneDao = new FDocLigneDAO(this.getDataSource());
         FDocLigne fDocLigne = getFDocLigne (cbMarq);
+        JSONObject json = new JSONObject();
+        if(fDocLigne.getCbMarq()==null){
+            json.put("message","La ligne a déjà été supprimée !");
+            return json;
+        }
         FDocEntete fDocEntete = fDocEnteteDAO.getFDocEntete(fDocLigneDao.getCbMarqEntete(cbMarq));
         int isSecurite = fProtectioncialDAO.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),fDocEntete.getDE_No());
         boolean isVisu = fDocEntete.isVisu(fProtectioncial.getPROT_Administrator(),fProtectioncial.protectedType(typeFacture),fProtectioncial.getPROT_APRES_IMPRESSION(),isSecurite);
@@ -212,7 +237,12 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                     ,0,fDocLigneSec.getDL_MontantTTC(),String.valueOf(fDocLigneSec.getCbMarq()),"F_DOCLIGNE",String.valueOf(protNo));
             fDocLigneDao.deleteLigne(cbMarq);
             fDocLigneDao.deleteLigne(cbMarqSec);
+
+            json.put("message","la ligne a bien été supprimée !");
+            return json;
         }
+        json.put("message","Vous n'avez pas le droit de supprimer la ligne !");
+        return json;
     }
 
 
@@ -452,7 +482,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             double DL_QteBC = dlQte;
             double EU_Qte = dlQte;
             double DL_CMUP = AR_PrixAch;
-            if(AR_PrixAch==0)
+            if(AR_PrixAch==0 && !typeFacture.equals("BonCommande"))
                 DL_CMUP = fArticle.getAR_PrixAch();
             if (typeFacture.equals("PreparationCommande")) {
                 DL_QtePL = 0;
@@ -485,6 +515,9 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                 if(controle != null)
                     return controle;
             }
+
+            AR_PrixAch = (double)Math.round((double)AR_PrixAch*100)/100;
+            DL_CMUP = (double)Math.round((double)DL_CMUP*100)/100;
             fDocLigne.setDL_Qte(dlQte);
             fDocLigne.setDL_QteBC(DL_QteBC);
             fDocLigne.setDL_QteBL(DL_QteBL);
@@ -498,7 +531,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             if(typeFacture.equals("BonCommande"))
                 fDocLigne.setDL_PrixRU(0);
             else
-                fDocLigne.setDL_PrixRU(Math.round(AR_PrixAch*100)/100);
+                fDocLigne.setDL_PrixRU(AR_PrixAch);
             fDocLigne.setDL_PUTTC(puttc);
             fDocLigne.setDL_MontantHT(montantHT);
             fDocLigne.setDL_MontantTTC(DL_MontantTTC);
@@ -510,7 +543,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             fDocLigne.setDL_TypeTaxe1(TypeTaxe1);
             fDocLigne.setDL_TypeTaxe2(TypeTaxe2);
             fDocLigne.setDL_TypeTaxe3(TypeTaxe3);
-            fDocLigne.setDL_CMUP(Math.round(DL_CMUP*100)/100);
+            fDocLigne.setDL_CMUP(DL_CMUP);
             fDocLigne.setMACHINEPC(machineName);
             fDocLigne.setCbCreateur(String.valueOf(protNo));
             majLigne(fDocLigne);
@@ -586,6 +619,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         DO_Date = fDocEntete.getDO_Date();
         String do_ref = fDocEntete.getDO_Ref();
         initVariables(fDocLigne);
+
+        AR_PrixAch = (double)Math.round((double)AR_PrixAch*100)/100;
         fDocLigne.setDL_MvtStock(mvtStock);
         fDocLigne.setDO_Domaine(fDocEntete.getDO_Domaine());
         fDocLigne.setDO_Type(fDocEntete.getDO_Type());
@@ -663,6 +698,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         if (fArticle.getAR_UniteVen() != null)
             U_Intitule = (pUniteDAO.getUniteByIndice(fArticle.getAR_UniteVen())).getU_Intitule();
 
+        AR_PrixAch = (double)Math.round((double)AR_PrixAch*100)/100;
         FDocLigne fDocLigne = new FDocLigne();
         initVariables(fDocLigne);
         fDocLigne.setDL_MvtStock(mvtStock);
@@ -804,17 +840,20 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             if (fArtStock != null) {
                 AS_MontSto = fArtStock.getAS_MontSto();
                 AS_QteSto = fArtStock.getAS_QteSto();
-                if (!typeFacture.equals("PreparationCommande"))
-                if (AS_QteSto > 0)
-                        AR_PrixAch = (double)(AS_MontSto / AS_QteSto);
-                else if (typeFacture.equals("AchatRetour")) {
-                    if (AS_QteSto != 0) {
-                        AR_PrixAch = (double)(AS_MontSto / AS_QteSto);
+                if(fDocEntete.getDO_Domaine() == 0)
+                    if (!typeFacture.equals("PreparationCommande")) {
+                        if (AS_QteSto > 0)
+                            AR_PrixAch = (double) (AS_MontSto / AS_QteSto);
+                        else
+                            if (!typeFacture.equals("VenteRetour") && !typeFacture.equals("Entree"))
+                                AR_PrixAch = 0;
                     }
-                } else {
-                    if (!typeFacture.equals("VenteRetour") && !typeFacture.equals("Entree"))
-                        AR_PrixAch = 0;
-                }
+
+                if(fDocEntete.getDO_Domaine() == 1)
+                    if (typeFacture.equals("AchatRetour")) {
+                            if (AS_QteSto != 0)
+                                AR_PrixAch = (double) (AS_MontSto / AS_QteSto);
+                    }
             }
             AS_MontSto = 0;
 
@@ -838,13 +877,13 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             double DL_QteBC = dlQte;
             double EU_Qte = dlQte;
             double DL_CMUP = AR_PrixAch;
-            if(AR_PrixAch==0)
+            if(AR_PrixAch==0 && !typeFacture.equals("BonCommande"))
                 DL_CMUP = fArticle.getAR_PrixAch();
             if (typeFacture.equals("PreparationCommande") || typeFacture.equals("BonCommande")) {
-                do_dateBL = "1900-01-01";
                 do_datePL = "1900-01-01";
-                if(typeFacture.equals("BonCommande")){
-                    do_dateBC = "1900-01-01";
+                do_dateBC = "1900-01-01";
+                if(!typeFacture.equals("BonCommande")){
+                    do_dateBL = "1900-01-01";
                     DL_QtePL = 0;
                     DL_CMUP = 0;
                 }
@@ -863,7 +902,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                 DL_QtePL = 0;
                 DL_QteBL = dlQte;
                 DL_CMUP = AR_PrixAch;
-                mvtStock = 1;
+                if(typeFacture.equals("AchatPreparationCommande"))
+                    mvtStock = 0;
             }
             AR_PrixAch = (double)Math.round((double)AR_PrixAch*100)/100;
             DL_CMUP = (double)Math.round((double)DL_CMUP*100)/100;
@@ -890,7 +930,10 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             fDocLigne.setDL_Taxe2(taxe2);
             fDocLigne.setDL_Taxe3(taxe3);
             fDocLigne.setCO_No(coNo);
-            fDocLigne.setDL_PrixRU(AR_PrixAch);
+            if(typeFacture.equals("BonCommande"))
+                fDocLigne.setDL_PrixRU(0);
+            else
+                fDocLigne.setDL_PrixRU(AR_PrixAch);
             fDocLigne.setEU_Enumere(U_Intitule);
             fDocLigne.setDE_No(deNo);
             fDocLigne.setDL_PUTTC(puttc);
@@ -919,7 +962,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                 fDocLigne.setDL_NoColis(String.valueOf(fDocEntete.getN_CatCompta()));
             insertLigne(fDocLigne);
             this.getLigneFactureDernierElement(fDocLigne);
-            if (typeFacture.equals("Achat") || typeFacture.equals("AchatRetour"))
+            if (typeFacture.equals("Achat") || typeFacture.equals("AchatRetour") || typeFacture.equals("PreparationCommande"))
                 dlQte = -dlQte;
             if(fArticle.getAR_SuiviStock()!=0)
                 majStock(fArticle, deNo, typeFacture, -dlQte, -(AR_PrixAch * dlQte),"insertLigne",String.valueOf(protNo));
@@ -936,7 +979,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
     }
 
     public void majStock (FArticle fArticle,int deNo,String typeFacture,double qte,double montant,String action,String protNo){
-        if (!typeFacture.equals("PreparationCommande")  && !typeFacture.equals("Devis") && !typeFacture.equals("Avoir"))
+        if (/*!typeFacture.equals("PreparationCommande")  && */!typeFacture.equals("Devis") && !typeFacture.equals("BonCommande") && !typeFacture.equals("Avoir"))
             fArtStockDAO.updateFArtstock(fArticle.getAR_Ref(),deNo,montant,qte,action,protNo);
 
         if (typeFacture.equals("PreparationCommande")) {
@@ -973,14 +1016,30 @@ public class FDocLigneDAO extends JdbcDaoSupport {
     }
 
 
-    public void supprTransfertDetail (BigDecimal cbMarq,BigDecimal cbMarqSec,String protNo){
+    public Object supprTransfertDetail (BigDecimal cbMarq,BigDecimal cbMarqSec,String protNo,String typeFacture){
+        JSONObject json = new JSONObject();
         FDocLigne fDocLigne = getFDocLigne(cbMarq);
         FDocLigne fDocLigneSec = getFDocLigne(cbMarqSec);
+        FProtectioncialDAO fProtectioncialDao = new FProtectioncialDAO(this.getDataSource());
+        FProtectioncial fProtectioncial = fProtectioncialDao.connexionProctectionByProtNo(Integer.parseInt(protNo));
+        if(fDocLigne.getCbMarq()==null && fDocLigneSec.getCbMarq()==null)
+        {
+            json.put("message","la ligne a déjà été supprimée !");
+            return json;
+        }
+        int isSecurite = fProtectioncialDAO.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),fDocEntete.getDE_No());
+        boolean isVisu = fDocEntete.isVisu(fProtectioncial.getPROT_Administrator(),fProtectioncial.protectedType(typeFacture),fProtectioncial.getPROT_APRES_IMPRESSION(),isSecurite);
+        if(isVisu==false){
         FArtStockDAO fArtStockDAO = new FArtStockDAO(this.getDataSource());
         fArtStockDAO.updateFArtstock(fDocLigne.getAR_Ref(), fDocLigne.getDE_No(),(fDocLigne.getDL_CMUP()*fDocLigne.getDL_Qte()),fDocLigne.getDL_Qte(),"SupprLigne",protNo);
         fArtStockDAO.updateFArtstock(fDocLigneSec.getAR_Ref(), fDocLigneSec.getDE_No(),(fDocLigneSec.getDL_CMUP()*fDocLigneSec.getDL_Qte()),fDocLigneSec.getDL_Qte(),"SupprLigne",protNo);
         deleteLigne(cbMarq);
         deleteLigne(cbMarqSec);
+        json.put("message","la ligne a bien été supprimée !");
+        return json;
+    }
+        json.put("message","Vous n'avez pas le droit de supprimer la ligne !");
+        return json;
     }
 
     public Object ajoutLigneTransfertDetail(double qte,double prix,double qteDest,double prixDest,BigDecimal cbMarqEntete,int protNo,String acte,String arRef,String arRefDest,String machineName) {
