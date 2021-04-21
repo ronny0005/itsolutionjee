@@ -1274,6 +1274,8 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             List<Object> list = null;
             do_piece = this.getEnteteDocument(typeFacture, doSouche);
 
+            fDocEntete.setLI_No(0);
+            fDocEntete.setCO_NoCaissier(0);
             if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1) {
                 FComptetDAO fComptetDAO = new FComptetDAO(this.getDataSource());
                 int ctType = 0;
@@ -1302,10 +1304,10 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
                     liNo = fComptetDAO.getFLivraisonByCTNum(client);
                 fDocEntete.setDefaultValueVente(fComptet);
                 fDocEntete.setDefaultValueAchat(fComptet);
-                fDocEntete.setInfoAjoutEntete();
                 fDocEntete.setLI_No(liNo);
                 fDocEntete.setCO_NoCaissier(fCaisse.getCO_NoCaissier());
             }
+            fDocEntete.setInfoAjoutEntete();
             fDocEntete.setDO_Tiers(client);
             if (typeFacture.equals("Entree") || typeFacture.equals("Sortie"))
                 fDocEntete.setDO_Tiers(String.valueOf(deNo));
@@ -1331,7 +1333,8 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
             fDocEntete.setCbCreateur(String.valueOf(protNo));
 
             if (fDocEntete.getDO_Domaine() != 0 && fDocEntete.getDO_Domaine() != 1) {
-                if (fDocEntete.getTypeFacture().equals("Entree") || fDocEntete.getTypeFacture().equals("Sortie"))
+                if (fDocEntete.getTypeFacture().equals("Entree") || fDocEntete.getTypeFacture().equals("Sortie") || fDocEntete.getTypeFacture().equals("Transfert") || fDocEntete.getTypeFacture().equals("Transfert_detail")
+                        || fDocEntete.getTypeFacture().equals("Transfert_valid_confirmation")  || fDocEntete.getTypeFacture().equals("Transfert_confirmation"))
                     fDocEntete.setDO_DateLivr("1900-01-01");
                 fDocEntete.setValueMvt();
             }
@@ -1364,7 +1367,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
     }
 
 
-    public void majLigneByCbMarq(String champ,String value,int cbMarq,int protNo){
+    public void majLigneByCbMarq(String champ,String value,BigDecimal cbMarq,int protNo){
         String sql = "DECLARE @cbMarq INT = "+cbMarq+";\n" +
                 "                    DECLARE @protNo INT = "+protNo+";\n" +
                 "                    DECLARE @value NVARCHAR(50) = '"+value+"';\n" +

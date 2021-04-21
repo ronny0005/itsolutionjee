@@ -161,7 +161,7 @@ public class FDocEnteteRessource {
     }
 
     @GetMapping(value = "/majLigneByCbMarq&champ={champ}&value={value}&cbMarq={cbMarq}&protNo={protNo}")
-    public void majLigneByCbMarq(@PathVariable String champ,@PathVariable String value,@PathVariable int cbMarq,@PathVariable int protNo) {
+    public void majLigneByCbMarq(@PathVariable String champ,@PathVariable String value,@PathVariable BigDecimal cbMarq,@PathVariable int protNo) {
         fDocEnteteDAO.majLigneByCbMarq(champ,value,cbMarq,protNo);
     }
     @GetMapping(value = "/isRegleFullDOPiece&cbMarq={cbMarq}")

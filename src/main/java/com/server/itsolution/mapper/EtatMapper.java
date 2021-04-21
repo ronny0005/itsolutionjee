@@ -1567,168 +1567,247 @@ public class EtatMapper extends ObjectMapper {
                     ")";
 
     public static String top10Vente =
-                    "                DECLARE @period AS NVARCHAR(10) = ?; \n" +
-                    "                DECLARE @time AS INT = ?; \n" +
-                    "                DECLARE @admin INT = 0;\n" +
-                    "                DECLARE @PROT_No INT = ?;\n" +
-                    "                CREATE TABLE #TMPDEPOT (DE_No INT);\n" +
-                    "                IF (SELECT CASE WHEN PROT_Administrator = 1 THEN 1\n" +
-                    "                                WHEN PROT_Right = 1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No = @PROT_No) = 1\n" +
-                    "                                INSERT INTO #TMPDEPOT\n" +
-                    "                                SELECT DE_No \n" +
-                    "                                FROM F_DEPOT\n" +
-                    "                ELSE\n" +
-                    "                        INSERT INTO #TMPDEPOT\n" +
-                    "                                \n" +
-                    "                            SELECT  A.DE_No\n" +
-                    "                        FROM    F_DEPOT A\n" +
-                    "                        INNER JOIN Z_DEPOTUSER B \n" +
-                    "                            ON A.DE_No = B.DE_No\n" +
-                    "                        WHERE   Prot_No=@PROT_No\n" +
-                    "                        AND IsPrincipal = 1\n" +
-                    "                        GROUP BY A.DE_No\n" +
-                    "                ;\n" +
-                    "                \n" +
-                    "                                    WITH _PrepMesureDocLigne_ AS (  \n" +
-                    "                                                          SELECT   \n" +
-                    "                                                          fDoc.DO_Piece  \n" +
-                    "                                                         ,fDoc.DO_Domaine  \n" +
-                    "                                                         ,fDoc.DO_Type  \n" +
-                    "                                                         ,fart.AR_Ref  \n" +
-                    "                                                         ,fDoc.DE_No  \n" +
-                    "                                                         ,fDoc.CT_Num  \n" +
-                    "                                                         ,(CASE WHEN (fDoc.DO_Type>=4 AND fDoc.DO_Type<=5)   \n" +
-                    "                                                         THEN -DL_MontantHT   \n" +
-                    "                                                         ELSE DL_MontantHT  \n" +
-                    "                                                         END) CAHTNet  \n" +
-                    "                                                         ,(CASE WHEN (fDoc.DO_Type>=4 AND fDoc.DO_Type<=5)   \n" +
-                    "                                                         THEN -DL_MontantTTC   \n" +
-                    "                                                         ELSE DL_MontantTTC  \n" +
-                    "                                                         END) CATTCNet  \n" +
-                    "                                                         ,(CASE WHEN (fDoc.DO_Type<5 OR fDoc.DO_Type>5)AND DL_TRemPied=0 AND DL_TRemExep =0  \n" +
-                    "                                                         AND (DL_TypePL < 2 OR DL_TypePL >3)  AND AR_FactForfait=0 THEN   \n" +
-                    "                                                         CASE WHEN fDoc.DO_Domaine = 4 THEN   \n" +
-                    "                                                         0  \n" +
-                    "                                                         ELSE CASE WHEN (fDoc.DO_Type=4) THEN  \n" +
-                    "                                                         -DL_Qte   \n" +
-                    "                                                         ELSE  \n" +
-                    "                                                         DL_Qte  \n" +
-                    "                                                         END  \n" +
-                    "                                                         END  \n" +
-                    "                                                         ELSE 0  \n" +
-                    "                                                         END) QteVendues  \n" +
-                    "                                                         ,ROUND((CASE WHEN fDoc.cbAR_Ref =convert(varbinary(255),AR_RefCompose) THEN  \n" +
-                    "                                                         (select SUM(toto)  \n" +
-                    "                                                         from (SELECT    \n" +
-                    "                                                         CASE WHEN fDoc2.DL_TRemPied = 0 AND fDoc2.DL_TRemExep = 0 THEN  \n" +
-                    "                                                         CASE WHEN (fDoc2.DL_FactPoids = 0 OR fArt2.AR_SuiviStock > 0) THEN  \n" +
-                    "                                                         CASE WHEN fDoc2.DO_Type <= 2 THEN  \n" +
-                    "                                                         fDoc2.DL_Qte * fDoc2.DL_CMUP  \n" +
-                    "                                                         ELSE  \n" +
-                    "                                                         CASE WHEN (  \n" +
-                    "                                                         fDoc2.DO_Type = 4  \n" +
-                    "                                                         )  \n" +
-                    "                                                         THEN  \n" +
-                    "                                                         fDoc2.DL_PrixRU * (-fDoc2.DL_Qte)  \n" +
-                    "                                                         ELSE  \n" +
-                    "                                                         fDoc2.DL_PrixRU * fDoc2.DL_Qte  \n" +
-                    "                                                         END  \n" +
-                    "                                                         END  \n" +
-                    "                                                         ELSE CASE WHEN (fDoc2.DO_Type = 4  \n" +
-                    "                                                         ) THEN  \n" +
-                    "                                                         fDoc2.DL_PrixRU * (-fDoc2.DL_PoidsNet) / 1000  \n" +
-                    "                                                          ELSE  \n" +
-                    "                                                         fDoc2.DL_PrixRU * fDoc2.DL_PoidsNet / 1000  \n" +
-                    "                                                         END  \n" +
-                    "                                                         END  \n" +
-                    "                                                         ELSE 0  \n" +
-                    "                                                         END  \n" +
-                    "                                                         toto  \n" +
-                    "                                                         FROM F_DOCLIGNE fDoc2 INNER JOIN F_ARTICLE fArt2 ON (fDoc2.cbAR_Ref = fArt2.cbAR_Ref)  \n" +
-                    "                                                           \n" +
-                    "                                                         WHERE fDoc.cbAR_Ref =convert(varbinary(255),fDoc2.AR_RefCompose)  \n" +
-                    "                                                         AND fDoc2.DL_Valorise<>fDoc.DL_Valorise  \n" +
-                    "                                                         AND fDoc2.cbDO_Piece=fDoc.cbDO_Piece   \n" +
-                    "                                                         AND fDoc2.DO_Type=fDoc.DO_Type  \n" +
-                    "                                                         AND fDoc2.DL_Ligne>fDoc.DL_Ligne  \n" +
-                    "                                                         AND (NOT EXISTS (SELECT TOP 1 DL_Ligne FROM F_DOCLIGNE fDoc3  \n" +
-                    "                                                         WHERE fDoc.AR_Ref = fDoc3.AR_Ref  \n" +
-                    "                                                         AND fDoc3.AR_Ref = fDoc3.AR_RefCompose  \n" +
-                    "                                                         AND fDoc3.cbDO_Piece=fDoc.cbDO_Piece  \n" +
-                    "                                                         AND fDoc3.DO_Type=fDoc.DO_Type  \n" +
-                    "                                                         AND fDoc3.DL_Ligne>fDoc.DL_Ligne  \n" +
-                    "                                                         )  \n" +
-                    "                                                         OR fDoc2.DL_Ligne < (SELECT TOP 1 DL_Ligne FROM F_DOCLIGNE fDoc3  \n" +
-                    "                                                         WHERE fDoc.AR_Ref = fDoc3.AR_Ref  \n" +
-                    "                                                         AND fDoc3.AR_Ref = fDoc3.AR_RefCompose  \n" +
-                    "                                                         AND fDoc3.cbDO_Piece=fDoc.cbDO_Piece  \n" +
-                    "                                                         AND fDoc3.DO_Type=fDoc.DO_Type  \n" +
-                    "                                                         AND fDoc3.DL_Ligne>fDoc.DL_Ligne  \n" +
-                    "                                                         )  \n" +
-                    "                                                         )  \n" +
-                    "                                                         )fcompo  \n" +
-                    "                                                         )ELSE  \n" +
-                    "                                                         CASE WHEN fDoc.DL_TRemPied = 0 AND fDoc.DL_TRemExep = 0 THEN  \n" +
-                    "                                                         CASE WHEN (fDoc.DL_FactPoids = 0 OR fArt.AR_SuiviStock > 0) THEN  \n" +
-                    "                                                         CASE WHEN fDoc.DO_Type <= 2 THEN  \n" +
-                    "                                                         fDoc.DL_Qte * fDoc.DL_CMUP  \n" +
-                    "                                                         ELSE  \n" +
-                    "                                                         CASE WHEN (  \n" +
-                    "                                                         fDoc.DO_Type = 4  \n" +
-                    "                                                         )  \n" +
-                    "                                                         THEN  \n" +
-                    "                                                         fDoc.DL_PrixRU * (-fDoc.DL_Qte)  \n" +
-                    "                                                         ELSE  \n" +
-                    "                                                         fDoc.DL_PrixRU * fDoc.DL_Qte  \n" +
-                    "                                                         END  \n" +
-                    "                                                         END  \n" +
-                    "                                                         ELSE CASE WHEN (fDoc.DO_Type = 4  \n" +
-                    "                                                         ) THEN  \n" +
-                    "                                                         fDoc.DL_PrixRU * (-fDoc.DL_PoidsNet) / 1000  \n" +
-                    "                                                          ELSE  \n" +
-                    "                                                         fDoc.DL_PrixRU * fDoc.DL_PoidsNet / 1000  \n" +
-                    "                                                         END  \n" +
-                    "                                                         END  \n" +
-                    "                                                         ELSE 0  \n" +
-                    "                                                         END  \n" +
-                    "                                                         END),0) PrxRevientU  \n" +
-                    "                                                         FROM F_DOCENTETE ent  \n" +
-                    "                                                         LEFT JOIN F_DOCLIGNE fDoc  \n" +
-                    "                                                         ON fdoc.DO_Domaine = ent.DO_Domaine   \n" +
-                    "                                                         AND fdoc.DO_Type = ent.DO_Type  \n" +
-                    "                                                         AND fdoc.DO_Piece = ent.DO_Piece  \n" +
-                    "                                                         LEFT JOIN F_ARTICLE fart  \n" +
-                    "                                                         ON fDoc.AR_Ref = fart.AR_Ref  \n" +
-                    "                                                         WHERE (CASE WHEN (@period='MONTH' AND EOMONTH(ent.DO_Date) = EOMONTH(CAST(GETDATE() AS DATE)) AND @time = 0 ) THEN 1\n" +
-                    "                                                                    WHEN (@period='MONTH' AND EOMONTH(ent.DO_Date) = EOMONTH(TRY_CAST(CONCAT(YEAR(GETDATE()),'-',@time,'-1') AS DATE)) AND @time <> 0 ) THEN 1\n" +
-                    "                                                                    WHEN (@period='DAY' AND ent.DO_Date = CAST(GETDATE() AS DATE))  AND @time = 0 THEN 1 \n" +
-                    "                                                                    WHEN (@period='DAY' AND ent.DO_Date = TRY_CAST(CONCAT(YEAR(GETDATE()),'-',MONTH(GETDATE()),'-',@time) AS DATE)) THEN 1\n" +
-                    "                                                                    ELSE 0 END) = 1\n" +
-                    "                                                         AND ent.DE_No IN (SELECT DE_No FROM #TMPDEPOT)\n" +
-                    "                                     )  \n" +
-                    "                                                         ,_MesureDocLigne_ AS (  \n" +
-                    "                                                         SELECT AR_Ref  \n" +
-                    "                                                         ,DO_Piece  \n" +
-                    "                                                         ,DO_Domaine  \n" +
-                    "                                                         ,DO_Type  \n" +
-                    "                                                         ,DE_No  \n" +
-                    "                                                         ,CT_Num  \n" +
-                    "                                                         ,CAHTNet  \n" +
-                    "                                                         ,CATTCNet  \n" +
-                    "                                                         ,QteVendues  \n" +
-                    "                                                         ,PrxRevientU  \n" +
-                    "                                                         ,Marge = CAHTNet-PrxRevientU   \n" +
-                    "                                                         FROM _PrepMesureDocLigne_  \n" +
-                    "                                                         ) \n" +
-                    "                                     SELECT TOP 10 fart.AR_Design \n" +
-                    "                                     ,CATTCNet = SUM(CATTCNet) \n" +
-                    "                                     ,Marge = SUM(Marge) \n" +
-                    "                                     ,QteVendues = SUM(QteVendues) \n" +
-                    "                                     FROM _MesureDocLigne_ mdl \n" +
-                    "                                     LEFT JOIN F_ARTICLE fart \n" +
-                    "                                     ON mdl.AR_Ref = fart.AR_Ref \n" +
-                    "                                     GROUP BY fart.AR_Design \n" +
-                    "                                     ORDER BY 2 DESC";
+                    "DECLARE @DE_No AS INT \n" +
+                    "                , @DateDeb AS DATE\n" +
+                    "                , @DateFin AS DATE\n" +
+                    "                , @Famille AS VARCHAR(50) \n" +
+                    "                , @ArticleDebut AS VARCHAR(50) \n" +
+                    "                , @ArticleFin AS VARCHAR(50) \n" +
+                    "                , @DO_Type AS INT \n" +
+                    "                , @PROT_No AS INT\n" +
+                    "                , @siteMarchand AS INT\n" +
+                    "                , @admin INT\n" +
+                    "                ,@rupture INT\n" +
+                    "                ,@typeGroup INT;\n" +
+                    "        DECLARE @period AS NVARCHAR(10) = ?; \n" +
+                    "        DECLARE @time AS INT = ?; \n" +
+                    "        CREATE TABLE #TMPDEPOT (DE_No INT)\n" +
+                    "        SET @DE_No = 0 \n" +
+                    "        \n" +
+                    "        SET @Famille = '0'\n" +
+                    "        SET @ArticleDebut = '0'\n" +
+                    "        SET @ArticleFin = '0'\n" +
+                    "        SET @DO_Type = 6\n" +
+                    "        SET @PROT_No = ?\n" +
+                    "        SET @siteMarchand = 2\n" +
+                    "        SET @rupture = 1\n" +
+                    "        SET @typeGroup = 2;\n" +
+                    "        SET NOCOUNT ON;\n" +
+                    "        SELECT @admin = CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No = @PROT_No \n" +
+                    "        IF (@admin=0)\n" +
+                    "        BEGIN \n" +
+                    "            INSERT INTO #TMPDEPOT\n" +
+                    "            SELECT\tA.DE_No \n" +
+                    "            FROM\tF_DEPOT A\n" +
+                    "            LEFT JOIN Z_DEPOTUSER D \n" +
+                    "                ON  A.DE_No=D.DE_No\n" +
+                    "            WHERE\t(1 = (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE PROT_No=@PROT_No) OR D.PROT_No =@PROT_No)\n" +
+                    "            AND     IsPrincipal = 1\n" +
+                    "            GROUP BY A.DE_No\n" +
+                    "        END\n" +
+                    "        ELSE \n" +
+                    "        BEGIN\n" +
+                    "            INSERT\tINTO #TMPDEPOT \n" +
+                    "            SELECT  DE_No \n" +
+                    "            FROM    F_DEPOT \n" +
+                    "        END ;\n" +
+                    "        \n" +
+                    "        WITH _StatArticle_ AS (\n" +
+                    "        SELECT  DE_No = CASE WHEN @rupture = 1 OR @typeGroup = 2 THEN 0 ELSE d.DE_No END\n" +
+                    "                ,DE_Intitule = CASE WHEN @rupture = 1  OR @typeGroup = 2 THEN '' ELSE d.DE_Intitule END \n" +
+                    "                ,AR_Ref = CASE WHEN @typeGroup = 1 THEN fam.FA_CodeFamille ELSE f.AR_Ref END\n" +
+                    "                ,AR_Design = CASE WHEN @typeGroup = 1 THEN fam.FA_Intitule ELSE f.AR_Design END \n" +
+                    "                ,cbAR_Ref = CASE WHEN @typeGroup = 1 THEN fam.FA_CodeFamille ELSE f.cbAR_Ref END \n" +
+                    "        ,TotCAHTNet,TotCATTCNet\n" +
+                    "        ,PRECOMPTE = TotCATTCNet-TotCAHTNet\n" +
+                    "        ,TotQteVendues\n" +
+                    "        ,TotPrxRevientU,TotPrxRevientCA\n" +
+                    "        ,PourcMargeHT = CASE WHEN TotCAHTNet=0 THEN 0 ELSE ROUND(TotPrxRevientU/TotCAHTNet*100,2) END \n" +
+                    "        ,PourcMargeTT = CASE WHEN TotCATTCNet=0 THEN 0 ELSE ROUND(TotPrxRevientCA/TotCATTCNet*100,2) END \n" +
+                    "        \n" +
+                    "        FROM\n" +
+                    "        (SELECT cbAR_Ref\n" +
+                    "                ,TotCAHTNet = SUM(CAHTNet) \n" +
+                    "                ,TotCATTCNet = SUM(CATTCNet) \n" +
+                    "                ,TotQteVendues = SUM(QteVendues) \n" +
+                    "                ,TotPrxRevientU = SUM(CAHTNet)-SUM(PrxRevientU)\n" +
+                    "                ,TotPrxRevientCA = SUM(CATTCNet)-SUM(PrxRevientU)\n" +
+                    "                ,PRECOMPTE = SUM(CATTCNet*DL_Taxe1/100) \n" +
+                    "                ,DE_No\n" +
+                    "                FROM (SELECT fDoc.cbAR_Ref,DL_Taxe1,DE_No,\n" +
+                    "                    (\tCASE WHEN (fDoc.DO_Type>=4 AND fDoc.DO_Type<=5) \n" +
+                    "                                THEN -DL_MontantHT \n" +
+                    "                                ELSE DL_MontantHT\n" +
+                    "                                END) CAHTNet,\n" +
+                    "                        (\tCASE WHEN (fDoc.DO_Type>=4 AND fDoc.DO_Type<=5) \n" +
+                    "                                THEN -DL_MontantTTC \n" +
+                    "                                ELSE DL_MontantTTC\n" +
+                    "                                END) CATTCNet,\n" +
+                    "                        ROUND((CASE WHEN fDoc.cbAR_Ref =convert(varbinary(255),AR_RefCompose) THEN\n" +
+                    "                                (select SUM(toto)\n" +
+                    "                                        from (SELECT  \n" +
+                    "                                                CASE WHEN fDoc2.DL_TRemPied = 0 AND fDoc2.DL_TRemExep = 0 THEN\n" +
+                    "                                                    CASE WHEN (fDoc2.DL_FactPoids = 0 OR fArt2.AR_SuiviStock > 0) THEN\n" +
+                    "                                                        CASE WHEN fDoc2.DO_Type <= 2 THEN\n" +
+                    "                                                            fDoc2.DL_Qte * fDoc2.DL_CMUP\n" +
+                    "                                                        ELSE\n" +
+                    "                                                            CASE WHEN (\n" +
+                    "                                                                        fDoc2.DO_Type = 4\n" +
+                    "                                                                        )\n" +
+                    "                                                            THEN\n" +
+                    "                                                                    fDoc2.DL_PrixRU * (-fDoc2.DL_Qte)\n" +
+                    "                                                            ELSE\n" +
+                    "                                                                    fDoc2.DL_PrixRU * fDoc2.DL_Qte\n" +
+                    "                                                            END\n" +
+                    "                                                        END\n" +
+                    "                                                    ELSE CASE WHEN (fDoc2.DO_Type = 4\n" +
+                    "                                                                    ) THEN\n" +
+                    "                                                            fDoc2.DL_PrixRU * (-fDoc2.DL_PoidsNet) / 1000\n" +
+                    "                                                         ELSE\n" +
+                    "                                                            fDoc2.DL_PrixRU * fDoc2.DL_PoidsNet / 1000\n" +
+                    "                                                        END\n" +
+                    "                                                    END\n" +
+                    "                                                ELSE 0\n" +
+                    "                                                END\n" +
+                    "        toto\n" +
+                    "                                            FROM F_DOCLIGNE fDoc2 INNER JOIN F_ARTICLE fArt2 ON (fDoc2.cbAR_Ref = fArt2.cbAR_Ref)\n" +
+                    "        \n" +
+                    "                                            WHERE fDoc.cbAR_Ref =convert(varbinary(255),fDoc2.AR_RefCompose)\n" +
+                    "                                                AND fDoc2.DL_Valorise<>fDoc.DL_Valorise\n" +
+                    "                                                AND fDoc2.cbDO_Piece=fDoc.cbDO_Piece \n" +
+                    "                                                AND fDoc2.DO_Type=fDoc.DO_Type\n" +
+                    "                                                AND fDoc2.DL_Ligne>fDoc.DL_Ligne\n" +
+                    "                                                AND (NOT EXISTS (SELECT TOP 1 DL_Ligne FROM F_DOCLIGNE fDoc3\n" +
+                    "                                                                    WHERE\tfDoc.AR_Ref = fDoc3.AR_Ref\n" +
+                    "                                                                            AND fDoc3.AR_Ref = fDoc3.AR_RefCompose\n" +
+                    "                                                                            AND fDoc3.cbDO_Piece=fDoc.cbDO_Piece\n" +
+                    "                                                                            AND fDoc3.DO_Type=fDoc.DO_Type\n" +
+                    "                                                                            AND fDoc3.DL_Ligne>fDoc.DL_Ligne\n" +
+                    "                                                                    )\n" +
+                    "                                                            OR fDoc2.DL_Ligne < (SELECT TOP 1 DL_Ligne FROM F_DOCLIGNE fDoc3\n" +
+                    "                                                                                    WHERE\tfDoc.AR_Ref = fDoc3.AR_Ref\n" +
+                    "                                                                                            AND fDoc3.AR_Ref = fDoc3.AR_RefCompose\n" +
+                    "                                                                                            AND fDoc3.cbDO_Piece=fDoc.cbDO_Piece\n" +
+                    "                                                                                            AND fDoc3.DO_Type=fDoc.DO_Type\n" +
+                    "                                                                                            AND fDoc3.DL_Ligne>fDoc.DL_Ligne\n" +
+                    "                                                                                )\n" +
+                    "                                                    )\n" +
+                    "                                        )fcompo\n" +
+                    "                                )ELSE\n" +
+                    "                                    CASE WHEN fDoc.DL_TRemPied = 0 AND fDoc.DL_TRemExep = 0 THEN\n" +
+                    "                                        CASE WHEN (fDoc.DL_FactPoids = 0 OR fArt.AR_SuiviStock > 0) THEN\n" +
+                    "                                            CASE WHEN fDoc.DO_Type <= 2 THEN\n" +
+                    "                                                fDoc.DL_Qte * fDoc.DL_CMUP\n" +
+                    "                                            ELSE\n" +
+                    "                                                CASE WHEN (\n" +
+                    "                                                            fDoc.DO_Type = 4\n" +
+                    "                                                            )\n" +
+                    "                                                THEN\n" +
+                    "                                                        fDoc.DL_PrixRU * (-fDoc.DL_Qte)\n" +
+                    "                                                ELSE\n" +
+                    "                                                        fDoc.DL_PrixRU * fDoc.DL_Qte\n" +
+                    "                                                END\n" +
+                    "                                            END\n" +
+                    "                                        ELSE CASE WHEN (fDoc.DO_Type = 4\n" +
+                    "                                                        ) THEN\n" +
+                    "                                                fDoc.DL_PrixRU * (-fDoc.DL_PoidsNet) / 1000\n" +
+                    "                                             ELSE\n" +
+                    "                                                fDoc.DL_PrixRU * fDoc.DL_PoidsNet / 1000\n" +
+                    "                                            END\n" +
+                    "                                        END\n" +
+                    "                                    ELSE 0\n" +
+                    "                                    END\n" +
+                    "                                END),0) PrxRevientU,\n" +
+                    "                (CASE WHEN (fDoc.DO_Type<5 OR fDoc.DO_Type>5)AND DL_TRemPied=0 AND DL_TRemExep =0\n" +
+                    "                            AND (DL_TypePL < 2 OR DL_TypePL >3)  AND AR_FactForfait=0 THEN \n" +
+                    "                                    CASE WHEN fDoc.DO_Domaine = 4 THEN \n" +
+                    "                                        0\n" +
+                    "                                        ELSE CASE WHEN (fDoc.DO_Type=4) THEN\n" +
+                    "                                                -DL_Qte \n" +
+                    "                                            ELSE\n" +
+                    "                                                DL_Qte\n" +
+                    "                                            END\n" +
+                    "                                        END\n" +
+                    "                                ELSE 0\n" +
+                    "                                END) QteVendues\n" +
+                    "                    FROM F_ARTICLE fArt INNER JOIN F_DOCLIGNE fDoc ON (fArt.cbAR_Ref = fDoc.cbAR_Ref)\n" +
+                    "                WHERE\n" +
+                    "                    ( \n" +
+                    "                                        (@DO_Type = 2 AND fDoc.DO_Type IN (30)\n" +
+                    "                    OR @DO_Type = 7 AND fDoc.DO_Type IN (7,30)\n" +
+                    "                    OR @DO_Type = 6 AND fDoc.DO_Type IN (6,7,30)\n" +
+                    "                    OR @DO_Type = 3 AND fDoc.DO_Type IN (6,7,30,3))\n" +
+                    "                    AND fDoc.DL_Valorise=1\n" +
+                    "                    AND fDoc.DL_TRemExep <2\n" +
+                    "                    AND\t\t(@Famille='0' OR FA_CodeFamille = @Famille) \n" +
+                    "                                        AND\t\t(@ArticleDebut='0' OR fDoc.AR_Ref >= @ArticleDebut) \n" +
+                    "                                        AND\t\t(@ArticleFin='0' OR fDoc.AR_Ref <= @ArticleFin) \n" +
+                    "                                        AND\t\tfDoc.DE_No IN (\tSELECT  DE_No\n" +
+                    "                                                                FROM    #TMPDEPOT)\n" +
+                    "                    AND (CASE WHEN (@period='MONTH' AND EOMONTH(fDoc.DO_Date) = EOMONTH(CAST(GETDATE() AS DATE)) AND @time = 0 ) THEN 1\n" +
+                    "                                                                            WHEN (@period='MONTH' AND EOMONTH(fDoc.DO_Date) = EOMONTH(TRY_CAST(CONCAT(YEAR(GETDATE()),'-',@time,'-1') AS DATE)) AND @time <> 0 ) THEN 1\n" +
+                    "                                                                            WHEN (@period='DAY' AND fDoc.DO_Date = CAST(GETDATE() AS DATE))  AND @time = 0 THEN 1 \n" +
+                    "                                                                            WHEN (@period='DAY' AND fDoc.DO_Date = TRY_CAST(CONCAT(YEAR(GETDATE()),'-',MONTH(GETDATE()),'-',@time) AS DATE)) THEN 1\n" +
+                    "                                                                            ELSE 0 END) = 1\n" +
+                    "                    AND fDoc.DL_NonLivre=0\n" +
+                    "                     AND fArt.AR_HorsStat = 0 \n" +
+                    "                --\t AND fArt.AR_SuiviStock>0\n" +
+                    "                )) fr\n" +
+                    "        GROUP BY cbAR_Ref,DE_No\n" +
+                    "        ) totcum\n" +
+                    "         INNER JOIN F_ARTICLE f ON (totcum.cbAR_Ref = f.cbAR_Ref) \n" +
+                    "         LEFT JOIN F_FAMILLE fam ON (f.FA_CodeFamille = fam.FA_CodeFamille) \n" +
+                    "         INNER JOIN F_DEPOT d ON (totcum.DE_No = d.DE_No)\n" +
+                    "         WHERE (CASE WHEN @siteMarchand=2 THEN f.AR_Publie ELSE @siteMarchand END) = f.AR_Publie\n" +
+                    "        )\n" +
+                    "        ,_StockReel_ AS (\n" +
+                    "            SELECT  DE_No \n" +
+                    "                    ,cbAR_Ref = CASE WHEN @typeGroup = 1 THEN fam.FA_CodeFamille ELSE arts.cbAR_Ref END \n" +
+                    "                    ,DL_Qte = SUM(AS_QteSto)\n" +
+                    "            FROM\tF_ARTSTOCK arts\n" +
+                    "            INNER JOIN F_ARTICLE art\n" +
+                    "                ON arts.AR_Ref = art.AR_Ref\n" +
+                    "            LEFT JOIN F_FAMILLE fam\n" +
+                    "                ON fam.FA_CodeFamille = art.FA_CodeFamille\n" +
+                    "            WHERE\tDE_No IN (SELECT DE_No FROM #TMPDEPOT) \n" +
+                    "            AND\t\t('0' = @ArticleDebut OR arts.AR_Ref >= @ArticleDebut)\n" +
+                    "            AND\t\t('0' = @ArticleFin OR arts.AR_Ref <= @ArticleFin)\t\t\n" +
+                    "            GROUP BY DE_No \n" +
+                    "                    ,CASE WHEN @typeGroup = 1 THEN fam.FA_CodeFamille ELSE arts.cbAR_Ref END \n" +
+                    "                    \n" +
+                    "        )\n" +
+                    "        ,_GroupData_ AS (\n" +
+                    "        SELECT\tStat.DE_No\n" +
+                    "                ,Stat.DE_Intitule\n" +
+                    "                ,Stat.AR_Ref\n" +
+                    "                ,Stat.AR_Design\n" +
+                    "                ,TotCAHTNet = SUM(Stat.TotCAHTNet)\n" +
+                    "                ,TotCATTCNet = SUM(Stat.TotCATTCNet)\n" +
+                    "                ,PRECOMPTE = SUM(Stat.PRECOMPTE)\n" +
+                    "                ,TotQteVendues = SUM(Stat.TotQteVendues)\n" +
+                    "                ,TotPrxRevientU = SUM(Stat.TotPrxRevientU)\n" +
+                    "                ,TotPrxRevientCA = SUM(Stat.TotPrxRevientCA)\n" +
+                    "                --,CASE WHEN TotCAHTNet=0 THEN 0 ELSE ROUND(TotPrxRevientU/TotCAHTNet*100,2) END PourcMargeHT\n" +
+                    "                --,CASE WHEN TotCATTCNet=0 THEN 0 ELSE ROUND(TotPrxRevientCA/TotCATTCNet*100,2) END PourcMargeTT\n" +
+                    "                ,DL_Qte = SUM(Stock.DL_Qte)\n" +
+                    "        FROM    _StatArticle_ Stat\n" +
+                    "        LEFT JOIN _StockReel_ Stock\n" +
+                    "            ON\tStat.DE_No = Stock.DE_No\n" +
+                    "            AND\tStat.cbAR_Ref = Stock.cbAR_Ref\n" +
+                    "        GROUP BY Stat.DE_No\n" +
+                    "                ,Stat.DE_Intitule\n" +
+                    "                ,Stat.AR_Ref\n" +
+                    "                ,Stat.AR_Design\n" +
+                    "        )\n" +
+                    "        \n" +
+                    "        SELECT\tTOP 10 Ligne = CASE WHEN @typeGroup = 2 THEN ROW_NUMBER() OVER (PARTITION BY DE_No ORDER BY DE_No,TotCATTCNet DESC)\n" +
+                    "                ELSE  ROW_NUMBER() OVER (PARTITION BY DE_No ORDER BY DE_No,AR_Ref) END\n" +
+                    "                ,AR_Ref\n" +
+                    "                ,AR_Design\n" +
+                    "                ,CATTCNet = TotCATTCNet\n" +
+                    "                ,Marge = TotPrxRevientU\n" +
+                    "        FROM\t_GroupData_\n" +
+                    "        ORDER BY Ligne";
 
     public static String detteDuMois =
             "CREATE TABLE #TMPDEPOT (DE_No INT)    \n" +
