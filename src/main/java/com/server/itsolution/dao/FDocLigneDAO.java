@@ -253,7 +253,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
     }
 
     public Object ajoutLigne(BigDecimal cbMarq,int protNo, double dlQte, String arRef, BigDecimal cbMarqEntete, String typeFacture,
-                             int catTarif, double dlPrix, String dlRemise, String machineName, String acte,String entetePrev) {
+                             int catTarif, double dlPrix, String dlRemise, String machineName, String acte,String entetePrev,int depotLigne) {
         JSONObject json = new JSONObject();
         int vteNegatif = 0;
         FDocEnteteDAO fDocEnteteDAO = new FDocEnteteDAO(this.getDataSource());
@@ -364,18 +364,18 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                     if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1 || typeFacture.equals("Entree") || typeFacture.equals("Sortie") || typeFacture.equals("Transfert")) {
                         if (acte.equals("ajout_ligne")) {
                             if (fDocEntete.getDO_Domaine() == 0 || fDocEntete.getDO_Domaine() == 1)
-                                return ajoutLigneFacture(typeFacture, dlQte, mvtStock, remise, type_remise, dlPrix, fArticle, catTarif, protNo, fArtStock, entetePrev, machineName, fDocEntete);
+                                return ajoutLigneFacture(typeFacture, dlQte, mvtStock, remise, type_remise, dlPrix, fArticle, catTarif, protNo, fArtStock, entetePrev, machineName, fDocEntete,depotLigne);
                             if (typeFacture.equals("Entree"))
                                 return ajoutLigneEntree(typeFacture, dlQte, 1, remise, type_remise, dlPrix, fArticle, catTarif, protNo, fArtStock, entetePrev, machineName, fDocEntete);
                             if (typeFacture.equals("Sortie"))
                                 return ajoutligneSortie(typeFacture, dlQte, 3, remise, type_remise, dlPrix, fArticle, catTarif, protNo, fArtStock, entetePrev, machineName, fDocEntete);
                         } else {
                             if (typeFacture.equals("Entree") || typeFacture.equals("Transfert") || typeFacture.equals("Sortie"))
-                                return ModifLigneStock(fDocLigne, remise, type_remise, dlPrix, typeFacture, dlQte, fArticle, catTarif
-                                        , protNo, fArtStock, machineName);
+                                return ModifLigneStock(fDocLigne, dlPrix, typeFacture, dlQte, fArticle
+                                        , protNo, machineName,fDocEntete);
                             else
                                 return ModifLigneFacturation(fDocLigne, remise, type_remise, dlPrix, typeFacture, dlQte, fArticle, catTarif
-                                        , protNo, fArtStock, machineName, fDocEntete);
+                                        , protNo, fArtStock, machineName, fDocEntete,depotLigne);
                         }
                     }
 
@@ -388,9 +388,10 @@ public class FDocLigneDAO extends JdbcDaoSupport {
     }
 
     public Object ModifLigneFacturation(FDocLigne fDocLigne,String remise,int type_remise,double dlPrix,String typeFacture,double dlQte,FArticle fArticle, int catTarif
-            ,int protNo,FArtStock fArtStock,String machineName,FDocEntete fDocEntete){
+            ,int protNo,FArtStock fArtStock,String machineName,FDocEntete fDocEntete,int depotLigne){
         double anDLCmup = fDocLigne.getDL_CMUP();
         double ADL_Qte = fDocLigne.getDL_Qte();
+        int deNoPrec = fDocLigne.getDE_No();
         double data = Double.valueOf(remise);
         String arRef = fArticle.getAR_Ref();
         if (fArticle.getAR_SuiviStock()!=0 && typeFacture.equals("AchatRetour")) {
@@ -402,6 +403,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         int deNo = fDocEntete.getDE_No();
         if (typeFacture.equals("Entree"))
             deNo = Integer.valueOf(fDocEntete.getDO_Tiers());
+        if(depotLigne != 0)
+            deNo = depotLigne;
         String caNum = fDocEntete.getCA_Num();
         String doRef = fDocEntete.getDO_Ref();
         int coNo = fDocEntete.getCO_No();
@@ -544,6 +547,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             fDocLigne.setDL_TypeTaxe2(TypeTaxe2);
             fDocLigne.setDL_TypeTaxe3(TypeTaxe3);
             fDocLigne.setDL_CMUP(DL_CMUP);
+            fDocLigne.setDE_No(deNo);
             fDocLigne.setMACHINEPC(machineName);
             fDocLigne.setCbCreateur(String.valueOf(protNo));
             majLigne(fDocLigne);
@@ -552,8 +556,14 @@ public class FDocLigneDAO extends JdbcDaoSupport {
                 ADL_Qte = -ADL_Qte;
             }
             if(fArticle.getAR_SuiviStock()!=0)
-                majStock(fArticle, deNo, typeFacture, ADL_Qte - dlQte, (anDLCmup * ADL_Qte) - (AR_PrixAch * dlQte),"modifLigne",String.valueOf(protNo));
-            return this.getLigneFactureDernierElement(fDocLigne);
+                if(deNoPrec != deNo) {
+                    majStock(fArticle, deNoPrec, typeFacture, ADL_Qte, (anDLCmup * ADL_Qte), "modifLigne", String.valueOf(protNo));
+                    majStock(fArticle, deNo, typeFacture, dlQte, (AR_PrixAch * dlQte), "modifLigne", String.valueOf(protNo));
+                }else {
+                    majStock(fArticle, deNo, typeFacture, ADL_Qte - dlQte, (anDLCmup * ADL_Qte) - (AR_PrixAch * dlQte), "modifLigne", String.valueOf(protNo));
+                }
+
+        return this.getLigneFactureDernierElement(fDocLigne);
 
     }
 
@@ -561,10 +571,10 @@ public class FDocLigneDAO extends JdbcDaoSupport {
     {
         this.getJdbcTemplate().execute("UPDATE F_DOCLIGNE SET DL_NoColis='"+dl_nocolis+"',cbModification=GETDATE() WHERE cbMarq="+cbMarq);
     }
-    public Object ModifLigneStock(FDocLigne fDocLigne,String remise,int type_remise,double dlPrix,String typeFacture,double dlQte,FArticle fArticle, int catTarif
-            ,int protNo,FArtStock fArtStock,String machineName){
+    public Object ModifLigneStock(FDocLigne fDocLigne,double dlPrix,String typeFacture,double dlQte,FArticle fArticle
+            ,int protNo,String machineName,FDocEntete fDocEntete){
         int deNo = Integer.valueOf(fDocEntete.getDO_Tiers());
-        double anDLCmup = fDocLigne.getDL_CMUP();
+        double anDLCmup = fDocLigne.getDL_PrixUnitaire();
         double ADL_Qte = fDocLigne.getDL_Qte();
 
         double AR_PrixAch = dlPrix;
@@ -578,6 +588,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
             DL_CMUP = AR_PrixAch;
             DL_PrixRU = AR_PrixAch;
         }
+        fDocLigne.setDL_CMUP(DL_CMUP);
+        fDocLigne.setDL_PrixRU(DL_PrixRU);
         fDocLigne.setDL_QtePL(dlQte);
         fDocLigne.setDL_Qte(dlQte);
         fDocLigne.setDL_QteBC(dlQte);
@@ -758,7 +770,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
 
     public Object ajoutLigneFacture(String typeFacture, double dlQte, int mvtStock, String remise, int type_remise, double dlPrix
             , FArticle fArticle, int catTarif, int protNo, FArtStock fArtStock, String entetePrev
-            , String machineName, FDocEntete fDocEntete){
+            , String machineName, FDocEntete fDocEntete,int depotLigne){
 
         String arRef = fArticle.getAR_Ref();
         if (fArticle.getAR_SuiviStock()!=0 && typeFacture.equals("AchatRetour")) {
@@ -771,6 +783,8 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         int deNo = fDocEntete.getDE_No();
         if (typeFacture.equals("Entree"))
             deNo = Integer.valueOf(fDocEntete.getDO_Tiers());
+        if(depotLigne != 0)
+            deNo = depotLigne;
         String caNum = fDocEntete.getCA_Num();
         String doRef = fDocEntete.getDO_Ref();
         int coNo = fDocEntete.getCO_No();
@@ -1312,6 +1326,7 @@ public class FDocLigneDAO extends JdbcDaoSupport {
         params.add(fDocLigne.getDL_TypeTaxe2());
         params.add(fDocLigne.getDL_TypeTaxe3());
         params.add(fDocLigne.getDL_CMUP());
+        params.add(fDocLigne.getDE_No());
         params.add(fDocLigne.getMACHINEPC());
         params.add(fDocLigne.getCbCreateur());
         params.add(fDocLigne.getCbMarq());

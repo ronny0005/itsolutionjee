@@ -85,11 +85,11 @@ public class FDocLigneRessource {
     }
 
     //http://localhost:8083/rest/fdocligne/ajoutLigne/0/20/1/LGR-34217/112156/Vente/0/1500/%20/%20/ajout/%20/
-    @GetMapping(value = "/ajoutLigne&cbMarq={cbMarq}&protNo={protNo}&dlQte={dlQte}&arRef={arRef}&cbMarqEntete={cbMarqEntete}&typeFacture={typeFacture}&catTarif={catTarif}&dlPrix={dlPrix}&dlRemise={dlRemise}&machineName={machineName}&acte={acte}&entete_prev={entete_prev}")
+    @GetMapping(value = "/ajoutLigne&cbMarq={cbMarq}&protNo={protNo}&dlQte={dlQte}&arRef={arRef}&cbMarqEntete={cbMarqEntete}&typeFacture={typeFacture}&catTarif={catTarif}&dlPrix={dlPrix}&dlRemise={dlRemise}&machineName={machineName}&acte={acte}&entete_prev={entete_prev}&depotLigne={depotLigne}")
     public Object ajoutLigne(@PathVariable BigDecimal cbMarq, @PathVariable int protNo, @PathVariable double dlQte, @PathVariable String arRef, @PathVariable BigDecimal cbMarqEntete, @PathVariable String typeFacture,
-                             @PathVariable int catTarif, @PathVariable double dlPrix, @PathVariable String dlRemise, @PathVariable String machineName, @PathVariable String acte, @PathVariable String entete_prev) {
+                             @PathVariable int catTarif, @PathVariable double dlPrix, @PathVariable String dlRemise, @PathVariable String machineName, @PathVariable String acte, @PathVariable String entete_prev,@PathVariable int depotLigne) {
             return fDocLigneDAO.ajoutLigne(cbMarq,protNo,dlQte, FormatText.getString(arRef),cbMarqEntete,typeFacture,catTarif,dlPrix, FormatText.getString(dlRemise),
-                    FormatText.getString(machineName),FormatText.getString(acte),FormatText.getString(entete_prev));
+                    FormatText.getString(machineName),FormatText.getString(acte),FormatText.getString(entete_prev),depotLigne);
     }
 
 

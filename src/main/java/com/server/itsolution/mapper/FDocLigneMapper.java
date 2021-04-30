@@ -326,7 +326,7 @@ public class FDocLigneMapper extends ObjectMapper {
                     "\t\t\t\t\t\t\t\tUPDATE F_DOCLIGNE SET DL_Qte= ? ,DL_QteBC = ?,DL_QteBL = ? ,EU_Qte = ?,DL_Remise01REM_Valeur = ?,DL_PrixUnitaire = ?\n" +
                     "\t\t\t\t\t\t\t\t,DL_Taxe1 = ?,DL_Taxe2 = ?,DL_Taxe3 = ?,DL_PrixRU = ?,DL_PUTTC = ?,DL_MontantHT = ?,DL_MontantTTC = ?,DL_Remise01REM_Type = ?\n" +
                     "\t\t\t\t\t\t\t\t,DL_QtePL = ?,DL_TTC = ?,DL_TypeTaux1 = ?,DL_TypeTaux2 = ?,DL_TypeTaux3 = ?,DL_TypeTaxe1 = ?,DL_TypeTaxe2 = ?,DL_TypeTaxe3 = ?\n" +
-                    "\t\t\t\t\t\t\t\t,DL_CMUP = ?,MACHINEPC = ?,CbCreateur = ? WHERE cbMarq = ?";
+                    "\t\t\t\t\t\t\t\t,DL_CMUP = ?,DE_No = ?,MACHINEPC = ?,CbCreateur = ? WHERE cbMarq = ?";
     public static final String getCbCreateurName =
             "SELECT Prot_User\n" +
                     "                    FROM F_DOCLIGNE A\n" +

@@ -594,9 +594,9 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                        GROUP BY DE_No,PROT_No\n" +
 			"                    ) \n" +
 			"                    ,_DocLigne_ AS (\n" +
-			"                        SELECT  cbDO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,SUM(DL_MontantTTC) DL_MontantTTC,DL_PieceBL \n" +
+			"                        SELECT  cbDO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,SUM(DL_MontantTTC) DL_MontantTTC,DL_PieceBL,DE_No \n" +
 			"                        FROM    F_DOCLIGNE L \n" +
-			"                        GROUP BY cbDO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,DL_PieceBL\n" +
+			"                        GROUP BY cbDO_Piece,DO_Type,DO_Domaine,DO_Ref,DO_Date,CT_Num,DL_PieceBL,DE_No \n" +
 			"                    )\n" +
 			"                    ,_ReglEch_ AS (\n" +
 			"                                    SELECT  DR_No, SUM(RC_MONTANT) avance \n" +
@@ -639,7 +639,7 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                        ON  E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
 			"                    WHERE ((@doProvenance=0 AND E.DO_Provenance NOT IN (1,2,4)) OR (@doProvenance<>0 AND E.DO_Provenance = @doProvenance))\n" +
 			"                    AND E.DO_Domaine=@doDomaine AND ((@doType = 67 AND E.DO_Type IN (6,7)) OR E.DO_Type=@doType OR (@doType = 1617 AND E.DO_Type IN (16,17)) ) \n" +
-			"                    AND ((0=@deNo AND E.DE_No IN (SELECT DE_No FROM  _Depot_)) OR E.DE_No =@deNo)  \n" +
+			"                    AND ((0=@deNo AND L.DE_No IN (SELECT DE_No FROM  _Depot_)) OR L.DE_No =@deNo)  \n" +
 			"                    AND ('0'=@client OR E.DO_Tiers =@client) \n" +
 			"                    AND CAST(E.DO_Date as DATE) >= @dateDeb AND CAST(E.DO_Date as DATE) <= @dateFin\n" +
 			"                    GROUP BY PROT_User,DO_Imprim,DL_PieceBL,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,CT_Intitule\n" +

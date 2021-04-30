@@ -1154,14 +1154,14 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
                         fArtStockDAO.updateFArtstock(fDocLigne.getAR_Ref(),docEnteteBL.getDE_No(),(Math.round(fDocLigne.getDL_CMUP()*100)/100) * fDocLigne.getDL_Qte(),fDocLigne.getDL_Qte(),"insertLigne",String.valueOf(protNo));
                     if (conserv == 0){
                         fDocLigneDAO.ajoutLigne(fDocLigne.getCbMarq(),protNo,fDocLigne.getDL_Qte(),fDocLigne.getAR_Ref()
-                                ,enteteCbMarq,type,0,prix,"","","ajout_ligne","");
+                                ,enteteCbMarq,type,0,prix,"","","ajout_ligne","",fDocLigne.getDE_No());
                         fDocentete = getFDocEntete(enteteCbMarq);
                         fDocLigneDAO.maj("DL_PieceBL",enteteBl,fDocLigne.getCbMarq(),String.valueOf(protNo));
                         fDocLigneDAO.maj("DL_DateBL",fDocLigne.getDL_DateBL(),fDocLigne.getCbMarq(),String.valueOf(protNo));
                     }
                     else
                         fDocLigneRes = (FDocLigne) fDocLigneDAO.ajoutLigne(BigDecimal.ZERO,protNo,fDocLigne.getDL_Qte(),fDocLigne.getAR_Ref(),enteteCbMarq,type,0
-                                ,fDocLigne.getDL_PrixUnitaire(),"","","ajout_ligne","");
+                                ,fDocLigne.getDL_PrixUnitaire(),"","","ajout_ligne","",fDocLigne.getDE_No());
                     fDocLigneDAO.maj("DL_DateBL",dateBl,fDocLigneRes.getCbMarq(),String.valueOf(protNo));
                     fDocLigneDAO.maj("DL_DateBC",dateBl,fDocLigneRes.getCbMarq(),String.valueOf(protNo));
                 }
