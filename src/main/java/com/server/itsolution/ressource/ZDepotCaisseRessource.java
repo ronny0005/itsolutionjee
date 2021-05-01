@@ -21,6 +21,11 @@ public class ZDepotCaisseRessource {
         return list;
     }
 
+    @GetMapping(value = "/getForProtNoCaisseDepot/{protNo}")
+    public Object getForProtNoCaisseDepot(@PathVariable int protNo) {
+        return zDepotCaisseDAO.getForProtNoCaisseDepot(protNo);
+    }
+
     @GetMapping(value = "/getDepotCaisseSelect&caNo={caNo}")
     public List<Object> getDepotCaisseSelect(@PathVariable int caNo) {
         return zDepotCaisseDAO.getDepotCaisseSelect(caNo);

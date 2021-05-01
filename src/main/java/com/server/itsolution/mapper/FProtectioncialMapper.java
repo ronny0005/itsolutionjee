@@ -361,6 +361,8 @@ public class FProtectioncialMapper extends ObjectMapper {
             ",ISNULL([12309],0) PROT_DOCUMENT_INTERNE_5\n" +
             ",ISNULL([6146],0) PROT_DOCUMENT_VENTE_BONCOMMANDE\n" +
             ",ISNULL([8196],0) PROT_VIREMENT_DEPOT\n" +
+            ",cbModification\n" +
+            ",PROT_DateCreate\n" +
             "FROM(\n" +
             "        SELECT\tP.cbMarq\n" +
             "                ,PROT_User\n" +
@@ -376,6 +378,8 @@ public class FProtectioncialMapper extends ObjectMapper {
             "                ,(CASE WHEN PROT_Description='SUPERVISEUR' OR PROT_Description='RAF' THEN 1 ELSE PROT_Right END) PROT_Right \n" +
             "                ,ISNULL(CASE WHEN C.EPROT_Cmd IS NULL THEN B.EPROT_Right ELSE C.EPROT_Right END,0)EPROT_Right\n" +
             "                ,B.EPROT_Cmd\n" +
+            "                ,P.cbModification\n" +
+            "                ,P.PROT_DateCreate\n" +
             "        FROM    F_PROTECTIONCIAL P\n" +
             "        LEFT JOIN ( SELECT  Prot_No AS ProtUserProfilP\n" +
             "                            ,PROT_User AS ProfilName \n" +

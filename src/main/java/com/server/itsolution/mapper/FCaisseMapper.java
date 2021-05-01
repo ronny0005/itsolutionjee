@@ -131,12 +131,12 @@ public class FCaisseMapper extends ObjectMapper {
 			"WHERE   	CA_No =?";
 
 	public static final String getCaisseDepot
-			="DECLARE @protNo INT = '$prot_no'\n" +
+			="DECLARE @protNo INT = ?\n" +
 			"                    IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@protNo) = 1 \n" +
-			"                    SELECT  ISNULL(CA.CA_No,0) CA_No\n" +
-			"                            ,1 IsPrincipal\n" +
-			"                            ,ISNULL(CA_Intitule,'') CA_Intitule\n" +
-			"                    FROM F_CAISSE CA\n" +
+			"                    SELECT  CA_No = ISNULL(CA.CA_No,0)\n" +
+			"                            ,IsPrincipal = 1\n" +
+			"                            ,CA_Intitule = ISNULL(CA_Intitule,'')\n" +
+			"                    FROM 	F_CAISSE CA\n" +
 			"                    INNER JOIN Z_DEPOTCAISSE C \n" +
 			"                        ON CA.CA_No=C.CA_No\n" +
 			"                    INNER JOIN F_DEPOT D \n" +
@@ -144,14 +144,14 @@ public class FCaisseMapper extends ObjectMapper {
 			"                    INNER JOIN F_COMPTET CT \n" +
 			"                        ON CT.CT_Num = CA.CT_Num\n" +
 			"                    GROUP BY CA.CA_No\n" +
-			"                            ,CA_Intitule;                  \n" +
+			"                            ,CA_Intitule;\n" +
 			"                    \n" +
 			"                    ELSE \n" +
 			"                  \n" +
-			"                    SELECT\tISNULL(fca.CA_No,0) CA_No\n" +
-			"                            ,MAX(CASE WHEN fco.CO_No IS NOT NULL THEN 2\n" +
-			"                                WHEN zdu.IsPrincipal = 1 THEN 1 ELSE 0 END) IsPrincipal\n" +
-			"                            ,ISNULL(fca.CA_Intitule,'') CA_Intitule\n" +
+			"                    SELECT\tCA_No = ISNULL(fca.CA_No,0) \n" +
+			"                            ,IsPrincipal = MAX(CASE WHEN fco.CO_No IS NOT NULL THEN 2\n" +
+			"                                WHEN zdu.IsPrincipal = 1 THEN 1 ELSE 0 END)\n" +
+			"                            ,CA_Intitule = ISNULL(fca.CA_Intitule,'')\n" +
 			"                    FROM F_CAISSE fca\n" +
 			"                    LEFT JOIN Z_DEPOTCAISSE zde \n" +
 			"                        ON fca.CA_No=zde.CA_No\n" +

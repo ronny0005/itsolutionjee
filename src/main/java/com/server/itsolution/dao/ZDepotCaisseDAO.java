@@ -29,6 +29,14 @@ public class ZDepotCaisseDAO extends JdbcDaoSupport {
         return list;
     }
 
+    public Object getForProtNoCaisseDepot(int protNo){
+        String sql = ZDepotCaisseMapper.getForProtNoCaisseDepot;
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(protNo);
+        return this.getJdbcTemplate().query(sql, params.toArray(), mapper);
+
+    }
+
     public List<Object> getDepotCaisseSelect (int caNo){
         String sql = ZDepotCaisseMapper.getDepotCaisseSelect;
         ArrayList<Object> parames = new ArrayList<Object>();
