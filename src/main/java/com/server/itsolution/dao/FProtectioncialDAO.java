@@ -800,6 +800,16 @@ public class FProtectioncialDAO extends JdbcDaoSupport {
         return this.getJdbcTemplate().query(sql, params, mapper);
     }
 
+    public int modifDevis(String typeFacture,int protAdministrator){
+        String sql = FProtectioncialMapper.modifDevis;
+        params = new Object[]{typeFacture,protAdministrator};
+        SqlRowSet sqlRowSet = this.getJdbcTemplate().queryForRowSet(sql, params);
+        while (sqlRowSet.next()) {
+            return sqlRowSet.getInt("DepotDispo");
+        }
+        return 0;
+    }
+
 
     public List<Object> getSoucheDepotGrpAffaire(int protNo,String type,int sommeil){
         String sql = FProtectioncialMapper.getSoucheDepotGrpAffaire;

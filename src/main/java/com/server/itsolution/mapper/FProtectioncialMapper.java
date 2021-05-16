@@ -119,8 +119,31 @@ public class FProtectioncialMapper extends ObjectMapper {
     public static final String UpdateLastLogin =
             "UPDATE F_PROTECTIONCPTA "+
                     " SET [PROT_LastLoginDate] =GETDATE(),cbModification=GETDATE() WHERE PROT_No=?;"+
-            "UPDATE F_PROTECTIONCIAL "+
+                    "UPDATE F_PROTECTIONCIAL "+
                     " SET [PROT_LastLoginDate] =GETDATE(),cbModification=GETDATE() WHERE PROT_No=?;";
+
+    public static final String modifDevis =
+            " DECLARE @typeFacture AS VARCHAR(50) = ?;\n" +
+            "                      DECLARE @isAdmin AS INT = ?; \n" +
+            "                    WITH _Cte_ AS (\n" +
+            "                        SELECT DepotDispo = CASE WHEN @isAdmin = 0 AND D_Nombre01 = 2 THEN 0 ELSE 1 END\n" +
+            "                            ,cbIndice\n" +
+            "                            ,TypeFacture = CASE WHEN cbIndice = 1 THEN 'Devis' \n" +
+            "                                                WHEN cbIndice = 2 THEN 'BonDeCommande'\n" +
+            "                                                WHEN cbIndice = 3 THEN 'PreparationDeLivraison'\n" +
+            "                                                WHEN cbIndice = 4 THEN 'BonLivraison'\n" +
+            "                                                WHEN cbIndice = 5 THEN 'BonRetour'\n" +
+            "                                                WHEN cbIndice = 6 THEN 'BonAvoirFinancier'\n" +
+            "                                                WHEN cbIndice = 7 THEN 'Vente'\n" +
+            "                                                WHEN cbIndice = 8 THEN 'VenteRetour'\n" +
+            "                                                WHEN cbIndice = 9 THEN 'VenteAvoir'\n" +
+            "                                        /*\t\tWHEN cbIndice = 10 THEN 'BonAvoirFinancier'*/\n" +
+            "                                                WHEN cbIndice = 11 THEN 'FactureComptabilisee' END \n" +
+            "                        FROM P_ORGAVEN\n" +
+            "                    )\n" +
+            "                    SELECT  *\n" +
+            "                    FROM    _Cte_\n" +
+            "                    WHERE   TypeFacture = @typeFacture";
 
     public static final String getSoucheDepotGrpSouche =
             "                    DECLARE @prot_no as INT = ?\n" +

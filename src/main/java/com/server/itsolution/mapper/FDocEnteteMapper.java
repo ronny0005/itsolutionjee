@@ -611,14 +611,14 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                                                ON A.DR_No = Re.DR_No)A\n" +
 			"                                    GROUP BY DO_Domaine,DO_Type,cbDO_Piece)\n" +
 			"                    SELECT  PROT_User,DO_Imprim,DL_PieceBL\n" +
-			"                            ,CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert FROM P_PREFERENCES) THEN 1 ELSE 0 END DO_Modif\n" +
+			"                            ,DO_Modif = CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert FROM P_PREFERENCES) THEN 1 ELSE 0 END \n" +
 			"                            ,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece\n" +
-			"                            ,E.DO_Ref,CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)) AS DO_Date,E.DO_Tiers as CT_Num,CT_Intitule\n" +
-			"                            ,(ISNULL(ROUND(SUM(L.DL_MontantTTC),0),0)) AS ttc\n" +
-			"                            ,ISNULL(MAX(CASE WHEN E.N_CatCompta=0 THEN (C.N_CatCompta) ELSE (E.N_CatCompta) END),'0') N_CatCompta\n" +
-			"                            ,ISNULL(MAX(latitude),0) as latitude\n" +
-			"                            ,ISNULL(MAX(longitude),0) as longitude\n" +
-			"                            ,ISNULL(sum(avance),0) AS avance\n" +
+			"                            ,E.DO_Ref,DO_Date = CAST(CAST(E.DO_Date AS DATE) AS VARCHAR(10)),E.DO_Tiers as CT_Num,CT_Intitule\n" +
+			"                            ,ttc = (ISNULL(ROUND(SUM(L.DL_MontantTTC),0),0))\n" +
+			"                            ,N_CatCompta = ISNULL(MAX(CASE WHEN E.N_CatCompta=0 THEN (C.N_CatCompta) ELSE (E.N_CatCompta) END),'0') \n" +
+			"                            ,latitude = ISNULL(MAX(latitude),0)\n" +
+			"                            ,longitude = ISNULL(MAX(longitude),0)\n" +
+			"                            ,avance = ISNULL(MAX(avance),0)\n" +
 			"                            ,CASE WHEN (SUM(L.DL_MontantTTC)>=0 AND SUM(avance) IS NULL \n" +
 			"                                            OR sum(avance)<SUM(L.DL_MontantTTC)) \n" +
 			"                                            OR (SUM(L.DL_MontantTTC)<0 AND SUM(avance) IS NULL OR sum(avance)>SUM(L.DL_MontantTTC)) OR  (ISNULL(SUM(L.DL_MontantTTC),0)=0 AND ISNULL(SUM(avance),0)=0 ) OR  (SUM(L.DL_MontantTTC) IS NULL AND SUM(avance) IS NULL) THEN 'crédit' ELSE 'comptant' END AS statut\n" +

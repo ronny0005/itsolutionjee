@@ -38,6 +38,11 @@ public class FProtectioncialRessource {
         return fProtectioncialDAO.getUser(FormatText.getString(username),FormatText.getString(mdp),0);
     }
 
+    @GetMapping(value = "/modifDevis&typeFacture={typeFacture}&protAdministrator={protAdministrator}")
+    public int modifDevis(String typeFacture,int protAdministrator) {
+        return fProtectioncialDAO.modifDevis(typeFacture,protAdministrator);
+    }
+
     @GetMapping(value = "/barreMenu&protNo={protNo}&module={module}&action={action}&type={type}&position={position}")
     public Object barreMenu(@PathVariable int protNo,@PathVariable int module,@PathVariable int action,@PathVariable String type,@PathVariable String position) {
         return fProtectioncialDAO.barreMenu(protNo,action,module,type,position);

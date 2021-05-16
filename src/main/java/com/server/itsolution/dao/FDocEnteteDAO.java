@@ -423,41 +423,45 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         if(fDocEntete.getCbMarq()!=null)
             deNo = fDocEntete.getDE_No();
         int isSecurite = fProtectioncialDao.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),deNo);
-        if(fProtectioncial.getPROT_Administrator() == 0 && typeFacture.equals("Transfert_confirmation")) {
-            if (fDocEntete.getDO_Imprim() == 1)
-                return 1;
-        }
-        else{
-            if(fDocEntete.getDO_Type()==7 || fDocEntete.getDO_Type()==17)
-            {
-                return 1;
-            }
-        }
-        if(isSecurite == 0)
-            return 1;
-        else
-        if(fDocEntete.getCbMarq()!=null && fDocEntete.getAvance()>0)
-            return 1;
-        else
-        if (protAdministrator == 1) {
-            if ( fDocEntete.getCbMarq()!=null && fDocEntete.getStatut().equals("comptant"))
+
+        if(fDocEntete.getTypeFacture().equals("Devis")) {
+            if(fProtectioncialDao.modifDevis(fDocEntete.getTypeFacture(),protAdministrator)==0)
                 return 1;
             else
                 return 0;
         }
         else {
-            if(fDocEntete.getCbMarq()!=null && fDocEntete.getDO_Modif()==1){
-                return 1;
-            }
-            else{
-                if(protectedDocP==0){
+
+            if (fProtectioncial.getPROT_Administrator() == 0 && typeFacture.equals("Transfert_confirmation")) {
+                if (fDocEntete.getDO_Imprim() == 1)
                     return 1;
-                }else{
-                    if(fDocEntete.getCbMarq()!=null && fDocEntete.getDO_Imprim()==1 && flagProtApresImpressionP!=0){
+            } else {
+                if (fDocEntete.getDO_Type() == 7 || fDocEntete.getDO_Type() == 17) {
+                    return 1;
+                }
+            }
+            if (isSecurite == 0)
+                return 1;
+            else if (fDocEntete.getCbMarq() != null && fDocEntete.getAvance() > 0)
+                return 1;
+            else if (protAdministrator == 1) {
+                if (fDocEntete.getCbMarq() != null && fDocEntete.getStatut().equals("comptant"))
+                    return 1;
+                else
+                    return 0;
+            } else {
+                if (fDocEntete.getCbMarq() != null && fDocEntete.getDO_Modif() == 1) {
+                    return 1;
+                } else {
+                    if (protectedDocP == 0) {
                         return 1;
-                    }else{
-                        if(fDocEntete.getCbMarq()!=null && fDocEntete.getStatut().equals("comptant") || fDocEntete.getAvance()>0){
+                    } else {
+                        if (fDocEntete.getCbMarq() != null && fDocEntete.getDO_Imprim() == 1 && flagProtApresImpressionP != 0) {
                             return 1;
+                        } else {
+                            if (fDocEntete.getCbMarq() != null && fDocEntete.getStatut().equals("comptant") || fDocEntete.getAvance() > 0) {
+                                return 1;
+                            }
                         }
                     }
                 }
@@ -512,28 +516,31 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         if(fDocEntete.getCbMarq()!=null)
             deNo = fDocEntete.getDE_No();
         int isSecurite = fProtectioncialDao.isSecuriteAdmin(fProtectioncial.getProt_No(),fProtectioncial.getProtectAdmin(),deNo);
-        if(isSecurite==0)
-            return 0;
-        else
-            if(fDocEntete.getDO_Type() == 7 || fDocEntete.getDO_Type() == 17)
+
+        if(fDocEntete.getTypeFacture().equals("Devis")) {
+            return fProtectioncialDao.modifDevis(fDocEntete.getTypeFacture(),protAdministrator);
+        }
+        else {
+            if (isSecurite == 0)
                 return 0;
-            else
-        if(protAdministrator==1 || fProtectioncial.getPROT_Right()==1) {
-            if (fDocEntete.getAvance() == 0)
-                return 1;
-        }else{
-            if(fDocEntete.getDO_Modif()==1) {
+            else if (fDocEntete.getDO_Type() == 7 || fDocEntete.getDO_Type() == 17)
                 return 0;
-            }
-            else{
-                if(protectedDocP==0){
+            else if (protAdministrator == 1 || fProtectioncial.getPROT_Right() == 1) {
+                if (fDocEntete.getAvance() == 0)
+                    return 1;
+            } else {
+                if (fDocEntete.getDO_Modif() == 1) {
                     return 0;
-                }else{
-                    if(fDocEntete.getCbMarq()!=null && fDocEntete.getDO_Imprim()==1 && flagProtApresImpressionP!=0){
+                } else {
+                    if (protectedDocP == 0) {
                         return 0;
-                    }else{
-                        if(fDocEntete.getAvance()!=0){
+                    } else {
+                        if (fDocEntete.getCbMarq() != null && fDocEntete.getDO_Imprim() == 1 && flagProtApresImpressionP != 0) {
                             return 0;
+                        } else {
+                            if (fDocEntete.getAvance() != 0) {
+                                return 0;
+                            }
                         }
                     }
                 }
