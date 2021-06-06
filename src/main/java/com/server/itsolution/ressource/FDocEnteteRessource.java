@@ -205,10 +205,10 @@ public class FDocEnteteRessource {
         return null;
     }
 
-    @GetMapping(value = "/getListeFacture&doProvenance={doProvenance}&doType={doType}&doDomaine={doDomaine}&deNo={deNo}&dateDeb={dateDeb}&dateFin={dateFin}&client={client}&protNo={protNo}")
+    @GetMapping(value = "/getListeFacture&doProvenance={doProvenance}&doType={doType}&doDomaine={doDomaine}&deNo={deNo}&dateDeb={dateDeb}&dateFin={dateFin}&client={client}&protNo={protNo}&doPiece={doPiece}")
     public Object getListeFacture(@PathVariable int doProvenance,@PathVariable int doType,@PathVariable int doDomaine,@PathVariable int deNo,@PathVariable String dateDeb
-            ,@PathVariable String dateFin,@PathVariable String client,@PathVariable int protNo) {
-        List<Object> list = fDocEnteteDAO.getListeFacture(doProvenance,doType,doDomaine,deNo,dateDeb,dateFin,client,protNo);
+            ,@PathVariable String dateFin,@PathVariable String client,@PathVariable int protNo,@PathVariable String doPiece) {
+        List<Object> list = fDocEnteteDAO.getListeFacture(doProvenance,doType,doDomaine,deNo,dateDeb,dateFin,client,protNo,doPiece);
         return list;
     }
 

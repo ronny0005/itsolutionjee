@@ -24,10 +24,13 @@ public class FDocLigneMapper extends ObjectMapper {
                     "                      DECLARE @doPiece AS NVARCHAR(50) = ?\n" +
                     "                                \n" +
                     "                    SELECT    DL_PUDevise,CA_Num,DL_TTC, DL_PUTTC,DL_MvtStock,CT_Num,cbMarq,DL_TypeTaux1,DL_TypeTaux2,DL_TypeTaux3,cbCreateur,DL_NoColis\n" +
-                    "                            ,CASE WHEN DL_TypeTaux1=0 THEN DL_MontantHT*(DL_Taxe1/100) ELSE CASE WHEN DL_TypeTaux1=1 THEN DL_Taxe1*DL_Qte ELSE DL_Taxe1 END END MT_Taxe1\n" +
-                    "                            ,CASE WHEN DL_TypeTaux2=0 THEN DL_MontantHT*(DL_Taxe2/100) ELSE CASE WHEN DL_TypeTaux2=1 THEN DL_Taxe2*DL_Qte ELSE DL_Taxe2 END END MT_Taxe2\n" +
-                    "                            ,CASE WHEN DL_TypeTaux3=0 THEN DL_MontantHT*(DL_Taxe3/100) ELSE CASE WHEN DL_TypeTaux3=1 THEN DL_Taxe3*DL_Qte ELSE DL_Taxe3 END END MT_Taxe3\n" +
-                    "                            ,DL_MontantHT,DO_Piece,\n" +
+                    "                            ,MT_Taxe1 = CASE WHEN DL_TypeTaux1=0 THEN DL_MontantHT*(DL_Taxe1/100) " +
+                    "                                                WHEN DL_TypeTaux1=1 THEN DL_Taxe1*DL_Qte ELSE DL_Taxe1 END \n" +
+                    "                            ,MT_Taxe2 = CASE WHEN DL_TypeTaux2=0 THEN DL_MontantHT*(DL_Taxe2/100) " +
+                    "                                                WHEN DL_TypeTaux2=1 THEN DL_Taxe2*DL_Qte ELSE DL_Taxe2 END \n" +
+                    "                            ,MT_Taxe3 = CASE WHEN DL_TypeTaux3=0 THEN DL_MontantHT*(DL_Taxe3/100) " +
+                    "                                               WHEN DL_TypeTaux3=1 THEN DL_Taxe3*DL_Qte ELSE DL_Taxe3 END \n" +
+                    "                            ,DL_MontantHT,DO_Piece,Qte_LivreeBL = ISNULL(Qte_LivreeBL,0),\n" +
                     "                            AR_Ref,DE_No,DL_CMUP AS AR_PrixAch,DL_Design,DL_Qte,DL_PrixUnitaire,DL_CMUP,DL_Taxe1,DL_Taxe2,DL_Taxe3,DL_MontantTTC,DL_Ligne,DL_Remise01REM_Valeur,DL_Remise01REM_Type,\n" +
                     "                            DL_Remise = CASE WHEN DL_Remise01REM_Type=0 THEN ''  \n" +
                     "                                 WHEN DL_Remise01REM_Type=1 THEN cast(cast(DL_Remise01REM_Valeur as numeric(9,2)) as varchar(10))+'%' \n" +

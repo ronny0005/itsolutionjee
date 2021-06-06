@@ -568,7 +568,8 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                            ,@dateFin AS NVARCHAR(20)\n" +
 			"                            ,@client AS NVARCHAR(50)\n" +
 			"                            ,@doDomaine AS INT\n" +
-			"                            ,@doType AS INT;\n" +
+			"                            ,@doType AS INT\n" +
+			"							 ,@doPiece AS VARCHAR(30);\n" +
 			"                    SET @protNo = ?;\n" +
 			"                    SET @doProvenance = ? ;\n" +
 			"                    SET @deNo  = ?;\n" +
@@ -577,7 +578,8 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                    SET @client = ?;\n" +
 			"                    SET @doDomaine  = ?;\n" +
 			"                    SET @doType = ?;\n" +
-			"        \n" +
+			"                    SET @doPiece = ?;\n" +
+			"        							  \n" +
 			"                    WITH _Depot_ AS (\n" +
 			"                        SELECT DE_No,PROT_No\n" +
 			"                        FROM(\n" +
@@ -610,6 +612,7 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                                            LEFT JOIN _ReglEch_ A \n" +
 			"                                                ON A.DR_No = Re.DR_No)A\n" +
 			"                                    GROUP BY DO_Domaine,DO_Type,cbDO_Piece)\n" +
+			"\n" +
 			"                    SELECT  PROT_User,DO_Imprim,DL_PieceBL\n" +
 			"                            ,DO_Modif = CASE WHEN ABS(DATEDIFF(d,GETDATE(),E.DO_Date))>= (select PR_DelaiPreAlert FROM P_PREFERENCES) THEN 1 ELSE 0 END \n" +
 			"                            ,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece\n" +
@@ -619,30 +622,43 @@ public class FDocEnteteMapper extends ObjectMapper {
 			"                            ,latitude = ISNULL(MAX(latitude),0)\n" +
 			"                            ,longitude = ISNULL(MAX(longitude),0)\n" +
 			"                            ,avance = ISNULL(MAX(avance),0)\n" +
-			"                            ,CASE WHEN (SUM(L.DL_MontantTTC)>=0 AND SUM(avance) IS NULL \n" +
-			"                                            OR sum(avance)<SUM(L.DL_MontantTTC)) \n" +
-			"                                            OR (SUM(L.DL_MontantTTC)<0 AND SUM(avance) IS NULL OR sum(avance)>SUM(L.DL_MontantTTC)) OR  (ISNULL(SUM(L.DL_MontantTTC),0)=0 AND ISNULL(SUM(avance),0)=0 ) OR  (SUM(L.DL_MontantTTC) IS NULL AND SUM(avance) IS NULL) THEN 'crédit' ELSE 'comptant' END AS statut\n" +
+			"                            ,CASE WHEN (SUM(L.DL_MontantTTC)>=0 AND MAX(avance) IS NULL \n" +
+			"                                            OR MAX(avance)<SUM(L.DL_MontantTTC)) \n" +
+			"                                            OR (SUM(L.DL_MontantTTC)<0 AND MAX(avance) IS NULL OR MAX(avance)>SUM(L.DL_MontantTTC)) OR  (ISNULL(SUM(L.DL_MontantTTC),0)=0 AND ISNULL(MAX(avance),0)=0 ) OR  (SUM(L.DL_MontantTTC) IS NULL AND MAX(avance) IS NULL) THEN 'crédit' ELSE 'comptant' END AS statut\n" +
 			"                    FROM F_DOCENTETE E \n" +
 			"                    LEFT JOIN _DocLigne_ L \n" +
-			"                        ON  E.cbDO_Piece=L.cbDO_Piece  \n" +
-			"                        AND E.DO_Domaine= L.DO_Domaine \n" +
-			"                        AND E.DO_Type=L.DO_Type\n" +
+			"                        ON  E.cbDO_Piece = L.cbDO_Piece  \n" +
+			"                        AND E.DO_Domaine = L.DO_Domaine \n" +
+			"                        AND E.DO_Type = L.DO_Type\n" +
 			"                    LEFT JOIN _DocRegl_ R \n" +
-			"                        ON  R.cbDO_Piece=E.cbDO_Piece \n" +
-			"                        AND E.DO_Domaine= R.DO_Domaine \n" +
-			"                        AND E.DO_Type=R.DO_Type \n" +
+			"                        ON  R.cbDO_Piece = E.cbDO_Piece \n" +
+			"                        AND E.DO_Domaine = R.DO_Domaine \n" +
+			"                        AND E.DO_Type = R.DO_Type \n" +
 			"                    INNER JOIN F_DEPOT D \n" +
-			"                        ON  D.DE_No=E.DE_No \n" +
+			"                        ON  D.DE_No = E.DE_No \n" +
 			"                    INNER JOIN F_COMPTET C \n" +
-			"                        ON  C.CT_Num=E.DO_Tiers\n" +
+			"                        ON  C.CT_Num = E.DO_Tiers\n" +
 			"                    LEFT JOIN F_PROTECTIONCIAL P \n" +
 			"                        ON  E.cbCreateur = CAST(P.PROT_No AS VARCHAR(5))\n" +
-			"                    WHERE ((@doProvenance=0 AND E.DO_Provenance NOT IN (1,2,4)) OR (@doProvenance<>0 AND E.DO_Provenance = @doProvenance))\n" +
-			"                    AND E.DO_Domaine=@doDomaine AND ((@doType = 67 AND E.DO_Type IN (6,7)) OR E.DO_Type=@doType OR (@doType = 1617 AND E.DO_Type IN (16,17)) ) \n" +
-			"                    AND ((0=@deNo AND L.DE_No IN (SELECT DE_No FROM  _Depot_)) OR L.DE_No =@deNo)  \n" +
-			"                    AND ('0'=@client OR E.DO_Tiers =@client) \n" +
-			"                    AND CAST(E.DO_Date as DATE) >= @dateDeb AND CAST(E.DO_Date as DATE) <= @dateFin\n" +
-			"                    GROUP BY PROT_User,DO_Imprim,DL_PieceBL,E.cbModification,E.cbMarq,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece,E.DO_Ref,E.DO_Date,E.DO_Tiers,CT_Intitule\n" +
+			"                    WHERE (CASE WHEN @doProvenance=0 AND E.DO_Provenance NOT IN (1,2,4) THEN 1\n" +
+			"\t\t\t\t\t\t\t\tWHEN @doProvenance<>0 AND E.DO_Provenance = @doProvenance THEN 1 ELSE 0 END) = 1\n" +
+			"                    AND\t\tE.DO_Domaine = @doDomaine \n" +
+			"\t\t\t\t\tAND\t\tCASE WHEN @doType = 67 AND E.DO_Type IN (6,7) THEN 1\n" +
+			"\t\t\t\t\t\t\t\t\tWHEN E.DO_Type=@doType  THEN 1\n" +
+			"\t\t\t\t\t\t\t\t\tWHEN @doType = 1617 AND E.DO_Type IN (16,17) THEN 1 \n" +
+			"\t\t\t\t\t\t\t\t\tELSE 0 END = 1 \n" +
+			"                    AND\t\tCASE WHEN (0 = @deNo AND L.DE_No IN (SELECT DE_No FROM  _Depot_)) THEN 1\n" +
+			"\t\t\t\t\t\t\t\t\tWHEN L.DE_No = @deNo THEN 1\n" +
+			"\t\t\t\t\t\t\t\t\tELSE 0 END = 1\n" +
+			"                    AND\t\tCASE WHEN '0' = @client THEN 1 \n" +
+			"\t\t\t\t\t\t\t\t\tWHEN E.DO_Tiers =@client THEN 1 \n" +
+			"\t\t\t\t\t\t\t\t\tELSE 0 END = 1\n" +
+			"                    AND\t\tCASE WHEN @doPiece = '' THEN 1 \n" +
+			"\t\t\t\t\t\t\t\tWHEN @doPiece<>'' AND E.DO_Piece LIKE CONCAT('%',@doPiece,'%') THEN 1 END = 1 \n" +
+			"                    AND\t\tCAST(E.DO_Date as DATE) >= @dateDeb AND CAST(E.DO_Date as DATE) <= @dateFin\n" +
+			"                    GROUP BY PROT_User,DO_Imprim,DL_PieceBL,E.cbModification,E.cbMarq\n" +
+			"\t\t\t\t\t\t\t,E.DO_Type,E.DO_Domaine,DE_Intitule,E.DO_Piece,E.DO_Ref\n" +
+			"\t\t\t\t\t\t\t,E.DO_Date,E.DO_Tiers,CT_Intitule\n" +
 			"                    ORDER BY E.cbMarq ";
 
     public static final String PR_DelaiPreAlert //

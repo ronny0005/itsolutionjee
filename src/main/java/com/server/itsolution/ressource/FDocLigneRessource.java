@@ -73,6 +73,11 @@ public class FDocLigneRessource {
         return fDocLigneDAO.verifSupprAjout(cbMarq);
     }
 
+    @GetMapping(value = "/maj/nom={nom}&valeur={valeur}&cbMarq={cbMarq}&cbCreateur={cbCreateur}")
+    public void majLigne(@PathVariable String nom,@PathVariable String valeur,@PathVariable BigDecimal cbMarq,@PathVariable String cbCreateur) {
+        fDocLigneDAO.maj(nom, FormatText.getString(valeur),cbMarq,cbCreateur);
+    }
+
 
     @GetMapping(value = "/delete&cbMarq={cbMarq}")
     public void deleteLigne(@PathVariable BigDecimal cbMarq) {

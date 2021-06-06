@@ -1992,71 +1992,197 @@ public class EtatMapper extends ObjectMapper {
             "ORDER BY NbJoursRetard,DR_Date DESC";
 
     public static String statCaisseDuJour = "" +
-            "declare @premierFondDeCaisse as int    \n" +
-            "             DECLARE @admin INT    \n" +
-            "             DECLARE @ProtNo INT    \n" +
-            "             SET @ProtNo = ?   \n" +
+            "BEGIN\n" +
+            "        SET NOCOUNT ON;\n" +
+            "        declare @dt_deb as DATE = DATEADD(DAY,-1,GETDATE())\n" +
+            "        declare @dt_fin as DATE = CAST(GETDATE() AS DATE)\n" +
+            "        declare @ca_no as int = 0\n" +
+            "        declare @mode_reglement as int = 0\n" +
+            "        declare @type_reglement as int = -1\n" +
+            "\n" +
+            "        declare @premierFondDeCaisse as int    \n" +
+            "        DECLARE @admin INT    \n" +
+            "        DECLARE @ProtNo INT    \n" +
+            "        SET @ProtNo = ?   \n" +
             "                 \n" +
             "             CREATE TABLE #TMPCAISSE (CA_No INT)    \n" +
             "                 \n" +
-            "             IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@ProtNo) = 1     \n" +
-            "                                 BEGIN     \n" +
-            "                  INSERT INTO #TMPCAISSE    \n" +
-            "                  SELECT ISNULL(CA.CA_No,0) CA_No     \n" +
-            "                                 FROM F_CAISSE CA    \n" +
-            "                                 INNER JOIN Z_DEPOTCAISSE C     \n" +
-            "                   ON CA.CA_No=C.CA_No    \n" +
-            "                                 INNER JOIN F_DEPOT D     \n" +
-            "                   ON C.DE_No=D.DE_No    \n" +
-            "                                 INNER JOIN F_COMPTET CT     \n" +
-            "                   ON CT.cbCT_Num = CA.cbCT_Num    \n" +
-            "                  GROUP BY CA.CA_No    \n" +
-            "                                 END     \n" +
-            "                  ELSE     \n" +
-            "                                 BEGIN     \n" +
-            "                  INSERT INTO #TMPCAISSE    \n" +
-            "                  SELECT ISNULL(CA.CA_No,0) CA_No    \n" +
-            "                                 FROM F_CAISSE CA    \n" +
-            "                                 LEFT JOIN Z_DEPOTCAISSE C     \n" +
-            "                   ON CA.CA_No=C.CA_No    \n" +
-            "                                 LEFT JOIN ( SELECT *     \n" +
-            "                                             FROM Z_DEPOTUSER    \n" +
-            "                                             WHERE IsPrincipal=1) D     \n" +
-            "                   ON C.DE_No=D.DE_No    \n" +
-            "                                 LEFT JOIN F_COMPTET CT ON CT.CT_Num = CA.CT_Num    \n" +
-            "                                 WHERE Prot_No=@ProtNo    \n" +
-            "                  GROUP BY CA.CA_No    \n" +
-            "                  END;    \n" +
-            "                 \n" +
+            "             \n" +
+            "IF (SELECT CASE WHEN PROT_Administrator=1 OR PROT_Right=1 THEN 1 ELSE 0 END FROM F_PROTECTIONCIAL WHERE Prot_No=@ProtNo) = 1 \n" +
+            "                    BEGIN \n" +
+            "\t\t\t\t\tINSERT INTO #TMPCAISSE\n" +
+            "\t\t\t\t\tSELECT\tISNULL(CA.CA_No,0) CA_No \n" +
+            "                    FROM F_CAISSE CA\n" +
+            "                    INNER JOIN Z_DEPOTCAISSE C \n" +
+            "\t\t\t\t\t\tON CA.CA_No=C.CA_No\n" +
+            "                    INNER JOIN F_DEPOT D \n" +
+            "\t\t\t\t\t\tON C.DE_No=D.DE_No\n" +
+            "                    INNER JOIN F_COMPTET CT \n" +
+            "\t\t\t\t\t\tON CT.cbCT_Num = CA.cbCT_Num\n" +
+            "\t\t\t\t\tWHERE (@ca_no = 0 OR CA.CA_No = @ca_no) \n" +
+            "\t\t\t\t\tGROUP BY CA.CA_No\n" +
+            "                    END \n" +
+            "\t\t\t\t\tELSE \n" +
+            "                    BEGIN \n" +
+            "\t\t\t\t\tINSERT INTO #TMPCAISSE\n" +
+            "\t\t\t\t\tSELECT\tISNULL(CA.CA_No,0) CA_No\n" +
+            "                    FROM F_CAISSE CA\n" +
+            "                    LEFT JOIN Z_DEPOTCAISSE C \n" +
+            "\t\t\t\t\t\tON CA.CA_No=C.CA_No\n" +
+            "                    LEFT JOIN (\tSELECT * \n" +
+            "                                FROM Z_DEPOTUSER\n" +
+            "                                WHERE IsPrincipal=1) D \n" +
+            "\t\t\t\t\t\tON C.DE_No=D.DE_No\n" +
+            "                    LEFT JOIN F_COMPTET CT ON CT.CT_Num = CA.CT_Num\n" +
+            "                    WHERE Prot_No=@ProtNo\n" +
+            "                    AND (@ca_no = 0 OR CA.CA_No = @ca_no) \n" +
+            "\t\t\t\t\tGROUP BY CA.CA_No\n" +
+            "\t\t\t\t\tEND;\n" +
+            "\n" +
+            "\n" +
+            " \n" +
+            "SELECT\tCA_No\n" +
+            "\t\t,cbMarq = MIN(cbMarq) \n" +
+            "\t\tINTO #TMPFondCaisse\n" +
+            "FROM\t F_CREGLEMENT \n" +
+            "WHERE\tRG_DATE BETWEEN '2020-01-01' \n" +
+            "AND\t\t'2020-01-03'           \n" +
+            "AND\t\t((0=@ca_no AND CA_No IN (SELECT CA_No FROM #TMPCAISSE)) OR CA_NO = @ca_no)\n" +
+            "AND\t\tRG_TypeReg=2\n" +
+            "GROUP BY CA_No;\n" +
+            "\t\t\t\n" +
+            "with _ReglEch_ AS (\n" +
+            "SELECT\tRG_No,SUM(RC_Montant) RC_Montant\n" +
+            "FROM\tF_REGLECH\n" +
+            "GROUP BY RG_No\n" +
+            ")\n" +
+            ", _Reglement_ AS (\n" +
+            "SELECT\tRG_TypeReg,C.CA_No,RG_Date,RG_Libelle,N_Reglement,RG_HEURE\n" +
+            "\t\t,RG_No =CASE WHEN RG_TypeReg = 2 THEN 0 ELSE RG_No END \n" +
+            "\t\t,RG_Type = CASE WHEN RG_TypeReg = 2 THEN 0 ELSE RG_Type END\n" +
+            "\t\t,FOND_CAISSE = CASE WHEN RG_TypeReg=2 THEN RG_MONTANT ELSE 0 END\n" +
+            "\t\t,RG_MONTANT = CASE WHEN RG_TYPEREG = 4 THEN -RG_MONTANT ELSE RG_MONTANT END\n" +
+            "\t\t,DEBIT = CASE WHEN (RG_Type = 0 AND RG_Montant<0) OR (RG_BANQUE =3 AND RG_TypeReg=0) OR (RG_BANQUE <> 3 AND ((RG_Type=1 AND RG_Montant>0)OR RG_TypeReg = 4))  OR RG_TypeReg = 3 OR (RG_TypeReg = 5 AND RG_Banque=1) THEN ABS(RG_Montant) ELSE 0 END \n" +
+            "        ,CREDIT = CASE WHEN RG_Type = 3 OR (RG_Type = 0  AND RG_TypeReg<>4 AND RG_Montant>=0) OR (RG_Type = 1 AND RG_Montant<0) OR (RG_BANQUE =3 AND RG_TypeReg=4) OR (RG_TypeReg = 5 AND RG_Banque<>1) THEN ABS(RG_MONTANT) ELSE 0 END \n" +
+            "\t\t,RG_BANQUE,CT_NUMPAYEUR,cbCT_NumPayeur,C.cbMarq\n" +
+            "FROM F_CREGLEMENT C\n" +
+            "LEFT JOIN #TMPFondCaisse T\n" +
+            "\tON C.cbMarq = T.cbMarq\n" +
+            "WHERE ((0=@ca_no AND C.CA_No IN (SELECT CA_No FROM #TMPCAISSE)) OR C.CA_NO = @ca_no)\n" +
+            "                AND (0=@mode_reglement OR N_Reglement=@mode_reglement)\n" +
+            "                AND (((-1=@type_reglement  AND N_Reglement<>8 AND ((RG_TypeReg=5 AND RG_Banque IN (0,1,3)) OR RG_TypeReg<>5) )\n" +
+            "                        OR (RG_TypeReg=@type_reglement AND @type_reglement NOT IN (6,4))\n" +
+            "                        OR (RG_TypeReg=4 AND RG_Banque = 1 AND @type_reglement=6)\n" +
+            "                        OR (RG_TypeReg=4 AND RG_Banque = 0 AND @type_reglement=4))\n" +
+            "                        OR (5=@type_reglement AND RG_TypeReg=5 AND RG_Banque=0) \n" +
+            "\t\t\t\t\t\t\tOR (@type_reglement NOT IN(-1,5) AND RG_TypeReg=@type_reglement))\n" +
+            "\t\t\t    AND ((rg_typereg=2 AND  C.cbMarq IN(\tSELECT cbMarq FROM(SELECT CA_No,min(cbMarq) cbMarq\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tFROM \tF_CREGLEMENT\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHERE \tRG_Date between @dt_deb AND @dt_fin\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tAND \tC.CA_No IN (SELECT CA_No FROM #TMPCAISSE)\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tAND \tRG_TypeReg=2\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tGROUP BY CA_No)A)) OR rg_typereg<>2)\n" +
+            "\t\t\tAND\t  T.cbMarq IS NULL\n" +
+            ")\n" +
+            ",_ReglementPeriod_ AS (\n" +
+            "SELECT R.*\n" +
+            "FROM _Reglement_ R\n" +
+            "WHERE RG_DATE BETWEEN @dt_deb AND @dt_fin  \n" +
+            ")\n" +
+            ",_ReglementFondDeCaisse_ AS (\n" +
+            "SELECT *\n" +
+            "FROM _Reglement_ \n" +
+            "WHERE RG_DATE BETWEEN '2020-01-01' AND DATEADD(D,-1,@dt_deb)           \n" +
+            ")\n" +
+            ",_PremierReglementFondDeCaisse_ AS (\n" +
+            "SELECT\tR.CA_No \n" +
+            "\t\t,FOND_CAISSE = R.RG_Montant\n" +
+            "FROM\tF_CREGLEMENT R\n" +
+            "INNER JOIN #TMPFondCaisse M\n" +
+            "ON\tR.cbMarq = M.cbMarq\n" +
+            "AND R.CA_No = M.CA_No\n" +
+            ")\n" +
+            ",cte as(\n" +
+            "                SELECT\t\tLigne = 1,pfc.CA_No,CA_Intitule\n" +
+            "\t\t\t\t\t\t\t,RG_No = 0 \n" +
+            "\t\t\t\t\t\t\t,RG_Date = null \n" +
+            "\t\t\t\t\t\t\t,RG_Libelle = CONCAT('Report de solde au ',RIGHT(CONCAT('0',DAY(@dt_deb)),2),'/',RIGHT(CONCAT('0',MONTH(@dt_deb)),2),'/',YEAR(@dt_deb))\n" +
+            "\t\t\t\t\t\t\t,R_Intitule = 'Report de caisse' \n" +
+            "\t\t\t\t\t\t\t,N_Reglement = 1 \n" +
+            "\t\t\t\t\t\t\t,RG_Type = 0\n" +
+            "\t\t\t\t\t\t\t,RG_TypeReg = 0\n" +
+            "\t\t\t\t\t\t\t,FOND_CAISSE = MAX(pfc.FOND_CAISSE) + ISNULL(SUM(CASE WHEN rfc.N_Reglement IN (1,10) THEN rfc.CREDIT ELSE 0 END),0)-ISNULL(SUM(abs(CASE WHEN rfc.N_Reglement in(5,2) THEN 0 ELSE rfc.DEBIT END)),0)\n" +
+            "\t\t\t\t\t\t\t,DEBIT = NULL\n" +
+            "\t\t\t\t\t\t\t,CREDIT = NULL \n" +
+            "\t\t\t\t\t\t\t,CT_Intitule = '' \n" +
+            "\t\t\t\t\t\t\t,CUMUL = MAX(pfc.FOND_CAISSE) + ISNULL(SUM(CASE WHEN rfc.N_Reglement IN (1,10) THEN rfc.CREDIT ELSE 0 END),0)-ISNULL(SUM(abs(CASE WHEN rfc.N_Reglement in(5,2) THEN 0 ELSE rfc.DEBIT END)),0)\n" +
+            "\t\t\t\tFROM _PremierReglementFondDeCaisse_ pfc\n" +
+            "\t\t\t\tLEFT JOIN F_CAISSE fca\n" +
+            "\t\t\t\t\tON fca.CA_No = pfc.CA_No\n" +
+            "\t\t\t\tLEFT JOIN _ReglementFondDeCaisse_ rfc\n" +
+            "\t\t\t\t\tON pfc.CA_No = rfc.CA_No\n" +
+            "\n" +
+            "\t\t\t\tGROUP BY pfc.CA_No,CA_Intitule\n" +
+            "\t\t\t\tUNION\n" +
+            "\t\t\t\tselect\tLigne = ROW_NUMBER() OVER(ORDER BY CA_No,RG_Date,RG_Type,RG_No)+1 \n" +
+            "\t\t\t\t\t\t,*\n" +
+            "\t\t\t\t\t\t,CUMUL = CREDIT-abs(CASE WHEN N_Reglement IN(5,2) THEN 0 ELSE DEBIT END) \n" +
+            "                FROM (\n" +
             "                    \n" +
-            "             with _ReglEch_ AS (    \n" +
-            "             SELECT RG_No,SUM(RC_Montant) RC_Montant    \n" +
-            "             FROM F_REGLECH    \n" +
-            "             GROUP BY RG_No    \n" +
-            "             )    \n" +
-            "             , _Reglement_ AS (    \n" +
-            "             SELECT RG_TypeReg,C.CA_No,RG_Date,RG_Libelle,N_Reglement,RG_HEURE    \n" +
-            "               ,RG_No =CASE WHEN RG_TypeReg = 2 THEN 0 ELSE RG_No END     \n" +
-            "               ,RG_Type = CASE WHEN RG_TypeReg = 2 THEN 0 ELSE RG_Type END    \n" +
-            "               ,FOND_CAISSE = CASE WHEN RG_TypeReg=2 THEN RG_MONTANT ELSE 0 END    \n" +
-            "               ,RG_MONTANT = CASE WHEN RG_TYPEREG = 4 THEN -RG_MONTANT ELSE RG_MONTANT END    \n" +
-            "               ,DEBIT = CASE WHEN (RG_Type = 0 AND RG_Montant<0) OR (RG_BANQUE =3 AND RG_TypeReg=0) OR (RG_BANQUE <> 3 AND ((RG_Type=1 AND RG_Montant>0)OR RG_TypeReg = 4))  OR RG_TypeReg = 3 OR (RG_TypeReg = 5 AND RG_Banque=1) THEN ABS(RG_Montant) ELSE 0 END     \n" +
-            "                     ,CREDIT = CASE WHEN RG_Type = 3 OR (RG_Type = 0  AND RG_TypeReg<>4 AND RG_Montant>=0) OR (RG_Type = 1 AND RG_Montant<0) OR (RG_BANQUE =3 AND RG_TypeReg=4) OR (RG_TypeReg = 5 AND RG_Banque<>1) THEN ABS(RG_MONTANT) ELSE 0 END     \n" +
-            "               ,RG_BANQUE,CT_NUMPAYEUR,cbCT_NumPayeur,C.cbMarq    \n" +
-            "             FROM F_CREGLEMENT C    \n" +
-            "             WHERE C.CA_No IN (SELECT CA_No FROM #TMPCAISSE)    \n" +
-            "             AND N_Reglement<>8 AND ((RG_TypeReg=5 AND RG_Banque IN (0,1,3)) OR RG_TypeReg<>5)    \n" +
-            "             AND RG_Date = CAST(GETDATE() AS DATE)    \n" +
-            "                    \n" +
-            "             )    \n" +
-            "                 \n" +
-            "              SELECT  ca.CA_Intitule    \n" +
-            "                ,CREDIT = SUM(T1.CREDIT)    \n" +
-            "                ,DEBIT = SUM(ABS(T1.DEBIT))    \n" +
-            "             FROM  _Reglement_ T1    \n" +
-            "             LEFT JOIN F_CAISSE ca    \n" +
-            "              ON T1.CA_No = ca.CA_No    \n" +
-            "             GROUP BY ca.CA_Intitule " ;
+            "                    SELECT  CA_No,CA_Intitule\n" +
+            "\t\t\t\t\t\t\t,RG_No,RG_Date,RG_Libelle,R_Intitule,N_Reglement\n" +
+            "\t\t\t\t\t\t\t,RG_Type,RG_TypeReg\n" +
+            "                            ,FOND_CAISSE\n" +
+            "                            ,DEBIT \n" +
+            "                            ,CREDIT\n" +
+            "                            ,CT_Intitule\n" +
+            "                \n" +
+            "                    FROM (\n" +
+            "                    select FOND_CAISSE,LEFT(T.CT_Intitule,10) CT_Intitule,RC_Montant, C.RG_No,RG_BANQUE,CT_Type, C.CT_NUMPAYEUR\n" +
+            "\t\t\t\t\t\t\t,RG_DATE,RG_LIBELLE,N_Reglement,ISNULL(R.R_Intitule,'') R_Intitule,RG_TYPE,RG_TYPEREG\n" +
+            "\t\t\t\t\t\t\t,RG_HEURE,C.CA_NO,CA_Intitule,RG_MONTANT,DEBIT ,CREDIT\n" +
+            "                from _ReglementPeriod_ C \n" +
+            "\t\t\t\tINNER JOIN F_Caisse Ca \n" +
+            "\t\t\t\t\tON Ca.CA_No = C.CA_No\n" +
+            "                LEFT JOIN _ReglEch_ RE \n" +
+            "\t\t\t\t\tON RE.RG_No=C.RG_No\n" +
+            "                LEFT JOIN P_REGLEMENT R \n" +
+            "\t\t\t\t\tON R.cbIndice = C.N_Reglement\n" +
+            "                LEFT JOIN F_COMPTET T \n" +
+            "\t\t\t\t\tON T.cbCT_Num = C.cbCT_NumPayeur\n" +
+            "                \n" +
+            "\t\t\t    )A)A)\n" +
+            "\n" +
+            "\t,cteFinal AS (\n" +
+            " SELECT \tT1.ligne\n" +
+            "\t\t\t\t\t\t,T1.CT_Intitule\n" +
+            "\t\t\t\t\t\t,T1.CA_No\n" +
+            "\t\t\t\t\t\t,T1.CA_Intitule\n" +
+            "\t\t\t\t\t\t,RG_Date = CONCAT(CONCAT(RIGHT('00'+CAST(DAY(T1.RG_Date) AS VARCHAR(2)),2)\n" +
+            "\t\t\t\t\t\t,RIGHT('00'+CAST(MONTH(T1.RG_Date) AS VARCHAR(2)),2)),RIGHT(CAST(YEAR(T1.RG_Date) AS VARCHAR(4)),2)) \n" +
+            "\t\t\t\t\t\t,T1.RG_Libelle\n" +
+            "\t\t\t\t\t\t,R_Intitule = LEFT(T1.R_Intitule,3) \n" +
+            "\t\t\t\t\t\t,T1.N_Reglement,T1.RG_TypeReg\n" +
+            "\t\t\t\t\t\t,T1.FOND_CAISSE,T1.CREDIT\n" +
+            "\t\t\t\t\t\t,DEBIT = ABS(T1.DEBIT)\n" +
+            "\t\t\t\t\t\t,CUMUL = SUM(CASE WHEN T2.N_Reglement IN (1,10) THEN T2.cumul ELSE 0 END) \n" +
+            "\t\t\t\t\t\t,CumulGeneral = CASE WHEN T1.Ligne = MAX(T1.ligne) OVER (PARTITION BY T1.CA_No) THEN \n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\tSUM(CASE WHEN T2.N_Reglement IN (1,10) THEN T2.cumul ELSE 0 END) ELSE 0 END \n" +
+            "                FROM CTE T1\n" +
+            "                INNER JOIN CTE T2 \n" +
+            "\t\t\t\t\tON\tT1.ligne>=T2.ligne  \n" +
+            "\t\t\t\t\tAND T1.CA_No=T2.CA_No\n" +
+            "                GROUP BY T1.ligne,T1.CT_Intitule,T1.CA_No,T1.CA_Intitule,T1.RG_Date,T1.RG_Libelle,T1.R_Intitule,T1.N_Reglement,T1.RG_TypeReg,T1.FOND_CAISSE,T1.CREDIT,T1.DEBIT\n" +
+            "                )\n" +
+            "SELECT\tCA_No\n" +
+            "\t\t,CA_Intitule\n" +
+            "\t\t,SoldeInitial = ROUND(SUM(FOND_CAISSE),0)\n" +
+            "\t\t,CREDIT = ROUND(SUM(CREDIT),0)\n" +
+            "\t\t,DEBIT = ROUND(SUM(DEBIT),0)\n" +
+            "\t\t,SoldeFinal = ROUND(SUM(CumulGeneral),0)\n" +
+            "FROM\tcteFinal\n" +
+            "GROUP BY CA_No,CA_Intitule\n" +
+            "             END" ;
 
 
 }

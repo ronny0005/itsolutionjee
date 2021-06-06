@@ -57,15 +57,17 @@ public class FCReglementMapper extends ObjectMapper {
 					"                    AND     EC_No = 0";
 
 	public static final String modifReglement =
-			"UPDATE F_CREGLEMENT SET RG_Date= ?,RG_Reference= ?,RG_Libelle= ?,RG_Montant= ?\n" +
-					"                            ,RG_MontantDev= ?,N_Reglement= ?,RG_Impute= ?,RG_Compta= ?\n" +
-					"                            ,EC_No= ?,RG_Type= ?,RG_Cours= ?,N_Devise= ?,JO_Num= ?\n" +
-					"                            ,CG_NumCont= ?,RG_Impaye= ?,CG_Num= ?,RG_TypeReg= ?\n" +
-					"                            ,RG_Heure= ?,RG_Piece= ?,CA_No= ?,CO_NoCaissier= ?\n" +
-					"                            ,RG_Banque= ?,RG_Transfere= ?,RG_Cloture= ?,RG_Ticket= ?\n" +
-					"                            ,RG_Souche= ?,CT_NumPayeurOrig= ?,RG_DateEchCont= ?\n" +
-					"                            ,CG_NumEcart= ?,JO_NumEcart= ?,RG_MontantEcart= ?,RG_NoBonAchat= ?\n" +
-					"                            ,CbCreateur= ? WHERE cbMarq = ?";
+			"SET DATEFORMAT dmy;" +
+			" UPDATE F_CREGLEMENT SET RG_Date= CAST(? AS DATE),RG_Reference= ?,RG_Libelle= ?,RG_Montant= ?\n" +
+			"                            ,RG_MontantDev= ?,N_Reglement= ?,RG_Impute= ?,RG_Compta= ?\n" +
+			"                            ,EC_No= ?,RG_Type= ?,RG_Cours= ?,N_Devise= ?,JO_Num= ?\n" +
+			"                            ,CG_NumCont= ?,RG_Impaye= ?,CG_Num= ?,RG_TypeReg= ?\n" +
+			"                            ,RG_Heure= ?,RG_Piece= ?,CA_No= ?,CO_NoCaissier= ?\n" +
+			"                            ,RG_Banque= ?,RG_Transfere= ?,RG_Cloture= ?,RG_Ticket= ?\n" +
+			"                            ,RG_Souche= ?,CT_NumPayeurOrig= ?,RG_DateEchCont= CAST(? AS DATE)\n" +
+			"                            ,CG_NumEcart= ?,JO_NumEcart= ?,RG_MontantEcart= ?,RG_NoBonAchat= ?\n" +
+			"                            ,CbCreateur= ? " +
+			" WHERE cbMarq = ?";
 	public static final String getReglementByCbmarq = BASE_SQL + " WHERE cbMarq = ?";
 
 

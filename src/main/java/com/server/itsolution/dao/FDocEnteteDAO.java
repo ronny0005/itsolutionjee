@@ -343,10 +343,19 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         return 0;
     }
 
-    public List<Object> getListeFacture(int doProvenance,int doType,int doDomaine, int deNo, String datedeb,String dateFin,String client,int protNo) {
+    public List<Object> getListeFacture(int doProvenance,int doType,int doDomaine, int deNo, String datedeb,String dateFin,String client,int protNo,String doPiece) {
         String sql = FDocEnteteMapper.getListeFacture;
-        params = new Object[]{protNo,doProvenance,deNo,datedeb,dateFin,client,doDomaine,doType};
-        List<Object> list = this.getJdbcTemplate().query(sql, params, mapper);
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(protNo);
+        params.add(doProvenance);
+        params.add(deNo);
+        params.add(datedeb);
+        params.add(dateFin);
+        params.add(client);
+        params.add(doDomaine);
+        params.add(doType);
+        params.add(doPiece);
+        List<Object> list = this.getJdbcTemplate().query(sql, params.toArray(), mapper);
         return list;
     }
 
@@ -419,6 +428,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         int protectedDocP = fProtectioncial.protectedType(typeFacture);
         int flagProtApresImpressionP = fProtectioncial.getPROT_APRES_IMPRESSION();
         FDocEntete fDocEntete = getFDocEntete(cbMarq);
+        fDocEntete.setTypeFac(typeFacture);
         int deNo=0;
         if(fDocEntete.getCbMarq()!=null)
             deNo = fDocEntete.getDE_No();
@@ -512,6 +522,7 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         int protectedDocP = fProtectioncial.protectedType(typeFacture);
         int flagProtApresImpressionP = fProtectioncial.getPROT_APRES_IMPRESSION();
         FDocEntete fDocEntete = getFDocEntete(cbMarq);
+        fDocEntete.setTypeFac(typeFacture);
         int deNo=0;
         if(fDocEntete.getCbMarq()!=null)
             deNo = fDocEntete.getDE_No();
