@@ -35,7 +35,7 @@ public class LogFileDAO extends JdbcDaoSupport {
                 ",/*DoEntete*/ '"+logFile.getDoEntete()+"',/*DeNo*/ "+logFile.getDeNo()+",/*DoDomaine*/ "+logFile.getDoDomaine()+"" +
                 ",/*ArRef*/ '"+logFile.getArRef()+"',/*Qte*/ "+logFile.getQte()+",/*Prix*/ "+logFile.getPrix()+"" +
                 ",/*Remise*/ "+logFile.getRemise()+",/*Montant*/ "+logFile.getMontant()+",/*Date*/ GETDATE(),/*UserName*/ '"+logFile.getUserName()+"'" +
-                ",/*CbMarq*/ "+logFile.getCbMarq()+",/*Table*/ '"+logFile.getAction()+"',/*CbCreateur*/ '"+logFile.getCbCreateur()+"',/*dateDocument*/ null)";
+                ",/*CbMarq*/ "+logFile.getCbMarq()+",/*Table*/ '"+logFile.getAction()+"',/*CbCreateur*/ '"+logFile.getCbCreateur()+"',/*dateDocument*/ '"+logFile.getDateDocument()+"')";
         this.getJdbcTemplate().execute(sqlquery);
     }
 
@@ -51,9 +51,9 @@ public class LogFileDAO extends JdbcDaoSupport {
         insertLog(logFile);
     }
 
-    public void writeReglement(String action,float montant,String rgNo,String rgPiece,String cbMarq,String table,String cbCreateur){
+    public void writeReglement(String action,float montant,String rgNo,String rgPiece,String cbMarq,String table,String cbCreateur,String rgDate){
         LogFile logFile = new LogFile();
-        logFile.writeReglement(action,montant,rgNo,rgPiece,cbMarq,table,cbCreateur);
+        logFile.writeReglement(action,montant,rgNo,rgPiece,cbMarq,table,cbCreateur,rgDate);
         insertLog(logFile);
     }
 

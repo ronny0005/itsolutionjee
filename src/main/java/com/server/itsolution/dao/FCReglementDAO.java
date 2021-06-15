@@ -359,12 +359,19 @@ public class FCReglementDAO extends JdbcDaoSupport {
         return this.getJdbcTemplate().query(sql, parames.toArray(), mapper);
     }
 
-    public void supprReglement(BigDecimal rgNo) {
+    public void supprReglement(BigDecimal rgNo,int protNo) {
         FCReglement fCreglement = getFCReglement(rgNo);
-        String sql = FCReglementMapper.supprReglement;
-        ArrayList<Object> parames = new ArrayList<Object>();
-        parames.add(rgNo);
-        this.getJdbcTemplate().update(sql, parames.toArray());
+        FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
+        LogFileDAO logFileDAO = new LogFileDAO(this.getDataSource());
+        FProtectioncial fProtectioncial =fProtectioncialDAO.connexionProctectionByProtNo(protNo);
+        int isSecuriteAdminCaisse = fProtectioncialDAO.isSecuriteAdminCaisse(protNo,fProtectioncial.getProtectAdmin(),fCreglement.getCA_No());
+        if(isSecuriteAdminCaisse == 1){
+            String sql = FCReglementMapper.supprReglement;
+            ArrayList<Object> parames = new ArrayList<Object>();
+            parames.add(rgNo);
+            this.getJdbcTemplate().update(sql, parames.toArray());
+            logFileDAO.writeReglement("Suppr Reglement",Float.parseFloat(String.valueOf(fCreglement.getRG_Montant())),String.valueOf(fCreglement.getRG_No()),fCreglement.getRG_Piece(),String.valueOf(fCreglement.getCbMarq()),"F_CREGLEMENT",String.valueOf(protNo),fCreglement.getRG_Date());
+        }
     }
 
     public void supprReglementTiers(boolean mvtCaisse, BigDecimal rgNo, int protNo) {
@@ -375,7 +382,7 @@ public class FCReglementDAO extends JdbcDaoSupport {
         FCReglement fcReglement = getFCReglement(rgNo);
         FCollaborateurDAO fCollaborateurDAO = new FCollaborateurDAO(this.getDataSource());
         FCollaborateur fCollaborateur = fCollaborateurDAO.getCollaborateurJSON(protNo);
-        this.supprReglement(rgNo);
+        this.supprReglement(rgNo,protNo);
         FProtectioncialDAO fProtectioncialDAO = new FProtectioncialDAO(this.getDataSource());
         FProtectioncial fProtectioncial = fProtectioncialDAO.connexionProctectionByProtNo(protNo);
         String message = "";

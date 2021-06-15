@@ -175,7 +175,7 @@ public class LogFile {
         }
     }
 
-    public void writeReglement(String action,float montant,String rgNo,String rgPiece,String cbMarq,String table,String cbCreateur){
+    public void writeReglement(String action,float montant,String rgNo,String rgPiece,String cbMarq,String table,String cbCreateur,String rgDate){
         this.type="Reglement";
         this.action = action;
         this.doDomaine = 0;
@@ -190,6 +190,7 @@ public class LogFile {
         this.cbMarq = cbMarq;
         this.table = table;
         this.cbCreateur = cbCreateur;
+        this.dateDocument = rgDate;
     }
 
     public void writeStock(String type,String arRef,int deNo,double qte,double montant,String cbMarq,String table,String cbCreateur){

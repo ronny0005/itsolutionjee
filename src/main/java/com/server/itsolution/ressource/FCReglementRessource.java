@@ -68,9 +68,9 @@ public class FCReglementRessource {
         fcReglementDAO.supprRgltAssocie(rgNo);
     }
 	
-    @GetMapping(value = "/supprReglement&rgNo={rgNo}")
-    public void supprReglement(@PathVariable BigDecimal rgNo) {
-        fcReglementDAO.supprReglement(rgNo);
+    @GetMapping(value = "/supprReglement&rgNo={rgNo}&protNo={protNo}")
+    public void supprReglement(@PathVariable BigDecimal rgNo,@PathVariable int protNo) {
+        fcReglementDAO.supprReglement(rgNo,protNo);
     }
 
     @GetMapping(value = "/supprReglementTiers&mvtCaisse={mvtCaisse}&rgNo={rgNo}&protNo={protNo}")

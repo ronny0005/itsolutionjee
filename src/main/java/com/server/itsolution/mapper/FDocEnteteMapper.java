@@ -665,6 +665,55 @@ public class FDocEnteteMapper extends ObjectMapper {
             =   "SELECT PR_DelaiPreAlert "
             +"FROM P_PREFERENCES";
 
+    public static final String removeFacRglt =
+			"DECLARE @CbMarq_Entete INT = ?\n" +
+			"        ,@RG_No INT = ?;         \n" +
+			"        \n" +
+			"DECLARE\t @CbMarq_RG INT = (SELECT cbMarq FROM F_CREGLEMENT WHERE RG_No = @RG_No)\n" +
+			"\t\t ,@DO_Domaine INT = (SELECT DO_Domaine FROM F_DOCENTETE WHERE cbMarq = @CbMarq_Entete)\n" +
+			"\t\t ,@DO_Piece VARCHAR(20) = (SELECT DO_Piece FROM F_DOCENTETE WHERE cbMarq = @CbMarq_Entete)\n" +
+			"\t\t ,@DO_Type INT = (SELECT DO_Type FROM F_DOCENTETE WHERE cbMarq = @CbMarq_Entete);\n" +
+			"\n" +
+			"IF (SELECT TOP 1 1 FROM F_DOCENTETE WHERE @CbMarq_Entete = cbMarq) = 1 \n" +
+			"BEGIN \n" +
+			"\tINSERT INTO [dbo].[Z_FACT_REGL_SUPPR]([DO_Domaine],[DO_Type],[DO_Piece],[CbMarq_Entete],[RG_No],[CbMarq_RG])\n" +
+			"\tVALUES      (/*DO_Domaine*/ @DO_Domaine          ,/*DO_Type*/    @DO_Type       ,/*DO_Piece, varchar(25),*/@DO_Piece\n" +
+			"\t\t\t\t,/*CbMarq_Entete*/    @CbMarq_Entete       ,/*RG_No*/  @RG_No         ,/*CbMarq_RG*/@CbMarq_RG)\n" +
+			"\n" +
+			"\tUPDATE F_DOCREGL SET DR_Regle = \n" +
+			"\t\t(  SELECT  CASE WHEN DR_Regle= 1 THEN 0 ELSE DR_Regle END\n" +
+			"\t\tFROM    F_DOCREGL A\n" +
+			"\t\tINNER JOIN F_REGLECH B \n" +
+			"\t\t\tON  A.DR_No=B.DR_No\n" +
+			"\t\tWHERE   RG_No=@RG_No \n" +
+			"\t\tAND     A.DO_Piece=@DO_Piece \n" +
+			"\t\tAND     A.DO_Domaine=@DO_Domaine \n" +
+			"\t\tAND     A.DO_Type=@DO_Type)\n" +
+			"\tFROM    F_REGLECH \n" +
+			"\tWHERE   F_DOCREGL.DR_No=F_REGLECH.DR_No \n" +
+			"\tAND     RG_No=@RG_No \n" +
+			"\tAND     F_DOCREGL.DO_Piece=@DO_Piece \n" +
+			"\tAND     F_DOCREGL.DO_Domaine=@DO_Domaine \n" +
+			"\tAND     F_DOCREGL.DO_Type=@DO_Type;\n" +
+			"\tDELETE FROM F_REGLECH\n" +
+			"\tWHERE   RG_No=@RG_No \n" +
+			"\tAND     DO_Piece=@DO_Piece \n" +
+			"\tAND     DO_Domaine=@DO_Domaine \n" +
+			"\tAND     DO_Type=@DO_Type;\n" +
+			"\tUPDATE F_CREGLEMENT SET RG_Impute = \n" +
+			"\t\t(SELECT CASE WHEN RG_Impute = 1 THEN 0 ELSE RG_Impute END\n" +
+			"\tFROM F_CREGLEMENT\n" +
+			"\tWHERE RG_No=@RG_No) WHERE RG_No=@RG_No\n" +
+			"END;\n" +
+			"\n" +
+			"IF (SELECT TOP 1 1 FROM F_CREGLEMENT WHERE @RG_No = RG_No) = 1 \n" +
+			"BEGIN \n" +
+			"    DELETE FROM F_CREGLEMENT WHERE RG_No IN (   SELECT RG_No \n" +
+			"                                                FROM [Z_RGLT_BONDECAISSE] \n" +
+			"                                                WHERE RG_No_RGLT=@RG_No)\n" +
+			"    DELETE FROM [Z_RGLT_BONDECAISSE] WHERE RG_No_RGLT=@RG_No; \n" +
+			"END;";
+
     public static final String getLigneMajAnalytique =
 			"DECLARE @cbMarq AS INT = ?;\n" +
 					"                    WITH _Taxe_ AS (\n" +

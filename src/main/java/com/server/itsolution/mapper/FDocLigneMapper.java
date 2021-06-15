@@ -149,7 +149,7 @@ public class FDocLigneMapper extends ObjectMapper {
             "             OUTPUT INSERTED.cbMarq INTO @generated_keys VALUES\n" +
             "                (@DO_Domaine,@DO_Type ,@CT_Num,@DO_Piece\n" +
             "                ,@DL_PieceBC,@DL_PieceBL,@DO_Date,@DL_DateBC\n" +
-            "                ,@DL_DateBL ,/*DL_Ligne*/ (SELECT (1+COUNT(*))*10000 FROM F_DOCLIGNE WHERE DO_PIECE=@DO_Piece AND DO_Domaine=@DO_Domaine AND DO_Type=@DO_Type),@DO_Ref\n" +
+            "                ,@DL_DateBL ,/*DL_Ligne*/ (SELECT (1+COUNT(*))*10000 FROM F_DOCLIGNE WHERE DO_PIECE=@DO_Piece AND DO_Domaine=@DO_Domaine AND DO_Type=@DO_Type),LEFT(@DO_Ref,17)\n" +
             "\t\t\t\t,@DL_TNomencl,@DL_TRemPied,@DL_TRemExep,@AR_Ref,@DL_Design\n" +
             "                ,@DL_Qte ,@DL_QteBC, @DL_QteBL ,@DL_PoidsNet,@DL_PoidsBrut,@DL_Remise01REM_Valeur\n" +
             "                ,@DL_Remise01REM_Type,@DL_Remise02REM_Valeur,@DL_Remise02REM_Type,@DL_Remise03REM_Valeur\n" +

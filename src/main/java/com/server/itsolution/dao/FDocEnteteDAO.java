@@ -1405,13 +1405,9 @@ public class FDocEnteteDAO extends JdbcDaoSupport {
         this.getJdbcTemplate().execute(sql);
     }
     public void removeFacRglt(BigDecimal cbMarqEntete,BigDecimal rgNo){
-        FCReglementDAO fcReglementDAO = new FCReglementDAO(this.getDataSource());
-        FDocReglDAO fDocReglDAO = new FDocReglDAO(this.getDataSource());
-        FCReglement fcReglement = fcReglementDAO.getFCReglement(rgNo);
-        fDocReglDAO.UpdateDrRegleByRgNo(cbMarqEntete,rgNo);
-        fDocReglDAO.deleteReglEchByRgNo(cbMarqEntete,rgNo);
-        if(fcReglement.getCbMarq()!=null)
-            fcReglementDAO.supprRgltAssocie(rgNo);
+        String sql = FDocEnteteMapper.removeFacRglt;
+        params = new Object[] {cbMarqEntete,rgNo};
+        this.getJdbcTemplate().update(sql, params);
     }
 
     public int getZFactReglSuppr(BigDecimal cbMarq){
